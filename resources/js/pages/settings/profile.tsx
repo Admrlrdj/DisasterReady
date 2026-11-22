@@ -1,5 +1,4 @@
-import { Form, Head, usePage } from '@inertiajs/react';
-import { Link } from '@inertiajs/react';
+import { Form, Head, Link, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
@@ -8,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
-import type { Auth } from '@/types';
 import { send } from '@/routes/verification';
+import type { Auth } from '@/types';
 
 type PageProps = {
     auth: Auth;
@@ -26,15 +25,15 @@ export default function Profile({
 
     return (
         <>
-            <Head title="Profile settings" />
+            <Head title="Pengaturan Profil" />
 
-            <h1 className="sr-only">Profile settings</h1>
+            <h1 className="sr-only">Pengaturan Profil</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Profile"
-                    description="Update your name and email address"
+                    title="Informasi Profil Akun"
+                    description="Perbarui nama tampilan dan alamat email terdaftar Anda."
                 />
 
                 <Form
@@ -42,45 +41,45 @@ export default function Profile({
                     options={{
                         preserveScroll: true,
                     }}
-                    className="space-y-6"
+                    className="space-y-5"
                 >
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Nama lengkap</Label>
 
                                 <Input
                                     id="name"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block h-10 w-full rounded-xl text-base sm:text-sm"
                                     defaultValue={auth.user.name}
                                     name="name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Full name"
+                                    placeholder="Nama lengkap"
                                 />
 
                                 <InputError
-                                    className="mt-2"
+                                    className="mt-1"
                                     message={errors.name}
                                 />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">Alamat email</Label>
 
                                 <Input
                                     id="email"
                                     type="email"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block h-10 w-full rounded-xl text-base sm:text-sm"
                                     defaultValue={auth.user.email}
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder="nama@email.id"
                                 />
 
                                 <InputError
-                                    className="mt-2"
+                                    className="mt-1"
                                     message={errors.email}
                                 />
                             </div>
@@ -88,23 +87,26 @@ export default function Profile({
                             {mustVerifyEmail &&
                                 auth.user.email_verified_at === null && (
                                     <div>
-                                        <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is unverified.{' '}
+                                        <p className="text-sm text-muted-foreground">
+                                            Alamat email Anda belum
+                                            terverifikasi.{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
-                                                className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                                                className="font-semibold text-primary underline underline-offset-4"
                                             >
-                                                Click here to re-send the
-                                                verification email.
+                                                Kirim ulang email verifikasi.
                                             </Link>
                                         </p>
 
                                         {status ===
                                             'verification-link-sent' && (
-                                            <div className="mt-2 text-sm font-medium text-green-600">
-                                                A new verification link has been
-                                                sent to your email address.
+                                            <div
+                                                role="status"
+                                                className="mt-2 rounded-xl bg-verified-soft px-3 py-2 text-xs font-semibold text-foreground"
+                                            >
+                                                Tautan verifikasi baru telah
+                                                dikirim ke alamat email Anda.
                                             </div>
                                         )}
                                     </div>
@@ -113,9 +115,10 @@ export default function Profile({
                             <div className="flex items-center gap-4">
                                 <Button
                                     disabled={processing}
+                                    className="rounded-xl font-semibold"
                                     data-test="update-profile-button"
                                 >
-                                    Save
+                                    Simpan Perubahan Profil
                                 </Button>
                             </div>
                         </>
@@ -131,7 +134,7 @@ export default function Profile({
 Profile.layout = {
     breadcrumbs: [
         {
-            title: 'Profile settings',
+            title: 'Pengaturan Profil',
             href: edit(),
         },
     ],

@@ -23,18 +23,18 @@ export default function TwoFactorChallenge() {
     }>(() => {
         if (showRecoveryInput) {
             return {
-                title: 'Recovery code',
+                title: 'Kode Pemulihan Darurat',
                 description:
-                    'Please confirm access to your account by entering one of your emergency recovery codes.',
-                toggleText: 'login using an authentication code',
+                    'Masukkan salah satu kode pemulihan darurat 2FA untuk mengonfirmasi akses akun Anda.',
+                toggleText: 'masuk dengan kode aplikasi autentikator',
             };
         }
 
         return {
-            title: 'Authentication code',
+            title: 'Autentikasi Dua Faktor (2FA)',
             description:
-                'Enter the authentication code provided by your authenticator application.',
-            toggleText: 'login using a recovery code',
+                'Masukkan 6 digit kode keamanan dari aplikasi autentikator Anda.',
+            toggleText: 'masuk dengan kode pemulihan darurat',
         };
     }, [showRecoveryInput]);
 
@@ -51,7 +51,7 @@ export default function TwoFactorChallenge() {
 
     return (
         <>
-            <Head title="Two-factor authentication" />
+            <Head title="Autentikasi Dua Faktor" />
 
             <div className="space-y-6">
                 <Form
@@ -67,9 +67,10 @@ export default function TwoFactorChallenge() {
                                     <Input
                                         name="recovery_code"
                                         type="text"
-                                        placeholder="Enter recovery code"
+                                        placeholder="Masukkan kode pemulihan"
                                         autoFocus={showRecoveryInput}
                                         required
+                                        className="h-10 rounded-xl text-base sm:text-sm"
                                     />
                                     <InputError
                                         message={errors.recovery_code}
@@ -106,17 +107,17 @@ export default function TwoFactorChallenge() {
 
                             <Button
                                 type="submit"
-                                className="w-full"
+                                className="h-10 w-full rounded-xl font-semibold"
                                 disabled={processing}
                             >
-                                Continue
+                                Verifikasi & Lanjutkan
                             </Button>
 
                             <div className="text-center text-sm text-muted-foreground">
-                                <span>or you can </span>
+                                <span>atau Anda dapat </span>
                                 <button
                                     type="button"
-                                    className="cursor-pointer text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                                    className="cursor-pointer font-semibold text-foreground underline decoration-border underline-offset-4 transition-colors duration-150 hover:text-primary"
                                     onClick={() =>
                                         toggleRecoveryMode(clearErrors)
                                     }

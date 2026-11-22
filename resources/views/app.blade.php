@@ -19,19 +19,19 @@
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Inline style to set the HTML background color based on our v2 Hydro-Resilience theme in app.css --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: #f5f9fb;
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #040b11;
             }
         </style>
 
         <link rel="icon" href="/assets/figma/15-58-imgFrame.svg" type="image/svg+xml">
-        <meta name="theme-color" content="#0C3B2E">
+        <meta name="theme-color" content="#0F6594">
 
         @fonts
 

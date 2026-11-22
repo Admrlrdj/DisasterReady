@@ -1,16 +1,34 @@
 import { Link } from '@inertiajs/react';
+import {
+    AlertOctagon,
+    AlertTriangle,
+    ArrowUpRight,
+    CheckCircle2,
+    Clock,
+    Cpu,
+    Info,
+} from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
+import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { figmaAssets } from '@/lib/figma-assets';
+import { usePageVariant } from '@/hooks/use-page-variant';
+import {
+    dateTime,
+    recordLink,
+    statusLabels,
+    type Pagination,
+} from '@/lib/disaster';
 import { cn } from '@/lib/utils';
-import { dateTime, recordLink, statusLabels } from '@/lib/disaster';
-import type { Pagination } from '@/lib/disaster';
 import type { OfficialRecord } from '@/types/disaster';
+import {
+    HazardChipBadge,
+    inferRecordHazard,
+    inferRecordSiagaTier,
+} from './hazard-icons';
 
 export function Brand({
     subtitle = true,
-    landing = false,
 }: {
     subtitle?: boolean;
     landing?: boolean;
@@ -18,22 +36,24 @@ export function Brand({
     return (
         <Link
             href="/"
-            className="dr-brand"
-            aria-label="DisasterReady — beranda"
+            className="dr-brand group focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            aria-label="DisasterReady: Beranda"
         >
-            <span className="dr-brand-mark">
-                <img
-                    src={
-                        landing
-                            ? figmaAssets['15-58'].imgFrame
-                            : figmaAssets['5-14'].imgFrame
-                    }
-                    alt=""
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs transition-transform duration-150 group-hover:scale-[1.02]">
+                <AppLogoIcon
+                    className="size-5"
+                    beaconColor="var(--brand-accent-beacon)"
                 />
             </span>
-            <span>
-                <strong>DisasterReady</strong>
-                {subtitle && <small>MULTI-HAZARD · ID</small>}
+            <span className="min-w-0">
+                <strong className="block truncate text-sm font-bold tracking-tight text-foreground">
+                    DisasterReady
+                </strong>
+                {subtitle && (
+                    <small className="block truncate text-[10px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+                        HYDRO-COMMAND · ID
+                    </small>
+                )}
             </span>
         </Link>
     );
@@ -48,7 +68,7 @@ export function Action({
         <Button
             {...props}
             variant={variant}
-            className={cn('dr-button', className)}
+            className={cn('dr-button cursor-pointer', className)}
         />
     );
 }
@@ -66,14 +86,27 @@ export function Panel({
     aside?: ReactNode;
     className?: string;
 }) {
+    const { variant } = usePageVariant();
+
+    const variantSurface =
+        variant === 'b'
+            ? 'rounded-xl border-border bg-card/92 shadow-none'
+            : variant === 'c'
+              ? 'rounded-none border-x-0 border-t-2 border-b border-t-foreground/80 border-b-border bg-card/78 px-0 shadow-none sm:px-5'
+              : 'rounded-2xl border-border/80 bg-card/84 shadow-xs backdrop-blur-md';
+
     return (
-        <Card className={cn('dr-panel', className)}>
+        <Card className={cn('dr-panel', variantSurface, className)}>
             {(title || aside) && (
                 <div className="dr-panel-heading">
-                    <div>
-                        <h2>{title}</h2>
+                    <div className="space-y-0.5">
+                        <h2 className="heading-section text-base font-bold text-foreground">
+                            {title}
+                        </h2>
                         {subtitle && (
-                            <p className="dr-muted dr-caption">{subtitle}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {subtitle}
+                            </p>
                         )}
                     </div>
                     {aside}
@@ -87,19 +120,50 @@ export function Panel({
 export function PageHeading({
     title,
     description,
+    eyebrow,
     children,
 }: {
     title: string;
     description?: string;
+    eyebrow?: string;
     children?: ReactNode;
 }) {
+    const { variant } = usePageVariant();
+
     return (
-        <header className="dr-page-heading">
-            <div>
-                <h1>{title}</h1>
-                {description && <p>{description}</p>}
+        <header
+            className={cn(
+                'dr-page-heading',
+                variant === 'b' &&
+                    'rounded-2xl border border-border/85 bg-card/88 p-4 backdrop-blur-md',
+                variant === 'c' && 'border-b-2 border-foreground/85 pb-4',
+            )}
+        >
+            <div className="space-y-1">
+                {eyebrow && (
+                    <p className="overline-label text-primary">{eyebrow}</p>
+                )}
+                <h1
+                    className={cn(
+                        'heading-display font-bold text-foreground',
+                        variant === 'c'
+                            ? 'text-2xl sm:text-3xl'
+                            : 'text-xl sm:text-2xl',
+                    )}
+                >
+                    {title}
+                </h1>
+                {description && (
+                    <p className="prose-pretty max-w-2xl text-sm text-muted-foreground">
+                        {description}
+                    </p>
+                )}
             </div>
-            {children && <div className="dr-heading-actions">{children}</div>}
+            {children && (
+                <div className="dr-heading-actions flex flex-wrap items-center gap-2">
+                    {children}
+                </div>
+            )}
         </header>
     );
 }
@@ -111,14 +175,7 @@ type Tone =
     | 'danger'
     | 'simulation'
     | 'neutral';
-const icons = {
-    verified: 'imgFrame',
-    warning: 'imgFrame1',
-    historical: 'imgFrame2',
-    danger: 'imgFrame4',
-    simulation: 'imgFrame5',
-    neutral: 'imgFrame2',
-} as const;
+
 export function Status({
     children,
     value,
@@ -128,16 +185,34 @@ export function Status({
     value?: string;
     tone?: Tone;
 }) {
-    const resolved =
+    const resolved: Tone =
         tone ??
-        (['VERIFIED', 'FRESH', 'COMPLETED'].includes(value ?? '')
+        (['VERIFIED', 'FRESH', 'COMPLETED', 'ACCEPTED'].includes(value ?? '')
             ? 'verified'
-            : ['REJECTED', 'FAILED', 'CANCELLED'].includes(value ?? '')
+            : ['REJECTED', 'FAILED', 'CANCELLED', 'DISPATCH_FAILED'].includes(
+                    value ?? '',
+                )
               ? 'danger'
-              : 'warning');
+              : ['ACTIVE'].includes(value ?? '')
+                ? 'warning'
+                : ['SIMULATION', 'QUEUED'].includes(value ?? '')
+                  ? 'simulation'
+                  : 'historical');
+
+    const ToneIcon =
+        resolved === 'verified'
+            ? CheckCircle2
+            : resolved === 'danger'
+              ? AlertOctagon
+              : resolved === 'warning'
+                ? AlertTriangle
+                : resolved === 'simulation'
+                  ? Cpu
+                  : Clock;
+
     return (
         <span className={cn('dr-badge', resolved)}>
-            <img src={figmaAssets['14-163'][icons[resolved]]} alt="" />
+            <ToneIcon className="size-3.5 shrink-0" aria-hidden="true" />
             <span>{children ?? statusLabels[value ?? ''] ?? value}</span>
         </span>
     );
@@ -150,13 +225,14 @@ export function Notice({
     children: ReactNode;
     danger?: boolean;
 }) {
+    const Icon = danger ? AlertOctagon : Info;
     return (
         <div
             className={cn('dr-notice', danger && 'danger')}
             role={danger ? 'alert' : 'note'}
         >
-            <img src={figmaAssets['15-58'].imgFrame1} alt="" />
-            <div>{children}</div>
+            <Icon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <div className="text-xs leading-relaxed">{children}</div>
         </div>
     );
 }
@@ -172,13 +248,16 @@ export function EmptyState({
 }) {
     return (
         <div className="dr-empty">
-            <span className="dr-empty-symbol" aria-hidden="true">
-                —
+            <span
+                className="inline-flex size-10 items-center justify-center rounded-full bg-secondary text-primary"
+                aria-hidden="true"
+            >
+                <Info className="size-4" />
             </span>
-            <h3>{title}</h3>
-            <p>
+            <h3 className="text-sm font-bold text-foreground">{title}</h3>
+            <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
                 {children ??
-                    'Data akan tampil setelah sumber tersedia dan berhasil disinkronkan.'}
+                    'Data akan tampil setelah sumber resmi tersedia dan berhasil disinkronkan oleh worker.'}
             </p>
             {action}
         </div>
@@ -186,24 +265,36 @@ export function EmptyState({
 }
 
 export function RecordCard({ record }: { record: OfficialRecord }) {
+    const hazard = inferRecordHazard(record);
+    const tier = inferRecordSiagaTier(record);
+
     return (
-        <Link href={recordLink(record)} className="dr-record">
-            <div className="dr-row">
-                <span className="dr-eyebrow">
-                    {record.kind === 'alert' ? 'BMKG · CAP' : 'BMKG · GEMPA'}
-                </span>
+        <Link
+            href={recordLink(record)}
+            className="dr-record group transition-colors hover:border-primary/45 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+            <div className="dr-row flex-wrap gap-2">
+                <HazardChipBadge hazard={hazard} tier={tier} />
                 <Status value={record.alert_state ?? record.source.freshness} />
             </div>
-            <h3>{record.title}</h3>
-            <p className="dr-muted dr-caption">
+            <h3 className="text-sm font-bold text-foreground group-hover:text-primary">
+                {record.title}
+            </h3>
+            <p className="text-xs text-muted-foreground tabular-nums">
                 {dateTime(record.source_time)}
+                {record.expires_at
+                    ? ` · Sampai ${dateTime(record.expires_at)}`
+                    : ''}
             </p>
-            <div className="dr-row dr-caption">
+            <div className="dr-row text-xs text-muted-foreground">
                 <span>{record.source.attribution}</span>
-                <span aria-hidden="true">↗</span>
+                <ArrowUpRight
+                    className="size-3.5 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    aria-hidden="true"
+                />
             </div>
             {record.source.freshness !== 'FRESH' && (
-                <span className="dr-caption dr-warning-text">
+                <span className="text-[11px] font-semibold text-status-waspada-text">
                     {statusLabels[record.source.freshness]}
                 </span>
             )}
@@ -214,13 +305,14 @@ export function RecordCard({ record }: { record: OfficialRecord }) {
 export function Pager<T>({ page }: { page: Pagination<T> }) {
     return (
         <nav className="dr-pager" aria-label="Navigasi halaman">
-            <span>
+            <span className="text-xs text-muted-foreground tabular-nums">
                 {page.total} data · Halaman {page.current_page} dari{' '}
                 {page.last_page}
             </span>
             <div className="dr-actions">
                 <Action
                     variant="outline"
+                    size="sm"
                     disabled={!page.prev_page_url}
                     asChild={Boolean(page.prev_page_url)}
                 >
@@ -234,6 +326,7 @@ export function Pager<T>({ page }: { page: Pagination<T> }) {
                 </Action>
                 <Action
                     variant="outline"
+                    size="sm"
                     disabled={!page.next_page_url}
                     asChild={Boolean(page.next_page_url)}
                 >

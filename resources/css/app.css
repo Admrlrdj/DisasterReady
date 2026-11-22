@@ -18,6 +18,7 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
+    /* Core Semantic Surfaces & Text (Layer 2) */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
 
@@ -60,86 +61,402 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    /* DisasterReady v2 Hydro-Resilience Semantic & Status Tokens (Figma 79:2 · WCAG 2.2 AA verified) */
+    --color-brand-ocean: var(--color-brand-primary);
+    --color-brand-ocean-hover: var(--color-brand-primary-hover);
+    --color-brand-ocean-soft: var(--color-brand-primary-subtle);
+    --color-brand-tidal: var(--color-brand-accent);
+    --color-brand-tidal-hover: var(--color-brand-accent-hover);
+    --color-brand-tidal-soft: var(--color-brand-accent-subtle);
+    --color-brand-tidal-text: var(--color-text-accent);
+    --color-command-fixed: var(--color-bg-command);
+    --color-command-card: var(--surface-command-card);
+    --color-command-muted: var(--text-on-command-muted);
+
+    /* 4-Level Status Siaga Bencana (Normal · Waspada · Siaga · Awas) */
+    --color-status-normal-bg: var(--color-status-normal-bg);
+    --color-status-normal-border: var(--color-status-normal-border);
+    --color-status-normal-solid: var(--color-status-normal-solid);
+    --color-status-normal-text: var(--color-status-normal-text);
+    --color-status-normal-on-solid: var(--color-status-normal-on-solid);
+
+    --color-status-waspada-bg: var(--color-status-waspada-bg);
+    --color-status-waspada-border: var(--color-status-waspada-border);
+    --color-status-waspada-solid: var(--color-status-waspada-solid);
+    --color-status-waspada-text: var(--color-status-waspada-text);
+    --color-status-waspada-on-solid: var(--color-status-waspada-on-solid);
+
+    --color-status-siaga-bg: var(--color-status-siaga-bg);
+    --color-status-siaga-border: var(--color-status-siaga-border);
+    --color-status-siaga-solid: var(--color-status-siaga-solid);
+    --color-status-siaga-text: var(--color-status-siaga-text);
+    --color-status-siaga-on-solid: var(--color-status-siaga-on-solid);
+
+    --color-status-awas-bg: var(--color-status-awas-bg);
+    --color-status-awas-border: var(--color-status-awas-border);
+    --color-status-awas-solid: var(--color-status-awas-solid);
+    --color-status-awas-text: var(--color-status-awas-text);
+    --color-status-awas-on-solid: var(--color-status-awas-on-solid);
+    --color-status-awas-on-white: var(--awas-700);
+
+    /* Intro Model A Component Utilities (Layer 3) */
+    --color-intro-ground: var(--intro-ground);
+    --color-intro-logo-fg: var(--intro-logo-fg);
+    --color-intro-logo-shield: var(--intro-logo-shield);
+    --color-intro-loader-track: var(--intro-loader-track);
+    --color-intro-loader-fill-start: var(--intro-loader-fill-start);
+    --color-intro-loader-fill-end: var(--intro-loader-fill-end);
+
+    /* Backward-compatible semantic aliases remapped to v2 Hydro-Resilience tokens */
+    --color-brand-sage: var(--brand-sage);
+    --color-brand-sage-strong: var(--brand-sage-strong);
+    --color-brand-bronze: var(--brand-bronze);
+    --color-brand-bronze-text: var(--brand-bronze-text);
+    --color-brand-bronze-soft: var(--brand-bronze-soft);
+    --color-alert-amber: var(--alert-amber);
+    --color-alert-amber-text: var(--alert-amber-text);
+    --color-alert-amber-soft: var(--alert-amber-soft);
+    --color-verified-soft: var(--verified-soft);
+    --color-danger-soft: var(--danger-soft);
+    --color-forest-fixed: var(--surface-forest-fixed);
+    --color-forest-card: var(--surface-forest-card);
+    --color-forest-muted: var(--text-on-forest-muted);
+    --color-siaga-1-solid: var(--siaga-1-solid);
 }
 
 :root {
-    --radius: 0.625rem;
-    --background: #f5f7f5;
-    --foreground: #0c3b2e;
-    --card: #ffffff;
-    --card-foreground: #0c3b2e;
-    --popover: #ffffff;
-    --popover-foreground: #0c3b2e;
-    --primary: #0c3b2e;
-    --primary-foreground: #ffffff;
-    --secondary: #3e6b47;
-    --secondary-foreground: #ffffff;
-    --muted: #eef2ee;
-    --muted-foreground: #4b645b;
-    --accent: #e4f0e6;
-    --accent-foreground: #0c3b2e;
-    --destructive: #b42318;
-    --destructive-foreground: #ffffff;
-    --border: #dce5de;
-    --input: #6b8579;
-    --ring: #0c3b2e;
-    --sidebar: #ffffff;
-    --sidebar-foreground: #0c3b2e;
-    --sidebar-primary: #0c3b2e;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #e4f0e6;
-    --sidebar-accent-foreground: #0c3b2e;
-    --sidebar-border: #dce5de;
-    --sidebar-ring: #0c3b2e;
-    --sage: #6d9773;
-    --text-muted: #4b645b;
-    --verified-soft: #e4f0e6;
-    --warning-soft: #fff4d1;
-    --warning-ink: #704b00;
-    --historical-soft: #f6ede1;
-    --map-bg: #f0f5f1;
-    --chart-1: #0c3b2e;
-    --chart-2: #6d9773;
-    --chart-3: #b88a52;
-    --chart-4: #ffba00;
-    --chart-5: #3e6b47;
+    /* =====================================================================
+       LAYER 1: PRIMITIVES (OKLCH Constant-Hue 50-950 · Never use directly)
+       Synced 1:1 with Figma Collection "Primitives" (VariableCollectionId:3:5)
+       ===================================================================== */
+    --neutral-white: #ffffff;
+
+    /* Base Neutral: Hydrological Slate (H = 236 deg) */
+    --slate-50: #f5f9fb;
+    --slate-100: #e8eef2;
+    --slate-200: #d5dde2;
+    --slate-300: #b9c2c8;
+    --slate-400: #96a0a7;
+    --slate-500: #68737a;
+    --slate-600: #4b565d;
+    --slate-700: #333e45;
+    --slate-800: #1a252c;
+    --slate-900: #0c181e;
+    --slate-950: #040b11;
+
+    /* Brand Primary: Deep Ocean Cerulean (H = 240 deg) */
+    --ocean-50: #f1f7fb;
+    --ocean-100: #daebf7;
+    --ocean-200: #b4d8f3;
+    --ocean-300: #7fc1f0;
+    --ocean-400: #45aeef;
+    --ocean-500: #2085bf;
+    --ocean-600: #0f6594;
+    --ocean-700: #104b6d;
+    --ocean-800: #0f354c;
+    --ocean-900: #0b2332;
+    --ocean-950: #07141e;
+
+    /* Brand Accent: Hydrological Tidal Teal (H = 194 deg) */
+    --tidal-50: #f0f9f8;
+    --tidal-100: #d3f2f1;
+    --tidal-200: #9ae6e4;
+    --tidal-300: #67d1cf;
+    --tidal-400: #45bebd;
+    --tidal-500: #259a99;
+    --tidal-600: #157675;
+    --tidal-700: #185b5a;
+    --tidal-800: #164140;
+    --tidal-900: #102c2b;
+    --tidal-950: #091919;
+
+    /* Status Level 1: Normal — Seafoam Emerald (H = 156 deg) */
+    --normal-50: #f2f8f4;
+    --normal-100: #daf1e2;
+    --normal-200: #9ee7b9;
+    --normal-300: #68d194;
+    --normal-400: #48bf7e;
+    --normal-500: #28985f;
+    --normal-600: #197547;
+    --normal-700: #195937;
+    --normal-800: #164029;
+    --normal-900: #102a1b;
+    --normal-950: #09190f;
+
+    /* Status Level 2: Waspada — Signal Amber Gold (H = 85 deg) */
+    --waspada-50: #fbf8f2;
+    --waspada-100: #f8ecd3;
+    --waspada-200: #f7d797;
+    --waspada-300: #f5c046;
+    --waspada-400: #e6b22f;
+    --waspada-500: #c69821;
+    --waspada-600: #93701a;
+    --waspada-700: #695116;
+    --waspada-800: #4b3a14;
+    --waspada-900: #342810;
+    --waspada-950: #1f1809;
+
+    /* Status Level 3: Siaga — Rescue Orange (H = 47 deg) */
+    --siaga-50: #fbf5f2;
+    --siaga-100: #f9e4da;
+    --siaga-200: #f7c8b2;
+    --siaga-300: #f5a57e;
+    --siaga-400: #f68649;
+    --siaga-500: #d3621a;
+    --siaga-600: #a64a0d;
+    --siaga-700: #7f3a12;
+    --siaga-800: #5d2c12;
+    --siaga-900: #3e1e0d;
+    --siaga-950: #251208;
+
+    /* Status Level 4: Awas — Critical Emergency Crimson (H = 24 deg) */
+    --awas-50: #fbf4f3;
+    --awas-100: #f9e3e1;
+    --awas-200: #f7c3bf;
+    --awas-300: #f49f99;
+    --awas-400: #f5706c;
+    --awas-500: #e21f32;
+    --awas-600: #b61124;
+    --awas-700: #8d131d;
+    --awas-800: #651417;
+    --awas-900: #430f10;
+    --awas-950: #280909;
+
+    /* =====================================================================
+       LAYER 2: SEMANTIC TOKENS (Light Mode — Field & Daylight Clarity)
+       Synced 1:1 with Figma Collection "Semantic" (Light mode 3:1)
+       ===================================================================== */
+    --color-bg-canvas: var(--slate-50);
+    --color-bg-card: var(--neutral-white);
+    --color-bg-raised: var(--neutral-white);
+    --color-bg-subtle: var(--slate-100);
+    --color-bg-sidebar: var(--neutral-white);
+    --color-bg-command: var(--ocean-900);
+
+    --color-brand-primary: var(--ocean-600);
+    --color-brand-primary-hover: var(--ocean-700);
+    --color-brand-primary-subtle: var(--ocean-100);
+    --color-brand-accent: var(--tidal-600);
+    --color-brand-accent-hover: var(--tidal-700);
+    --color-brand-accent-subtle: var(--tidal-100);
+
+    --color-text-primary: var(--slate-950);
+    --color-text-secondary: var(--slate-700);
+    --color-text-muted: var(--slate-600);
+    --color-text-on-primary: var(--neutral-white);
+    --color-text-on-accent: var(--neutral-white);
+    --color-text-brand: var(--ocean-700);
+    --color-text-accent: var(--tidal-700);
+
+    --color-border-default: var(--slate-200);
+    --color-border-subtle: var(--slate-100);
+    --color-border-input: var(--slate-500);
+    --color-border-focus: var(--ocean-600);
+    --color-border-accent: var(--tidal-300);
+
+    /* 4-Level Siaga Bencana (Light) */
+    --color-status-normal-bg: var(--normal-100);
+    --color-status-normal-border: var(--normal-300);
+    --color-status-normal-solid: var(--normal-600);
+    --color-status-normal-text: var(--normal-700);
+    --color-status-normal-on-solid: var(--neutral-white);
+
+    --color-status-waspada-bg: var(--waspada-100);
+    --color-status-waspada-border: var(--waspada-300);
+    --color-status-waspada-solid: var(--waspada-400);
+    --color-status-waspada-text: var(--waspada-700);
+    --color-status-waspada-on-solid: var(--slate-950);
+
+    --color-status-siaga-bg: var(--siaga-100);
+    --color-status-siaga-border: var(--siaga-300);
+    --color-status-siaga-solid: var(--siaga-600);
+    --color-status-siaga-text: var(--siaga-700);
+    --color-status-siaga-on-solid: var(--neutral-white);
+
+    --color-status-awas-bg: var(--awas-100);
+    --color-status-awas-border: var(--awas-300);
+    --color-status-awas-solid: var(--awas-600);
+    --color-status-awas-text: var(--awas-700);
+    --color-status-awas-on-solid: var(--neutral-white);
+
+    /* =====================================================================
+       LAYER 3: COMPONENT & FRAMEWORK CONTRACTS (shadcn/ui + DisasterReady)
+       ===================================================================== */
+    --background: var(--color-bg-canvas);
+    --foreground: var(--color-text-primary);
+    --card: var(--color-bg-card);
+    --card-foreground: var(--color-text-primary);
+    --popover: var(--color-bg-raised);
+    --popover-foreground: var(--color-text-primary);
+    --primary: var(--color-brand-primary);
+    --primary-foreground: var(--color-text-on-primary);
+    --secondary: var(--color-brand-primary-subtle);
+    --secondary-foreground: var(--color-text-brand);
+    --muted: var(--color-bg-subtle);
+    --muted-foreground: var(--color-text-muted);
+    --accent: var(--color-brand-accent-subtle);
+    --accent-foreground: var(--color-text-accent);
+    --destructive: var(--color-status-awas-solid);
+    --destructive-foreground: var(--color-status-awas-on-solid);
+    --border: var(--color-border-default);
+    --input: var(--color-border-input);
+    --ring: var(--color-border-focus);
+    --chart-1: var(--ocean-600);
+    --chart-2: var(--tidal-600);
+    --chart-3: var(--waspada-400);
+    --chart-4: var(--siaga-600);
+    --chart-5: var(--awas-600);
+    --radius: 0.75rem;
+    --sidebar: var(--color-bg-sidebar);
+    --sidebar-foreground: var(--color-text-primary);
+    --sidebar-primary: var(--color-brand-primary);
+    --sidebar-primary-foreground: var(--color-text-on-primary);
+    --sidebar-accent: var(--color-brand-primary-subtle);
+    --sidebar-accent-foreground: var(--color-text-brand);
+    --sidebar-border: var(--color-border-default);
+    --sidebar-ring: var(--color-border-focus);
+
+    /* Component Tokens (Layer 3) */
+    --btn-primary-bg: var(--color-brand-primary);
+    --btn-primary-bg-hover: var(--color-brand-primary-hover);
+    --btn-primary-text: var(--color-text-on-primary);
+    --btn-accent-bg: var(--color-brand-accent);
+    --btn-accent-text: var(--color-text-on-accent);
+    --intro-ground: var(--slate-50);
+    --intro-aurora-primary: var(--ocean-200);
+    --intro-aurora-accent: var(--tidal-300);
+    --intro-logo-fg: var(--slate-950);
+    --intro-logo-shield: var(--ocean-600);
+    --intro-loader-track: var(--slate-200);
+    --intro-loader-fill: var(--ocean-600);
+    --intro-loader-fill-start: var(--ocean-600);
+    --intro-loader-fill-end: var(--tidal-600);
+    --brand-accent-beacon: var(--tidal-400);
+
+    /* Surface Command Anchor & Compatibility Aliases (remapped to v2 palette) */
+    --surface-command-card: var(--ocean-950);
+    --text-on-command-muted: var(--slate-300);
+    --brand-sage: var(--color-brand-accent);
+    --brand-sage-strong: var(--color-text-brand);
+    --brand-bronze: var(--color-status-siaga-solid);
+    --brand-bronze-text: var(--color-status-siaga-text);
+    --brand-bronze-soft: var(--color-status-siaga-bg);
+    --alert-amber: var(--color-status-waspada-solid);
+    --alert-amber-text: var(--color-status-waspada-text);
+    --alert-amber-soft: var(--color-status-waspada-bg);
+    --verified-soft: var(--color-status-normal-bg);
+    --danger-soft: var(--color-status-awas-bg);
+    --surface-forest-fixed: var(--color-bg-command);
+    --surface-forest-card: var(--surface-command-card);
+    --text-on-forest-muted: var(--text-on-command-muted);
+    --siaga-1-solid: var(--color-status-awas-solid);
+    --sage: var(--color-brand-accent);
+    --text-muted: var(--color-text-muted);
+    --warning-soft: var(--color-status-waspada-bg);
+    --warning-ink: var(--color-status-waspada-text);
+    --historical-soft: var(--color-status-siaga-bg);
+    --map-bg: var(--ocean-50);
+
+    /* Component elevation & craft layer (Ocean Slate hairline shadows) */
+    --surface-elevation:
+        0 0 0 1px rgba(4, 11, 17, 0.06), 0 1px 2px -1px rgba(4, 11, 17, 0.05),
+        0 4px 12px -2px rgba(4, 11, 17, 0.035);
+    --surface-elevation-hover:
+        0 0 0 1px rgba(15, 101, 148, 0.16),
+        0 4px 10px -2px rgba(4, 11, 17, 0.07),
+        0 10px 24px -6px rgba(4, 11, 17, 0.06);
+    --surface-floating:
+        0 0 0 1px rgba(4, 11, 17, 0.08), 0 8px 20px -4px rgba(4, 11, 17, 0.12);
+    --surface-inset: var(--slate-100);
 }
 
 .dark {
-    --background: #071f18;
-    --foreground: #f3f7f4;
-    --card: #0c2e24;
-    --card-foreground: #f3f7f4;
-    --popover: #0c2e24;
-    --popover-foreground: #f3f7f4;
-    --primary: #8fc497;
-    --primary-foreground: #071f18;
-    --secondary: #195343;
-    --secondary-foreground: #f3f7f4;
-    --muted: #153f31;
-    --muted-foreground: #bad0be;
-    --accent: #195343;
-    --accent-foreground: #f3f7f4;
-    --destructive: #ffb4ad;
-    --destructive-foreground: #071f18;
-    --border: #315e4b;
-    --input: #8cae97;
-    --ring: #ffba00;
-    --sidebar: #0c2e24;
-    --sidebar-foreground: #f3f7f4;
-    --sidebar-primary: #8fc497;
-    --sidebar-primary-foreground: #071f18;
-    --sidebar-accent: #195343;
-    --sidebar-accent-foreground: #f3f7f4;
-    --sidebar-border: #315e4b;
-    --sidebar-ring: #ffba00;
-    --sage: #8fc497;
-    --text-muted: #bad0be;
-    --verified-soft: #174c35;
-    --warning-soft: #3f310c;
-    --warning-ink: #ffda71;
-    --historical-soft: #3b2b18;
-    --map-bg: #10382b;
+    /* =====================================================================
+       LAYER 2: SEMANTIC TOKENS (Dark Command Mode — Night-Watch Posko)
+       Synced 1:1 with Figma Collection "Semantic" (Dark mode 28:0)
+       ===================================================================== */
+    --color-bg-canvas: var(--slate-950);
+    --color-bg-card: var(--slate-900);
+    --color-bg-raised: var(--slate-800);
+    --color-bg-subtle: var(--slate-800);
+    --color-bg-sidebar: var(--ocean-950);
+    --color-bg-command: var(--ocean-950);
+
+    --color-brand-primary: var(--ocean-400);
+    --color-brand-primary-hover: var(--ocean-300);
+    --color-brand-primary-subtle: var(--ocean-950);
+    --color-brand-accent: var(--tidal-400);
+    --color-brand-accent-hover: var(--tidal-300);
+    --color-brand-accent-subtle: var(--tidal-950);
+
+    --color-text-primary: var(--slate-50);
+    --color-text-secondary: var(--slate-200);
+    --color-text-muted: var(--slate-300);
+    --color-text-on-primary: var(--slate-950);
+    --color-text-on-accent: var(--slate-950);
+    --color-text-brand: var(--ocean-300);
+    --color-text-accent: var(--tidal-300);
+
+    --color-border-default: var(--slate-800);
+    --color-border-subtle: var(--ocean-900);
+    --color-border-input: var(--slate-500);
+    --color-border-focus: var(--tidal-400);
+    --color-border-accent: var(--tidal-700);
+
+    /* 4-Level Siaga Bencana (Dark) */
+    --color-status-normal-bg: var(--normal-950);
+    --color-status-normal-border: var(--normal-800);
+    --color-status-normal-solid: var(--normal-400);
+    --color-status-normal-text: var(--normal-300);
+    --color-status-normal-on-solid: var(--slate-950);
+
+    --color-status-waspada-bg: var(--waspada-950);
+    --color-status-waspada-border: var(--waspada-800);
+    --color-status-waspada-solid: var(--waspada-400);
+    --color-status-waspada-text: var(--waspada-300);
+    --color-status-waspada-on-solid: var(--slate-950);
+
+    --color-status-siaga-bg: var(--siaga-950);
+    --color-status-siaga-border: var(--siaga-800);
+    --color-status-siaga-solid: var(--siaga-400);
+    --color-status-siaga-text: var(--siaga-300);
+    --color-status-siaga-on-solid: var(--slate-950);
+
+    --color-status-awas-bg: var(--awas-950);
+    --color-status-awas-border: var(--awas-800);
+    --color-status-awas-solid: var(--awas-600);
+    --color-status-awas-text: var(--awas-300);
+    --color-status-awas-on-solid: var(--neutral-white);
+
+    /* Framework & Component Overrides (Dark) */
+    --chart-1: var(--ocean-400);
+    --chart-2: var(--tidal-400);
+    --chart-3: var(--waspada-300);
+    --chart-4: var(--siaga-400);
+    --chart-5: var(--awas-400);
+    --destructive: var(--awas-400);
+    --destructive-foreground: var(--slate-950);
+
+    --intro-ground: var(--ocean-950);
+    --intro-aurora-primary: var(--ocean-700);
+    --intro-aurora-accent: var(--tidal-500);
+    --intro-logo-fg: var(--slate-50);
+    --intro-logo-shield: var(--slate-50);
+    --intro-loader-track: var(--slate-800);
+    --intro-loader-fill: var(--tidal-400);
+    --intro-loader-fill-start: var(--ocean-400);
+    --intro-loader-fill-end: var(--tidal-400);
+    --brand-accent-beacon: var(--tidal-900);
+
+    --surface-command-card: var(--slate-900);
+    --text-on-command-muted: var(--slate-300);
+    --map-bg: var(--ocean-950);
+
+    --surface-elevation: 0 0 0 1px rgba(245, 249, 251, 0.08);
+    --surface-elevation-hover: 0 0 0 1px rgba(103, 209, 207, 0.22);
+    --surface-floating: 0 0 0 1px rgba(245, 249, 251, 0.14);
+    --surface-inset: var(--ocean-950);
 }
 
 @layer base {
@@ -147,7 +464,117 @@
         @apply border-border outline-ring/50;
     }
 
+    html {
+        scroll-padding-top: 5rem;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
     body {
         @apply bg-background text-foreground;
+        caret-color: var(--ring);
+    }
+
+    ::selection {
+        background-color: var(--ocean-200);
+        color: var(--slate-950);
+    }
+
+    .dark ::selection {
+        background-color: var(--ocean-700);
+        color: var(--slate-50);
+    }
+}
+
+@layer components {
+    .segmented-track {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        border-radius: 9999px;
+        padding: 0.25rem;
+        background-color: var(--surface-inset);
+        border: 1px solid var(--border);
+    }
+}
+
+@layer utilities {
+    .surface-card {
+        border: 1px solid transparent;
+        box-shadow: var(--surface-elevation);
+        transition-property: box-shadow, border-color, background-color;
+        transition-duration: 150ms;
+        transition-timing-function: ease-out;
+    }
+
+    .surface-floating {
+        border: 1px solid transparent;
+        box-shadow: var(--surface-floating);
+    }
+
+    .matted-frame {
+        border-radius: 1rem;
+        padding: 0.5rem;
+        background-color: var(--surface-inset);
+        border: 1px solid transparent;
+        box-shadow: var(--surface-elevation);
+    }
+
+    .matted-inner {
+        border-radius: 0.625rem;
+    }
+
+    .pressable {
+        -webkit-tap-highlight-color: transparent;
+        transition-property:
+            transform, background-color, color, border-color, box-shadow;
+        transition-duration: 150ms;
+        transition-timing-function: ease-out;
+    }
+
+    .heading-display {
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        text-wrap: balance;
+    }
+
+    .heading-section {
+        letter-spacing: -0.015em;
+        line-height: 1.25;
+        text-wrap: balance;
+    }
+
+    .overline-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .prose-pretty {
+        text-wrap: pretty;
+    }
+}
+
+@media (hover: hover) {
+    .surface-card-interactive:hover {
+        box-shadow: var(--surface-elevation-hover);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .pressable:not(:disabled):active {
+        transform: scale(0.96);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

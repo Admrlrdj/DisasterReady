@@ -51,7 +51,7 @@ export function recordLink(record: OfficialRecord): string {
     return `/${record.kind === 'alert' ? 'alerts' : 'events'}/${record.id}`;
 }
 
-export function stringValue(value: unknown, fallback = '—'): string {
+export function stringValue(value: unknown, fallback = '-'): string {
     return typeof value === 'string' || typeof value === 'number'
         ? String(value)
         : fallback;

@@ -1,5 +1,5 @@
-import { usePage } from '@inertiajs/react';
-import { ChevronsUpDown } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { ChevronsUpDown, LogIn } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
 import { UserInfo } from '@/components/user-info';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { login } from '@/routes';
 
 export function NavUser() {
     const { auth } = usePage().props;
@@ -21,7 +22,26 @@ export function NavUser() {
     const isMobile = useIsMobile();
 
     if (!auth.user) {
-        return null;
+        return (
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        asChild
+                        size="default"
+                        tooltip={{ children: 'Masuk ke akun' }}
+                        className="h-9 rounded-lg border border-border/80 bg-card px-2.5 font-semibold text-foreground hover:bg-accent"
+                    >
+                        <Link href={login()}>
+                            <LogIn
+                                className="size-4 text-brand-sage-strong"
+                                aria-hidden="true"
+                            />
+                            <span>Masuk ke akun</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        );
     }
 
     return (

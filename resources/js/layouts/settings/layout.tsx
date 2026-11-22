@@ -1,8 +1,8 @@
 import { Link } from '@inertiajs/react';
+import { Lock, Palette, SlidersHorizontal, User } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
-import Heading from '@/components/heading';
+import { PageHeading, Panel } from '@/components/disaster/ui';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
@@ -12,19 +12,24 @@ import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'Ringkasan Pengaturan',
+        href: '/settings',
+        icon: SlidersHorizontal,
+    },
+    {
+        title: 'Profil Akun',
         href: edit(),
-        icon: null,
+        icon: User,
     },
     {
-        title: 'Security',
+        title: 'Keamanan, 2FA & Passkey',
         href: editSecurity(),
-        icon: null,
+        icon: Lock,
     },
     {
-        title: 'Appearance',
+        title: 'Tampilan & Model UI',
         href: editAppearance(),
-        icon: null,
+        icon: Palette,
     },
 ];
 
@@ -32,46 +37,56 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
 
     return (
-        <div className="px-4 py-6">
-            <Heading
-                title="Settings"
-                description="Manage your profile and account settings"
+        <div className="space-y-4">
+            <PageHeading
+                eyebrow="FR-16 · Pengaturan Akun, Keamanan & Tampilan"
+                title="Pengaturan Akun & Preferensi Visual"
+                description="Kelola profil warga, kata sandi, autentikasi dua faktor (2FA), Passkey, serta pilihan model tampilan UI (Versi A, B, atau C)."
             />
 
-            <div className="flex flex-col lg:flex-row lg:space-x-12">
-                <aside className="w-full max-w-xl lg:w-48">
+            <div className="dr-two-col">
+                <Panel
+                    title="Menu Pengaturan"
+                    subtitle="Navigasi konfigurasi akun"
+                >
                     <nav
-                        className="flex flex-col space-y-1 space-x-0"
-                        aria-label="Settings"
+                        className="flex flex-col gap-1.5"
+                        aria-label="Navigasi pengaturan akun"
                     >
-                        {sidebarNavItems.map((item, index) => (
-                            <Button
-                                key={`${toUrl(item.href)}-${index}`}
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': isCurrentOrParentUrl(item.href),
-                                })}
-                            >
-                                <Link href={item.href}>
-                                    {item.icon && (
-                                        <item.icon className="h-4 w-4" />
+                        {sidebarNavItems.map((item, index) => {
+                            const active = isCurrentOrParentUrl(item.href);
+                            return (
+                                <Button
+                                    key={`${toUrl(item.href)}-${index}`}
+                                    size="sm"
+                                    variant={active ? 'default' : 'ghost'}
+                                    asChild
+                                    className={cn(
+                                        'h-10 w-full justify-start rounded-xl px-3 font-semibold',
+                                        !active &&
+                                            'text-muted-foreground hover:text-foreground',
                                     )}
-                                    {item.title}
-                                </Link>
-                            </Button>
-                        ))}
+                                >
+                                    <Link href={item.href}>
+                                        {item.icon && (
+                                            <item.icon
+                                                className="size-4"
+                                                aria-hidden="true"
+                                            />
+                                        )}
+                                        <span>{item.title}</span>
+                                    </Link>
+                                </Button>
+                            );
+                        })}
                     </nav>
-                </aside>
+                </Panel>
 
-                <Separator className="my-6 lg:hidden" />
-
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">
+                <Panel className="min-w-0">
+                    <section className="max-w-2xl space-y-8">
                         {children}
                     </section>
-                </div>
+                </Panel>
             </div>
         </div>
     );

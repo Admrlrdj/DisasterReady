@@ -1,5 +1,13 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import {
+    Cpu,
+    ExternalLink,
+    GitCompare,
+    RefreshCw,
+    ShieldAlert,
+} from 'lucide-react';
 import { useState } from 'react';
+import { HazardChipBadge } from '@/components/disaster/hazard-icons';
 import ReportContent from '@/components/disaster/report-content';
 import {
     Action,
@@ -10,10 +18,18 @@ import {
     Panel,
     Status,
 } from '@/components/disaster/ui';
-import { api, stringValue, type Pagination } from '@/lib/disaster';
+import { usePageVariant } from '@/hooks/use-page-variant';
+import {
+    api,
+    hazardLabels,
+    stringValue,
+    type Pagination,
+} from '@/lib/disaster';
+import { cn } from '@/lib/utils';
 import type {
     AiSuggestion,
     DuplicateCandidate,
+    Hazard,
     IncidentReport,
     ReportDetail,
 } from '@/types/disaster';
@@ -24,16 +40,22 @@ type Props = {
     suggestions: { data: AiSuggestion[]; fallback_state: string } | null;
     duplicates: { data: DuplicateCandidate[] } | null;
 };
+
 export default function Queue({
     payload,
     selected,
     suggestions,
     duplicates,
 }: Props) {
+    const { url } = usePage();
+    const { variant } = usePageVariant();
+    const currentStatus =
+        new URLSearchParams(url.split('?')[1] ?? '').get('status') ?? '';
     const [reason, setReason] = useState('');
     const [decision, setDecision] = useState('NEEDS_EVIDENCE');
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
+
     const review = async () => {
         if (!selected) return;
         setBusy(true);
@@ -56,26 +78,42 @@ export default function Queue({
             setBusy(false);
         }
     };
+
     return (
         <>
-            <Head title="Moderasi Laporan & AI" />
+            <Head title="Moderasi Laporan & Triase AI" />
             <PageHeading
-                title="Moderasi Laporan & AI"
-                description="Periksa laporan asli, bukti, saran AI, dan kandidat duplikat sebelum memutuskan."
-            />
+                eyebrow="FR-10 · AI-01 · AI-02 · Workspace Moderasi Manusia"
+                title="Moderasi Laporan Warga & Triase AI"
+                description="Periksa laporan asli, bukti foto privat, saran ekstraksi AI-01, dan kandidat duplikat spasial PostGIS AI-02 sebelum menetapkan keputusan."
+            >
+                <Action
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.reload()}
+                >
+                    <RefreshCw className="size-3.5" aria-hidden="true" />
+                    <span>Muat Ulang Antrean</span>
+                </Action>
+            </PageHeading>
+
             <Notice>
-                Provider AI berupa stub deterministik. Saran dan ranking
-                duplikat adalah simulasi; menerima saran tidak memverifikasi
-                laporan.
+                Provider AI saat ini berupa stub deterministik
+                (`synthetic-rule-stub-v1`). Saran ekstraksi dan skor duplikat
+                hanyalah simulasi bantu; menerima saran AI tidak otomatis
+                memverifikasi laporan warga.
             </Notice>
-            <div className="dr-queue">
+
+            <div className={cn('dr-queue', variant === 'c' && 'grid-cols-1')}>
+                {/* Left Column: Moderation Queue List */}
                 <Panel
-                    title="Antrean Review"
-                    subtitle={`${payload.total} laporan`}
+                    title="Antrean Laporan"
+                    subtitle={`${payload.total} laporan tercatat`}
                 >
                     <select
                         className="dr-select"
                         aria-label="Filter status laporan"
+                        value={currentStatus}
                         onChange={(event) =>
                             router.get(
                                 '/admin/reports',
@@ -92,60 +130,109 @@ export default function Queue({
                             'VERIFIED',
                             'REJECTED',
                         ].map((status) => (
-                            <option key={status}>{status}</option>
+                            <option key={status} value={status}>
+                                {status}
+                            </option>
                         ))}
                     </select>
-                    {payload.data.map((report) => (
-                        <Link
-                            preserveScroll
-                            className={`dr-record ${selected?.id === report.id ? 'selected' : ''}`}
-                            href={`/admin/reports?report=${report.id}`}
-                            key={report.id}
-                        >
-                            <strong>#{report.id}</strong>
-                            <p className="line-clamp-3">{report.description}</p>
-                            <Status value={report.status} />
-                        </Link>
-                    ))}
+
+                    <div className="space-y-2">
+                        {payload.data.map((report) => {
+                            const params = new URLSearchParams();
+                            if (currentStatus)
+                                params.set('status', currentStatus);
+                            params.set('report', String(report.id));
+                            const hz =
+                                report.category &&
+                                report.category in hazardLabels
+                                    ? (report.category as Hazard)
+                                    : undefined;
+                            const isSelected = selected?.id === report.id;
+
+                            return (
+                                <Link
+                                    preserveScroll
+                                    className={cn(
+                                        'dr-record block transition-colors',
+                                        isSelected && 'selected',
+                                    )}
+                                    href={`/admin/reports?${params.toString()}`}
+                                    key={report.id}
+                                >
+                                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                                        <strong className="text-xs font-bold">
+                                            #{report.id}
+                                        </strong>
+                                        <Status value={report.status} />
+                                    </div>
+                                    {hz && (
+                                        <div className="pt-1">
+                                            <HazardChipBadge
+                                                hazard={hz}
+                                                showTier={false}
+                                            />
+                                        </div>
+                                    )}
+                                    <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">
+                                        {report.description}
+                                    </p>
+                                </Link>
+                            );
+                        })}
+                    </div>
+
                     {!payload.data.length && (
                         <EmptyState title="Antrean kosong" />
                     )}
                     <Pager page={payload} />
                 </Panel>
+
+                {/* Center Column: Original Report + AI-01 Suggestions + Human Decision Form */}
                 <div className="dr-stack">
                     {selected ? (
                         <>
-                            <Panel title="Laporan Asli">
+                            <Panel
+                                title={`Laporan Asli #${selected.id}`}
+                                subtitle="Periksa konsistensi teks, lokasi, dan foto bukti sebelum mengambil keputusan."
+                            >
                                 <ReportContent report={selected} />
                             </Panel>
+
                             <Panel
-                                title="Saran AI-01"
+                                title="Saran Ekstraksi AI-01 (Incident Analyzer)"
+                                subtitle={`Status pipeline: ${suggestions?.fallback_state ?? selected.analysis_status}`}
                                 aside={
                                     <Status tone="simulation">
-                                        Simulasi stub
+                                        <Cpu
+                                            className="size-3.5"
+                                            aria-hidden="true"
+                                        />
+                                        <span>Simulasi Stub</span>
                                     </Status>
                                 }
                             >
-                                <span className="dr-caption dr-muted">
-                                    Status analisis:{' '}
-                                    {suggestions?.fallback_state}
-                                </span>
                                 {suggestions?.data.length ? (
-                                    suggestions.data.map((suggestion) => (
-                                        <Suggestion
-                                            key={suggestion.id}
-                                            suggestion={suggestion}
-                                            reportId={selected.id}
-                                        />
-                                    ))
+                                    <div className="space-y-2.5">
+                                        {suggestions.data.map((suggestion) => (
+                                            <Suggestion
+                                                key={suggestion.id}
+                                                suggestion={suggestion}
+                                                reportId={selected.id}
+                                            />
+                                        ))}
+                                    </div>
                                 ) : (
-                                    <EmptyState title="Saran belum tersedia">
-                                        Laporan tetap dapat ditinjau secara
-                                        manual.
+                                    <EmptyState title="Saran AI-01 belum tersedia">
+                                        Laporan tetap dapat ditinjau dan
+                                        diputuskan secara manual oleh moderator.
                                     </EmptyState>
                                 )}
                             </Panel>
-                            <Panel title="Keputusan Moderator">
+
+                            <Panel
+                                title="Keputusan Moderator Manusia"
+                                subtitle="Keputusan bersifat mengikat, dikunci dengan optimistic locking (version), dan tercatat di audit log."
+                            >
                                 <form
                                     className="dr-form"
                                     onSubmit={(event) => {
@@ -154,7 +241,7 @@ export default function Queue({
                                     }}
                                 >
                                     <label className="dr-field">
-                                        Keputusan
+                                        Keputusan Verifikasi
                                         <select
                                             className="dr-select"
                                             value={decision}
@@ -164,22 +251,24 @@ export default function Queue({
                                         >
                                             <option value="NEEDS_EVIDENCE">
                                                 Minta bukti tambahan
+                                                (NEEDS_EVIDENCE)
                                             </option>
                                             <option value="VERIFIED">
-                                                Verifikasi laporan
+                                                Verifikasi laporan (VERIFIED)
                                             </option>
                                             <option value="REJECTED">
-                                                Tolak laporan
+                                                Tolak laporan (REJECTED)
                                             </option>
                                         </select>
                                     </label>
                                     <label className="dr-field">
-                                        Alasan wajib
+                                        Alasan keputusan wajib (min. 5 karakter)
                                         <textarea
                                             className="dr-textarea"
                                             minLength={5}
                                             maxLength={2000}
                                             required
+                                            placeholder="Tuliskan dasar verifikasi atau alasan penolakan berdasarkan bukti..."
                                             value={reason}
                                             onChange={(event) =>
                                                 setReason(event.target.value)
@@ -188,39 +277,59 @@ export default function Queue({
                                     </label>
                                     {error && (
                                         <Notice danger>
-                                            {error} Jika versi berubah, muat
-                                            ulang laporan sebelum memutuskan.
+                                            {error} Jika versi berubah (HTTP
+                                            409), muat ulang laporan sebelum
+                                            memutuskan.
                                         </Notice>
                                     )}
-                                    <Action disabled={busy}>
-                                        {busy
-                                            ? 'Menyimpan…'
-                                            : 'Simpan Keputusan & Audit'}
-                                    </Action>
-                                    <Action
-                                        variant="outline"
-                                        type="button"
-                                        onClick={() => router.reload()}
-                                    >
-                                        Muat Ulang Laporan
-                                    </Action>
+                                    <div className="flex flex-wrap gap-2">
+                                        <Action disabled={busy}>
+                                            <ShieldAlert
+                                                className="size-4"
+                                                aria-hidden="true"
+                                            />
+                                            <span>
+                                                {busy
+                                                    ? 'Menyimpan...'
+                                                    : 'Simpan Keputusan & Audit'}
+                                            </span>
+                                        </Action>
+                                        <Action
+                                            variant="outline"
+                                            type="button"
+                                            onClick={() => router.reload()}
+                                        >
+                                            Muat Ulang Laporan
+                                        </Action>
+                                    </div>
                                 </form>
                             </Panel>
                         </>
                     ) : (
                         <Panel>
-                            <EmptyState title="Pilih laporan untuk ditinjau" />
+                            <EmptyState title="Pilih laporan dari antrean di sebelah kiri untuk mulai meninjau" />
                         </Panel>
                     )}
                 </div>
+
+                {/* Right Column: AI-02 Duplicate Candidates + Review History */}
                 <div className="dr-stack">
-                    <Panel title="Kandidat Duplikat · AI-02">
-                        <Status tone="simulation">
-                            PostGIS + lexical stub
-                        </Status>
-                        <p className="dr-caption dr-muted">
-                            Kandidat tidak digabung otomatis. Bandingkan laporan
-                            dan beri keputusan manusia.
+                    <Panel
+                        title="Kandidat Duplikat · AI-02"
+                        subtitle="Filter spasial PostGIS ST_DWithin 1 km / 24 jam + kemiripan leksikal"
+                        aside={
+                            <Status tone="simulation">
+                                <GitCompare
+                                    className="size-3.5"
+                                    aria-hidden="true"
+                                />
+                                <span>PostGIS + Stub</span>
+                            </Status>
+                        }
+                    >
+                        <p className="text-xs text-muted-foreground">
+                            Kandidat tidak pernah digabung otomatis. Bandingkan
+                            kedua laporan dan tetapkan keputusan manusia.
                         </p>
                         {selected &&
                             duplicates?.data.map((candidate) => (
@@ -231,19 +340,25 @@ export default function Queue({
                                 />
                             ))}
                         {!duplicates?.data.length && (
-                            <EmptyState title="Tidak ada kandidat" />
+                            <EmptyState title="Tidak ditemukan kandidat duplikat dalam radius 1 km / 24 jam" />
                         )}
                     </Panel>
-                    <Panel title="Riwayat Review">
-                        {selected?.reviews.map((review) => (
-                            <div className="dr-record" key={review.id}>
-                                <Status value={review.decision} />
-                                <p>{review.reason}</p>
+
+                    <Panel
+                        title="Riwayat Keputusan Laporan Ini"
+                        subtitle="Jejak audit moderator sebelumnya"
+                    >
+                        {selected?.reviews.map((rev) => (
+                            <div className="dr-record space-y-1" key={rev.id}>
+                                <Status value={rev.decision} />
+                                <p className="text-xs text-foreground">
+                                    {rev.reason}
+                                </p>
                             </div>
                         ))}
                         {!selected?.reviews.length && (
-                            <p className="dr-caption dr-muted">
-                                Belum ada keputusan.
+                            <p className="text-xs text-muted-foreground">
+                                Belum ada keputusan moderator untuk laporan ini.
                             </p>
                         )}
                     </Panel>
@@ -267,43 +382,66 @@ function Suggestion({
     );
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
+
     return (
-        <div className="dr-record">
+        <div className="dr-record space-y-2">
             <div className="dr-row">
-                <strong>{suggestion.field_name}</strong>
+                <strong className="text-xs font-bold text-foreground">
+                    Field: {suggestion.field_name}
+                </strong>
                 <Status tone="warning">{suggestion.review_status}</Status>
             </div>
-            <p>
+            <p className="text-sm font-semibold text-primary">
+                Nilai saran:{' '}
                 {stringValue(
                     suggestion.suggested_value_json,
                     'Tidak ada bukti · null',
                 )}
             </p>
-            <blockquote className="dr-caption dr-muted">
-                Bukti teks asli: {suggestion.evidence_span ?? 'Tidak ditemukan'}
+            <blockquote className="rounded-lg border border-border/80 bg-background/70 px-3 py-1.5 text-xs text-muted-foreground">
+                Kutipan bukti teks asli:{' '}
+                <span className="font-medium text-foreground">
+                    {suggestion.evidence_span ?? 'Tidak ditemukan'}
+                </span>
             </blockquote>
             {suggestion.review_status === 'UNREVIEWED' && (
                 <form
-                    className="dr-form"
+                    className="dr-form pt-1"
                     onSubmit={async (event) => {
                         event.preventDefault();
                         setBusy(true);
                         setError('');
                         try {
+                            let parsedCorrected: string | number | null = null;
+                            if (decision === 'CORRECTED') {
+                                const trimmed = corrected.trim();
+                                if (trimmed === '') {
+                                    parsedCorrected = null;
+                                } else if (
+                                    suggestion.field_name === 'water_depth_cm'
+                                ) {
+                                    const numeric = Number(
+                                        trimmed.replace(',', '.'),
+                                    );
+                                    if (
+                                        !Number.isFinite(numeric) ||
+                                        numeric < 0
+                                    ) {
+                                        throw new Error(
+                                            'Masukkan angka kedalaman (cm) yang valid tanpa satuan, contoh: 45.5.',
+                                        );
+                                    }
+                                    parsedCorrected = numeric;
+                                } else {
+                                    parsedCorrected = trimmed;
+                                }
+                            }
                             await api(
                                 `/admin/reports/${reportId}/ai-feedback`,
                                 {
                                     suggestion_id: suggestion.id,
                                     decision,
-                                    corrected_value:
-                                        decision === 'CORRECTED'
-                                            ? corrected === ''
-                                                ? null
-                                                : suggestion.field_name ===
-                                                    'water_depth_cm'
-                                                  ? Number(corrected)
-                                                  : corrected
-                                            : null,
+                                    corrected_value: parsedCorrected,
                                     reason,
                                 },
                             );
@@ -341,7 +479,7 @@ function Suggestion({
                     )}
                     <input
                         aria-label="Alasan review saran"
-                        placeholder="Alasan (min. 5 karakter)"
+                        placeholder="Alasan review saran (min. 5 karakter)"
                         className="dr-input"
                         required
                         minLength={5}
@@ -350,7 +488,7 @@ function Suggestion({
                         onChange={(event) => setReason(event.target.value)}
                     />
                     {error && <p className="dr-error">{error}</p>}
-                    <Action variant="outline" disabled={busy}>
+                    <Action variant="outline" size="sm" disabled={busy}>
                         Simpan Review Saran
                     </Action>
                 </form>
@@ -370,19 +508,26 @@ function Candidate({
     const [decision, setDecision] = useState('NOT_DUPLICATE');
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
+
     return (
-        <div className="dr-record">
-            <Link
-                href={`/admin/reports/${candidate.candidate_report_id}`}
-                target="_blank"
-                className="font-semibold"
-            >
-                Bandingkan #{candidate.candidate_report_id} ↗
-            </Link>
-            <span className="dr-caption">
-                Jarak {Math.round(candidate.geo_distance_m)} m · selisih{' '}
-                {Math.round(candidate.time_delta_minutes)} menit
-            </span>
+        <div className="dr-record space-y-2">
+            <div className="flex items-center justify-between gap-2">
+                <Link
+                    href={`/admin/reports/${candidate.candidate_report_id}`}
+                    target="_blank"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-primary underline"
+                >
+                    <span>
+                        Bandingkan Laporan #{candidate.candidate_report_id}
+                    </span>
+                    <ExternalLink className="size-3" aria-hidden="true" />
+                </Link>
+                <span className="text-[11px] font-semibold text-muted-foreground tabular-nums">
+                    {Math.round(candidate.geo_distance_m)} m ·{' '}
+                    {Math.round(candidate.time_delta_minutes)} mnt
+                </span>
+            </div>
+
             {candidate.reviewer_decision ? (
                 <Status tone="neutral">{candidate.reviewer_decision}</Status>
             ) : (
@@ -426,10 +571,10 @@ function Candidate({
                         maxLength={2000}
                         value={reason}
                         onChange={(event) => setReason(event.target.value)}
-                        placeholder="Alasan keputusan"
+                        placeholder="Alasan keputusan (min. 5 karakter)"
                     />
                     {error && <p className="dr-error">{error}</p>}
-                    <Action variant="outline" disabled={busy}>
+                    <Action variant="outline" size="sm" disabled={busy}>
                         Simpan Keputusan
                     </Action>
                 </form>

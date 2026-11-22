@@ -1,3 +1,4 @@
+import type { Contact, Overview } from '@/lib/disaster';
 import type { Auth } from '@/types/auth';
 
 declare module 'react' {
@@ -12,6 +13,10 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            notice?: string | null;
+            emergency_contacts?: Contact[];
+            pending_reports?: number | null;
+            overview?: Overview;
             [key: string]: unknown;
         };
     }

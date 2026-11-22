@@ -2,8 +2,9 @@ import { createInertiaApp } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
-import DisasterLayout from '@/layouts/disaster-layout';
+import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
+import DisasterLayout from '@/layouts/disaster-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'DisasterReady';
@@ -14,6 +15,8 @@ void createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
+            case name === 'dashboard':
+                return AppLayout;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name === 'settings/overview':
@@ -34,7 +37,7 @@ void createInertiaApp({
         );
     },
     progress: {
-        color: '#0C3B2E',
+        color: '#0F6594',
     },
 });
 
