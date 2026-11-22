@@ -1,0 +1,542 @@
+[
+    {
+        "node": "10:14",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/10-14-imgFrame.svg"
+    },
+    {
+        "node": "10:14",
+        "variable": "imgEllipse",
+        "path": "public/assets/figma/10-14-imgEllipse.svg"
+    },
+    {
+        "node": "10:14",
+        "variable": "imgEllipse1",
+        "path": "public/assets/figma/10-14-imgEllipse1.svg"
+    },
+    {
+        "node": "10:14",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/10-14-imgFrame1.svg"
+    },
+    {
+        "node": "10:14",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/10-14-imgFrame2.svg"
+    },
+    {
+        "node": "10:14",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/10-14-imgFrame3.svg"
+    },
+    {
+        "node": "10:14",
+        "variable": "imgFrame4",
+        "path": "public/assets/figma/10-14-imgFrame4.svg"
+    },
+    {
+        "node": "10:14",
+        "variable": "imgFrame5",
+        "path": "public/assets/figma/10-14-imgFrame5.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/10-175-imgFrame.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgEllipse",
+        "path": "public/assets/figma/10-175-imgEllipse.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgEllipse1",
+        "path": "public/assets/figma/10-175-imgEllipse1.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/10-175-imgFrame1.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/10-175-imgFrame2.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/10-175-imgFrame3.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgEllipse2",
+        "path": "public/assets/figma/10-175-imgEllipse2.svg"
+    },
+    {
+        "node": "10:175",
+        "variable": "imgEllipse3",
+        "path": "public/assets/figma/10-175-imgEllipse3.svg"
+    },
+    {
+        "node": "14:163",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/14-163-imgFrame.svg"
+    },
+    {
+        "node": "14:163",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/14-163-imgFrame1.svg"
+    },
+    {
+        "node": "14:163",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/14-163-imgFrame2.svg"
+    },
+    {
+        "node": "14:163",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/14-163-imgFrame3.svg"
+    },
+    {
+        "node": "14:163",
+        "variable": "imgFrame4",
+        "path": "public/assets/figma/14-163-imgFrame4.svg"
+    },
+    {
+        "node": "14:163",
+        "variable": "imgFrame5",
+        "path": "public/assets/figma/14-163-imgFrame5.svg"
+    },
+    {
+        "node": "15:139",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/15-139-imgFrame.svg"
+    },
+    {
+        "node": "15:139",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/15-139-imgFrame1.svg"
+    },
+    {
+        "node": "15:139",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/15-139-imgFrame2.svg"
+    },
+    {
+        "node": "15:2",
+        "variable": "imgGroup",
+        "path": "public/assets/figma/15-2-imgGroup.svg"
+    },
+    {
+        "node": "15:2",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/15-2-imgFrame.svg"
+    },
+    {
+        "node": "15:58",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/15-58-imgFrame.svg"
+    },
+    {
+        "node": "15:58",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/15-58-imgFrame1.svg"
+    },
+    {
+        "node": "15:58",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/15-58-imgFrame2.svg"
+    },
+    {
+        "node": "18:4",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/18-4-imgFrame.svg"
+    },
+    {
+        "node": "20:2",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/20-2-imgFrame.svg"
+    },
+    {
+        "node": "20:2",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/20-2-imgFrame1.svg"
+    },
+    {
+        "node": "21:136",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/21-136-imgFrame.svg"
+    },
+    {
+        "node": "21:136",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/21-136-imgFrame1.svg"
+    },
+    {
+        "node": "21:136",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/21-136-imgFrame2.svg"
+    },
+    {
+        "node": "21:2",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/21-2-imgFrame.svg"
+    },
+    {
+        "node": "21:295",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/21-295-imgFrame.svg"
+    },
+    {
+        "node": "23:2",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/23-2-imgFrame.svg"
+    },
+    {
+        "node": "23:2",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/23-2-imgFrame1.svg"
+    },
+    {
+        "node": "23:2",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/23-2-imgFrame2.svg"
+    },
+    {
+        "node": "23:2",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/23-2-imgFrame3.svg"
+    },
+    {
+        "node": "23:2",
+        "variable": "imgFrame4",
+        "path": "public/assets/figma/23-2-imgFrame4.svg"
+    },
+    {
+        "node": "23:2",
+        "variable": "imgFrame5",
+        "path": "public/assets/figma/23-2-imgFrame5.svg"
+    },
+    {
+        "node": "23:2",
+        "variable": "imgFrame6",
+        "path": "public/assets/figma/23-2-imgFrame6.svg"
+    },
+    {
+        "node": "23:82",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/23-82-imgFrame.svg"
+    },
+    {
+        "node": "23:82",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/23-82-imgFrame1.svg"
+    },
+    {
+        "node": "23:82",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/23-82-imgFrame2.svg"
+    },
+    {
+        "node": "26:102",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/26-102-imgFrame.svg"
+    },
+    {
+        "node": "26:102",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/26-102-imgFrame1.svg"
+    },
+    {
+        "node": "26:102",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/26-102-imgFrame2.svg"
+    },
+    {
+        "node": "26:102",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/26-102-imgFrame3.svg"
+    },
+    {
+        "node": "26:192",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/26-192-imgFrame.svg"
+    },
+    {
+        "node": "26:192",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/26-192-imgFrame1.svg"
+    },
+    {
+        "node": "26:2",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/26-2-imgFrame.svg"
+    },
+    {
+        "node": "26:2",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/26-2-imgFrame1.svg"
+    },
+    {
+        "node": "26:2",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/26-2-imgFrame2.svg"
+    },
+    {
+        "node": "26:2",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/26-2-imgFrame3.svg"
+    },
+    {
+        "node": "27:2",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/27-2-imgFrame.svg"
+    },
+    {
+        "node": "27:2",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/27-2-imgFrame1.svg"
+    },
+    {
+        "node": "28:2",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/28-2-imgFrame.svg"
+    },
+    {
+        "node": "28:2",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/28-2-imgFrame1.svg"
+    },
+    {
+        "node": "28:89",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/28-89-imgFrame.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/5-14-imgFrame.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse",
+        "path": "public/assets/figma/5-14-imgEllipse.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/5-14-imgFrame1.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/5-14-imgFrame2.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/5-14-imgFrame3.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame4",
+        "path": "public/assets/figma/5-14-imgFrame4.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame5",
+        "path": "public/assets/figma/5-14-imgFrame5.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame6",
+        "path": "public/assets/figma/5-14-imgFrame6.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame7",
+        "path": "public/assets/figma/5-14-imgFrame7.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame8",
+        "path": "public/assets/figma/5-14-imgFrame8.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame9",
+        "path": "public/assets/figma/5-14-imgFrame9.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse1",
+        "path": "public/assets/figma/5-14-imgEllipse1.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse2",
+        "path": "public/assets/figma/5-14-imgEllipse2.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgIndonesiaVectorMap",
+        "path": "public/assets/figma/5-14-imgIndonesiaVectorMap.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse3",
+        "path": "public/assets/figma/5-14-imgEllipse3.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse4",
+        "path": "public/assets/figma/5-14-imgEllipse4.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse5",
+        "path": "public/assets/figma/5-14-imgEllipse5.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame10",
+        "path": "public/assets/figma/5-14-imgFrame10.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse6",
+        "path": "public/assets/figma/5-14-imgEllipse6.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgEllipse7",
+        "path": "public/assets/figma/5-14-imgEllipse7.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame11",
+        "path": "public/assets/figma/5-14-imgFrame11.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame12",
+        "path": "public/assets/figma/5-14-imgFrame12.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame13",
+        "path": "public/assets/figma/5-14-imgFrame13.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame14",
+        "path": "public/assets/figma/5-14-imgFrame14.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame15",
+        "path": "public/assets/figma/5-14-imgFrame15.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame16",
+        "path": "public/assets/figma/5-14-imgFrame16.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame17",
+        "path": "public/assets/figma/5-14-imgFrame17.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame18",
+        "path": "public/assets/figma/5-14-imgFrame18.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame19",
+        "path": "public/assets/figma/5-14-imgFrame19.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame20",
+        "path": "public/assets/figma/5-14-imgFrame20.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame21",
+        "path": "public/assets/figma/5-14-imgFrame21.svg"
+    },
+    {
+        "node": "5:14",
+        "variable": "imgFrame22",
+        "path": "public/assets/figma/5-14-imgFrame22.svg"
+    },
+    {
+        "node": "8:14",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/8-14-imgFrame.svg"
+    },
+    {
+        "node": "8:14",
+        "variable": "imgEllipse",
+        "path": "public/assets/figma/8-14-imgEllipse.svg"
+    },
+    {
+        "node": "8:14",
+        "variable": "imgEllipse1",
+        "path": "public/assets/figma/8-14-imgEllipse1.svg"
+    },
+    {
+        "node": "8:14",
+        "variable": "imgEllipse2",
+        "path": "public/assets/figma/8-14-imgEllipse2.svg"
+    },
+    {
+        "node": "8:14",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/8-14-imgFrame1.svg"
+    },
+    {
+        "node": "8:14",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/8-14-imgFrame2.svg"
+    },
+    {
+        "node": "8:217",
+        "variable": "imgFrame",
+        "path": "public/assets/figma/8-217-imgFrame.svg"
+    },
+    {
+        "node": "8:217",
+        "variable": "imgEllipse",
+        "path": "public/assets/figma/8-217-imgEllipse.svg"
+    },
+    {
+        "node": "8:217",
+        "variable": "imgEllipse1",
+        "path": "public/assets/figma/8-217-imgEllipse1.svg"
+    },
+    {
+        "node": "8:217",
+        "variable": "imgFrame1",
+        "path": "public/assets/figma/8-217-imgFrame1.svg"
+    },
+    {
+        "node": "8:217",
+        "variable": "imgFrame2",
+        "path": "public/assets/figma/8-217-imgFrame2.svg"
+    },
+    {
+        "node": "8:217",
+        "variable": "imgFrame3",
+        "path": "public/assets/figma/8-217-imgFrame3.svg"
+    },
+    {
+        "node": "8:217",
+        "variable": "imgFrame4",
+        "path": "public/assets/figma/8-217-imgFrame4.svg"
+    }
+]

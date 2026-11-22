@@ -2,7 +2,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
-import AppLayout from '@/layouts/app-layout';
+import DisasterLayout from '@/layouts/disaster-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
@@ -16,10 +16,12 @@ void createInertiaApp({
                 return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
+            case name === 'settings/overview':
+                return DisasterLayout;
             case name.startsWith('settings/'):
-                return [AppLayout, SettingsLayout];
+                return [DisasterLayout, SettingsLayout];
             default:
-                return AppLayout;
+                return DisasterLayout;
         }
     },
     strictMode: true,
@@ -32,7 +34,7 @@ void createInertiaApp({
         );
     },
     progress: {
-        color: '#4B5563',
+        color: '#0C3B2E',
     },
 });
 

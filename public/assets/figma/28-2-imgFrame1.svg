@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="520" height="790" viewBox="0 0 520 790" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame" clip-path="url(#clip0_0_4)">
+<path id="Vector" d="M520 0H0V790H520V0Z" fill="#F2F6F3"/>
+<g id="Group">
+<path id="Vector_2" d="M40 160L480 150M40 310L480 300M40 470L480 460M40 620L480 615" stroke-width="5" stroke-linecap="round" stroke="#C7DEC9"/>
+<path id="Vector_3" d="M130 40L125 750M265 40L260 750M395 40L405 750" stroke-width="5" stroke-linecap="round" stroke="#C7DEC9"/>
+</g>
+<path id="Vector_4" d="M168 0C180 180 125 320 165 520C190 640 145 720 165 790" stroke-width="20" stroke="#9EC4B8"/>
+<path id="Vector_5" d="M128 308L262 304" stroke-width="8" stroke-linecap="round" stroke="#B42318"/>
+<path id="Vector_6" d="M262 465L400 462" stroke-width="8" stroke-linecap="round" stroke="#B42318"/>
+<path id="Vector_7" d="M128 315C131.866 315 135 311.866 135 308C135 304.134 131.866 301 128 301C124.134 301 121 304.134 121 308C121 311.866 124.134 315 128 315Z" fill="#0C3B2E" stroke-width="2" stroke="white"/>
+<path id="Vector_8" d="M262 311C265.866 311 269 307.866 269 304C269 300.134 265.866 297 262 297C258.134 297 255 300.134 255 304C255 307.866 258.134 311 262 311Z" fill="#0C3B2E" stroke-width="2" stroke="white"/>
+<path id="Vector_9" d="M262 472C265.866 472 269 468.866 269 465C269 461.134 265.866 458 262 458C258.134 458 255 461.134 255 465C255 468.866 258.134 472 262 472Z" fill="#0C3B2E" stroke-width="2" stroke="white"/>
+<path id="Vector_10" d="M400 469C403.866 469 407 465.866 407 462C407 458.134 403.866 455 400 455C396.134 455 393 458.134 393 462C393 465.866 396.134 469 400 469Z" fill="#0C3B2E" stroke-width="2" stroke="white"/>
+</g>
+<defs>
+<clipPath id="clip0_0_4">
+<rect width="520" height="790" fill="white"/>
+</clipPath>
+</defs>
+</svg>

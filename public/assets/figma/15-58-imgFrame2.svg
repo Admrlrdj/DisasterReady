@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="772" height="462" viewBox="0 0 772 462" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame" clip-path="url(#clip0_0_4)">
+<path id="Vector" d="M772 0H0V462H772V0Z" fill="#F2F6F3"/>
+<path id="Vector_2" d="M52 104L82 96L120 140L158 190L186 244L168 264L132 232L90 180L60 138L52 104Z" fill="#C4DAC8" stroke-width="2" stroke="white"/>
+<path id="Vector_3" d="M196 270L264 278L334 288L382 296L378 316L310 310L242 298L190 284L196 270Z" fill="#B2CFB8" stroke-width="2" stroke="white"/>
+<path id="Vector_4" d="M388 302L446 310L512 316L508 330L438 324L384 316L388 302Z" fill="#C4DAC8" stroke-width="2" stroke="white"/>
+<path id="Vector_5" d="M276 130L338 114L396 126L422 168L410 222L362 238L304 234L270 202L276 130Z" fill="#C4DAC8" stroke-width="2" stroke="white"/>
+<path id="Vector_6" d="M452 162L490 142L536 146L526 164L494 170L492 196L522 212L510 232L488 218L476 254L460 250L466 208L452 162Z" fill="#C4DAC8" stroke-width="2" stroke="white"/>
+<path id="Vector_7" d="M608 194L656 184L710 198L754 220L758 278L712 288L672 264L630 250L602 222L608 194Z" fill="#C4DAC8" stroke-width="2" stroke="white"/>
+<path id="Vector_8" d="M150 246C167.673 246 182 231.673 182 214C182 196.327 167.673 182 150 182C132.327 182 118 196.327 118 214C118 231.673 132.327 246 150 246Z" fill="#FFBA00" fill-opacity="0.18" stroke-width="1.5" stroke="#FFBA00"/>
+<path id="Vector_9" d="M150 221C153.866 221 157 217.866 157 214C157 210.134 153.866 207 150 207C146.134 207 143 210.134 143 214C143 217.866 146.134 221 150 221Z" fill="#FFBA00" stroke-width="2.5" stroke="#0C3B2E"/>
+<path id="Vector_10" d="M222 310C237.464 310 250 297.464 250 282C250 266.536 237.464 254 222 254C206.536 254 194 266.536 194 282C194 297.464 206.536 310 222 310Z" fill="#6D9773" fill-opacity="0.22" stroke-width="1.5" stroke="#0C3B2E"/>
+<path id="Vector_11" d="M222 289C225.866 289 229 285.866 229 282C229 278.134 225.866 275 222 275C218.134 275 215 278.134 215 282C215 285.866 218.134 289 222 289Z" fill="#0C3B2E" stroke-width="2" stroke="white"/>
+<path id="Vector_12" d="M330 311C333.866 311 337 307.866 337 304C337 300.134 333.866 297 330 297C326.134 297 323 300.134 323 304C323 307.866 326.134 311 330 311Z" fill="#BB8A52" stroke-width="2" stroke="white"/>
+</g>
+<defs>
+<clipPath id="clip0_0_4">
+<rect width="772" height="462" fill="white"/>
+</clipPath>
+</defs>
+</svg>

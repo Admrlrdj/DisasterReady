@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\IncidentReport;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -38,6 +39,9 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'notice' => fn () => $request->session()->get('notice'),
+            'emergency_contacts' => config('disaster.emergency_contacts'),
+            'pending_reports' => fn () => $request->user()?->can('moderate') ? IncidentReport::whereIn('status', ['PENDING', 'NEEDS_EVIDENCE'])->count() : null,
             'auth' => [
                 'user' => $request->user(),
             ],

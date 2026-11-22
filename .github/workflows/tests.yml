@@ -15,15 +15,15 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgis/postgis:18-3.7
         env:
-          POSTGRES_DB: disaster_ready
+          POSTGRES_DB: disaster_ready_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d disaster_ready"
+          --health-cmd "pg_isready -U postgres -d disaster_ready_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -38,19 +38,34 @@ jobs:
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.3'
-          extensions: pdo_pgsql, pgsql, pdo_sqlite, sqlite3
+          extensions: pdo_pgsql, pgsql, pdo_sqlite, sqlite3, gd, exif
           tools: composer:v2
           coverage: none
 
       - name: Setup Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '22'
+          node-version: '24.13.0'
 
       - name: Setup Application
         env:
+          DB_CONNECTION: pgsql
+          DB_DATABASE: disaster_ready_test
           DB_PASSWORD: password
-        run: composer setup
+        run: |
+          composer install --no-interaction --prefer-dist
+          cp .env.example .env
+          php artisan key:generate
+          npm ci
+          npm run build
 
       - name: Run CI Checks
         run: composer ci:check
+
+      - name: Run PostGIS integration suite
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: password
+        run: php vendor/phpunit/phpunit/phpunit -c phpunit.postgis.xml

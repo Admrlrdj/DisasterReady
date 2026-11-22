@@ -16,6 +16,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 
 /**
  * @property int $id
+ * @property string $role
+ * @property string $status
  * @property string $name
  * @property string $email
  * @property Carbon|null $email_verified_at
@@ -31,6 +33,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
+    protected $attributes = ['role' => 'reporter', 'status' => 'active'];
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 

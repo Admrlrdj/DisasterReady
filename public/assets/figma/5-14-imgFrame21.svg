@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="510" height="145" viewBox="0 0 510 145" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame">
+<path id="Vector" d="M0 30H510" stroke="#EEF2EE"/>
+<path id="Vector_2" d="M0 70H510" stroke="#EEF2EE"/>
+<path id="Vector_3" d="M0 110H510" stroke="#EEF2EE"/>
+<path id="Vector_4" d="M10 104C45 104 58 58 92 66C126 74 140 94 174 88C208 82 224 44 258 46C292 48 314 96 352 92C390 88 412 58 448 64C475 68 492 78 504 76V122H10V104Z" fill="url(#paint0_linear_0_83)"/>
+<path id="Vector_5" d="M10 104C45 104 58 58 92 66C126 74 140 94 174 88C208 82 224 44 258 46C292 48 314 96 352 92C390 88 412 58 448 64C475 68 492 78 504 76" stroke-width="2.6" stroke-linecap="round" stroke="#BB8A52"/>
+<path id="Vector_6" d="M258 46V47.4615M258 122V120.538M258 50.3846V53.3077M258 56.2308V59.1538M258 62.0769V65M258 67.9231V70.8462M258 73.7692V76.6923M258 79.6154V82.5385M258 85.4615V88.3846M258 91.3077V94.2308M258 97.1538V100.077M258 103V105.923M258 108.846V111.769M258 114.692V117.615" stroke="#0C3B2E" stroke-opacity="0.4"/>
+<path id="Vector_7" d="M258 52C261.314 52 264 49.3137 264 46C264 42.6863 261.314 40 258 40C254.686 40 252 42.6863 252 46C252 49.3137 254.686 52 258 52Z" fill="white" stroke-width="3" stroke="#0C3B2E"/>
+<path id="Vector_8" d="M290 10H226C221.582 10 218 13.5817 218 18V26C218 30.4183 221.582 34 226 34H290C294.418 34 298 30.4183 298 26V18C298 13.5817 294.418 10 290 10Z" fill="#0C3B2E"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_83" x1="10" y1="45.9238" x2="10" y2="122" gradientUnits="userSpaceOnUse">
+<stop stop-color="#BB8A52" stop-opacity="0.22"/>
+<stop offset="1" stop-color="#BB8A52" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>
