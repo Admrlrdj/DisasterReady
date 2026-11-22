@@ -350,11 +350,11 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                 Lewati ke konten utama
             </a>
 
-            <aside className="dr-sidebar bg-card/84 backdrop-blur-md">
+            <aside className="dr-sidebar relative z-10 bg-card/84 backdrop-blur-md">
                 {nav}
             </aside>
 
-            <header className="dr-mobile-header bg-card/90 backdrop-blur-md">
+            <header className="dr-mobile-header relative z-10 bg-card/90 backdrop-blur-md">
                 <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
                     <DialogTrigger asChild>
                         <Action
@@ -384,7 +384,7 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                 </a>
             </header>
 
-            <main className="dr-workspace" id="main-content">
+            <main className="dr-workspace relative z-10" id="main-content">
                 <PageVariantSwitcherBar />
 
                 {notice && (

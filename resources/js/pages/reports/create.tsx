@@ -484,7 +484,8 @@ export default function CreateReport({
                                 dalam radius PostGIS 1 km / 24 jam.
                             </p>
                             <p className="leading-relaxed text-forest-muted">
-                                4. Moderator manusia memeriksa bukti asli dan
+                                4. Ringkasan dan kandidat duplikat hanya saran;
+                                moderator manusia memeriksa bukti asli dan
                                 memutuskan status laporan.
                             </p>
                         </div>
@@ -494,7 +495,7 @@ export default function CreateReport({
                                     className="size-3.5"
                                     aria-hidden="true"
                                 />
-                                <span>Stub Deterministik · Audit Penuh</span>
+                                <span>Triase Terkawal · Audit Penuh</span>
                             </Status>
                         </div>
                     </Panel>

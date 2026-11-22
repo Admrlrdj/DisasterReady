@@ -176,7 +176,9 @@ export default function Welcome({ overview }: { overview?: Overview }) {
         unknown
     >;
     const pilotRegionName =
-        overview?.regions?.[overview.region] ?? 'Kampung Melayu';
+        overview?.region_name ??
+        overview?.regions?.[overview.region] ??
+        'Kampung Melayu';
 
     const statusBadge =
         liveActiveAlertsCount > 0
@@ -352,7 +354,7 @@ export default function Welcome({ overview }: { overview?: Overview }) {
 
                 <main
                     id="top"
-                    className="mx-auto max-w-6xl space-y-12 px-4 py-6 sm:space-y-14 sm:px-6 sm:py-10"
+                    className="relative z-10 mx-auto max-w-6xl space-y-12 px-4 py-6 sm:space-y-14 sm:px-6 sm:py-10"
                 >
                     {/* 3-Version Selector Bar (Versi A / Versi B / Versi C) */}
                     <PageVariantSwitcherBar
@@ -589,7 +591,7 @@ export default function Welcome({ overview }: { overview?: Overview }) {
                                     </span>
                                 </div>
                                 <span className="text-muted-foreground tabular-nums">
-                                    Pilot Wilayah: {pilotRegionName} (adm4{' '}
+                                    Wilayah Pantauan: {pilotRegionName} (adm4{' '}
                                     {overview?.region ?? '31.75.03.1001'})
                                 </span>
                             </div>
@@ -1040,7 +1042,7 @@ export default function Welcome({ overview }: { overview?: Overview }) {
                     </section>
                 </main>
 
-                <footer className="border-t border-border/80 bg-background/80 py-6 backdrop-blur-xs">
+                <footer className="relative z-10 border-t border-border/80 bg-background/80 py-6 backdrop-blur-xs">
                     <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 text-xs text-muted-foreground sm:flex-row sm:px-6">
                         <p>
                             DisasterReady · Sumber rujukan terbuka: BMKG, BNPB

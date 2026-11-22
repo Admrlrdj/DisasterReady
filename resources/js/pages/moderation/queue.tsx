@@ -37,8 +37,17 @@ import type {
 type Props = {
     payload: Pagination<IncidentReport>;
     selected: ReportDetail | null;
-    suggestions: { data: AiSuggestion[]; fallback_state: string } | null;
-    duplicates: { data: DuplicateCandidate[] } | null;
+    suggestions: {
+        data: AiSuggestion[];
+        fallback_state: string;
+        simulation_only: boolean;
+    } | null;
+    duplicates: {
+        data: DuplicateCandidate[];
+        method: string;
+        simulation_only: boolean;
+        fallback_state: string;
+    } | null;
 };
 
 export default function Queue({
@@ -98,10 +107,9 @@ export default function Queue({
             </PageHeading>
 
             <Notice>
-                Provider AI saat ini berupa stub deterministik
-                (`synthetic-rule-stub-v1`). Saran ekstraksi dan skor duplikat
-                hanyalah simulasi bantu; menerima saran AI tidak otomatis
-                memverifikasi laporan warga.
+                Periksa saran AI-01 dan kandidat duplikat AI-02 terhadap laporan
+                asli. Menerima saran AI tidak otomatis memverifikasi laporan;
+                verifikasi memerlukan keputusan moderator manusia.
             </Notice>
 
             <div className={cn('dr-queue', variant === 'c' && 'grid-cols-1')}>
@@ -202,13 +210,25 @@ export default function Queue({
                                 title="Saran Ekstraksi AI-01 (Incident Analyzer)"
                                 subtitle={`Status pipeline: ${suggestions?.fallback_state ?? selected.analysis_status}`}
                                 aside={
-                                    <Status tone="simulation">
-                                        <Cpu
-                                            className="size-3.5"
-                                            aria-hidden="true"
-                                        />
-                                        <span>Simulasi Stub</span>
-                                    </Status>
+                                    suggestions && (
+                                        <Status
+                                            tone={
+                                                suggestions.simulation_only
+                                                    ? 'simulation'
+                                                    : undefined
+                                            }
+                                        >
+                                            <Cpu
+                                                className="size-3.5"
+                                                aria-hidden="true"
+                                            />
+                                            <span>
+                                                {suggestions.simulation_only
+                                                    ? 'Simulasi Stub'
+                                                    : 'Saran Provider'}
+                                            </span>
+                                        </Status>
+                                    )
                                 }
                             >
                                 {suggestions?.data.length ? (
@@ -316,15 +336,23 @@ export default function Queue({
                 <div className="dr-stack">
                     <Panel
                         title="Kandidat Duplikat · AI-02"
-                        subtitle="Filter spasial PostGIS ST_DWithin 1 km / 24 jam + kemiripan leksikal"
+                        subtitle="Filter spasial PostGIS ST_DWithin 1 km / 24 jam + kemiripan laporan"
                         aside={
-                            <Status tone="simulation">
-                                <GitCompare
-                                    className="size-3.5"
-                                    aria-hidden="true"
-                                />
-                                <span>PostGIS + Stub</span>
-                            </Status>
+                            duplicates && (
+                                <Status
+                                    tone={
+                                        duplicates.simulation_only
+                                            ? 'simulation'
+                                            : undefined
+                                    }
+                                >
+                                    <GitCompare
+                                        className="size-3.5"
+                                        aria-hidden="true"
+                                    />
+                                    <span>{duplicates.method}</span>
+                                </Status>
+                            )
                         }
                     >
                         <p className="text-xs text-muted-foreground">
@@ -340,7 +368,13 @@ export default function Queue({
                                 />
                             ))}
                         {!duplicates?.data.length && (
-                            <EmptyState title="Tidak ditemukan kandidat duplikat dalam radius 1 km / 24 jam" />
+                            <EmptyState
+                                title={
+                                    duplicates?.fallback_state === 'FAILED'
+                                        ? 'Pemeringkatan belum tersedia'
+                                        : 'Tidak ditemukan kandidat duplikat dalam radius 1 km / 24 jam'
+                                }
+                            />
                         )}
                     </Panel>
 

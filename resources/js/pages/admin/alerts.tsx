@@ -59,7 +59,7 @@ export default function Alerts({ payload }: { payload: Pagination<Alert> }) {
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Cari judul atau ID peringatan..."
                             aria-label="Cari peringatan resmi"
-                            className="dr-input h-9 rounded-full pl-8 text-xs"
+                            className="dr-input h-9 rounded-full !pl-9 text-xs"
                         />
                     </div>
                 }

@@ -112,13 +112,8 @@ export function PageVariantSwitcherBar({
     compact?: boolean;
     className?: string;
 }) {
-    const {
-        variant,
-        meta,
-        setVariant,
-        auroraPaused,
-        toggleAuroraPaused,
-    } = usePageVariant();
+    const { variant, meta, setVariant, auroraPaused, toggleAuroraPaused } =
+        usePageVariant();
     const { resolvedAppearance, updateAppearance } = useAppearance();
     const [commandOpen, setCommandOpen] = useState(false);
 
@@ -202,7 +197,7 @@ export function PageVariantSwitcherBar({
                     >
                         <Search className="size-3.5" aria-hidden="true" />
                         <span className="hidden sm:inline">Cari Cepat</span>
-                        <kbd className="rounded border border-border bg-muted px-1 py-0.2 text-[10px] font-semibold">
+                        <kbd className="py-0.2 rounded border border-border bg-muted px-1 text-[10px] font-semibold">
                             Ctrl+K
                         </kbd>
                     </button>

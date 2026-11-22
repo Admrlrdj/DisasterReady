@@ -26,6 +26,7 @@ export const statusLabels: Record<string, string> = {
     UPCOMING: 'Belum berlaku',
     COMPLETED: 'Selesai',
     QUEUED: 'Dalam antrean',
+    BUSY: 'Antrean penuh',
     DISABLED: 'Dinonaktifkan',
     DISPATCH_FAILED: 'Pengiriman job tertunda',
     POSTGIS_REQUIRED: 'Memerlukan PostGIS',
@@ -49,6 +50,18 @@ export function dateTime(value?: string | null, timeOnly = false): string {
 
 export function recordLink(record: OfficialRecord): string {
     return `/${record.kind === 'alert' ? 'alerts' : 'events'}/${record.id}`;
+}
+
+export function forecastTime(record: OfficialRecord): string {
+    const local = Array.isArray(record.data)
+        ? ''
+        : stringValue(record.data.local_datetime, '');
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(local)) {
+        const [date, time] = local.split(' ');
+        const [year, month, day] = date.split('-');
+        return `${day}/${month}/${year} ${time.slice(0, 5)} (waktu setempat)`;
+    }
+    return dateTime(record.forecast_at ?? record.source_time);
 }
 
 export function stringValue(value: unknown, fallback = '-'): string {
@@ -118,7 +131,7 @@ export async function api<T>(
     return result as T;
 }
 
-export type Region = '31.75.03.1001' | '31.75.03.1002';
+export type Region = string;
 export type Overview = {
     active_alert_count: number;
     events: OfficialRecord[];
@@ -126,7 +139,9 @@ export type Overview = {
     forecasts: OfficialRecord[];
     sources: SourceHealth[];
     region: Region;
-    regions: Record<Region, string>;
+    region_name: string;
+    regions?: Record<Region, string>;
+    weather_status: { state: string; fetched_at: string | null };
     hazards: { id: number; slug: Hazard; label: string }[];
     layers: {
         id: number;

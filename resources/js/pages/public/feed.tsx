@@ -1,11 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import {
-    ArrowUpRight,
-    ExternalLink,
-    MapPin,
-    Search,
-    ShieldCheck,
-} from 'lucide-react';
+import { ArrowUpRight, ExternalLink, Search, ShieldCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
     HazardChipBadge,
@@ -15,6 +9,10 @@ import {
     SIAGA_TIERS,
     type SiagaTier,
 } from '@/components/disaster/hazard-icons';
+import {
+    RegionPicker,
+    RegionWeatherStatus,
+} from '@/components/disaster/region-picker';
 import {
     Action,
     EmptyState,
@@ -27,12 +25,12 @@ import {
 import { usePageVariant } from '@/hooks/use-page-variant';
 import {
     dateTime,
+    forecastTime,
     recordLink,
     stringValue,
     type Overview,
 } from '@/lib/disaster';
 import { cn } from '@/lib/utils';
-
 export default function Feed({ overview }: { overview: Overview }) {
     const weather = usePage().url.startsWith('/weather');
     const { variant } = usePageVariant();
@@ -142,7 +140,7 @@ export default function Feed({ overview }: { overview: Overview }) {
                                     : 'Cari wilayah atau magnitudo gempa...'
                             }
                             aria-label="Cari catatan BMKG"
-                            className="dr-input h-9 rounded-full pl-8 text-xs"
+                            className="dr-input h-9 rounded-full !pl-9 text-xs"
                         />
                     </div>
 
@@ -183,37 +181,25 @@ export default function Feed({ overview }: { overview: Overview }) {
 
             {weather && (
                 <Panel
-                    title={`Prakiraan Cuaca 3 Jam BMKG · ${overview.regions[overview.region] ?? overview.region}`}
-                    subtitle="Cakupan pilot Jatinegara (adm4). Prakiraan hujan adalah indikator meteorologi, bukan penentu banjir otomatis."
+                    title={`Prakiraan Cuaca 3 Jam BMKG · ${overview.region_name ?? overview.regions?.[overview.region] ?? overview.region}`}
+                    subtitle="Prakiraan BMKG per desa dan kelurahan (adm4) di Indonesia. Prakiraan hujan adalah indikator meteorologi, bukan penentu banjir otomatis."
                     aside={
-                        <div className="flex items-center gap-2">
-                            <MapPin
-                                className="size-4 text-primary"
-                                aria-hidden="true"
-                            />
-                            <select
-                                className="dr-select h-9 w-auto rounded-full px-3 text-xs font-semibold"
-                                aria-label="Wilayah prakiraan"
-                                value={overview.region}
-                                onChange={(event) =>
-                                    router.get(
-                                        '/weather',
-                                        { region: event.target.value },
-                                        { preserveScroll: true },
-                                    )
-                                }
-                            >
-                                {Object.entries(overview.regions).map(
-                                    ([code, name]) => (
-                                        <option key={code} value={code}>
-                                            {name} ({code})
-                                        </option>
-                                    ),
-                                )}
-                            </select>
-                        </div>
+                        <RegionPicker
+                            overview={overview}
+                            onSelect={(region) =>
+                                router.get(
+                                    '/weather',
+                                    { region },
+                                    {
+                                        preserveScroll: true,
+                                        only: ['overview'],
+                                    },
+                                )
+                            }
+                        />
                     }
                 >
+                    <RegionWeatherStatus overview={overview} />
                     {forecasts.length ? (
                         <div className="dr-weather">
                             {forecasts.map((record) => {
@@ -229,12 +215,7 @@ export default function Feed({ overview }: { overview: Overview }) {
                                     >
                                         <div className="flex items-center justify-between gap-2">
                                             <small className="text-xs font-semibold text-muted-foreground tabular-nums">
-                                                {dateTime(
-                                                    stringValue(
-                                                        record.forecast_at,
-                                                        record.source_time,
-                                                    ),
-                                                )}
+                                                {forecastTime(record)}
                                             </small>
                                             <HazardChipBadge
                                                 hazard="extreme_weather"
@@ -256,7 +237,11 @@ export default function Feed({ overview }: { overview: Overview }) {
                                         </small>
                                         <div className="flex items-center justify-between gap-2 pt-1">
                                             <Status
-                                                value={record.source.freshness}
+                                                value={
+                                                    overview.weather_status
+                                                        ?.state ??
+                                                    record.source.freshness
+                                                }
                                             />
                                             <a
                                                 href={record.source_url}

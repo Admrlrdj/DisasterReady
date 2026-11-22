@@ -260,7 +260,6 @@ export default function Preparedness({
                                 BNPB dan BPBD di bawah ini.
                             </EmptyState>
                         )}
-
                         <div className="flex flex-wrap gap-2 pt-1">
                             {hazard === 'flood' && (
                                 <Action variant="outline" size="sm" asChild>
@@ -279,11 +278,11 @@ export default function Preparedness({
                             )}
                             <Action variant="outline" size="sm" asChild>
                                 <a
-                                    href="https://www.bnpb.go.id/"
+                                    href="https://www.bnpb.go.id/buku/buku-saku-bencana"
                                     target="_blank"
                                     rel="noreferrer"
                                 >
-                                    <span>Portal Resmi BNPB</span>
+                                    <span>Buku Saku Kesiapsiagaan BNPB</span>
                                     <ExternalLink
                                         className="size-3.5"
                                         aria-hidden="true"

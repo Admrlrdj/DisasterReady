@@ -225,7 +225,7 @@ export default function MapPage({ overview }: { overview: Overview }) {
                                     target="_blank"
                                     rel="noreferrer"
                                 >
-                                    <span>WebGIS InaRISK</span>
+                                    <span>WebGIS Nasional InaRISK</span>
                                     <ExternalLink
                                         className="size-3.5"
                                         aria-hidden="true"

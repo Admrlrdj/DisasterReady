@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Middleware\NormalizeDisasterDates;
 use App\Models\IncidentReport;
 use App\Services\FrontendData;
+use App\Services\Integrations\WeatherRegions;
 use App\Services\PublicData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,14 +16,17 @@ class FrontendController extends Controller
 {
     public function page(Request $request, FrontendData $data): Response
     {
-        $request->validate(['region' => ['sometimes', 'in:31.75.03.1001,31.75.03.1002']]);
+        $request->validate(['region' => ['sometimes', WeatherRegions::RULE]]);
         $component = match ($request->route()?->getName()) {
             'home' => 'welcome', 'dashboard' => 'dashboard', 'map' => 'public/map',
             'preparedness', 'preparedness.hazard' => 'public/preparedness',
             'reports.create' => 'reports/create', 'settings.overview' => 'settings/overview',
             default => 'public/feed',
         };
-        $props = ['overview' => $data->overview($request->string('region', '31.75.03.1001')->toString())];
+        $props = ['overview' => $data->overview(
+            $request->string('region', WeatherRegions::DEFAULT_REGION)->toString(),
+            $request->routeIs('weather') || ($request->routeIs('dashboard') && $request->has('region')),
+        )];
         if ($component === 'public/preparedness') {
             $hazard = $request->route('hazard') ?? 'flood';
             abort_unless(DB::table('hazard_types')->where('slug', $hazard)->exists(), 404);

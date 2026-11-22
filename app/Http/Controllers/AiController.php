@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\AnalyzeIncidentJob;
+use App\Jobs\FindDuplicateReportsJob;
 use App\Models\IncidentReport;
+use App\Services\AI\AiProviderInterface;
+use App\Services\AI\HttpAiProvider;
+use App\Services\AI\StubAiProvider;
 use App\Services\Audit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,19 +18,24 @@ use Illuminate\Support\Facades\Validator;
 
 class AiController extends Controller
 {
+    public function __construct(private AiProviderInterface $provider) {}
+
     public function suggestions(IncidentReport $report): JsonResponse
     {
         Gate::authorize('moderate');
         $runs = DB::table('ai_analysis_runs')->where('report_id', $report->id)->orderByDesc('id')->get();
         $suggestions = DB::table('ai_report_suggestions')->whereIn('analysis_run_id', $runs->pluck('id'))->get();
         foreach ($runs as $run) {
+            $run->simulation_only = $run->model_identifier === (new StubAiProvider)->model();
             $run->output_json = $run->output_json === null ? null : json_decode($run->output_json, true, 512, JSON_THROW_ON_ERROR);
         }
         foreach ($suggestions as $suggestion) {
             $suggestion->suggested_value_json = $suggestion->suggested_value_json === null ? null : json_decode($suggestion->suggested_value_json, true, 512, JSON_THROW_ON_ERROR);
         }
 
-        return response()->json(['ai_generated' => true, 'simulation_only' => true, 'model_version' => 'synthetic-rule-stub-v1', 'review_status' => 'UNVERIFIED', 'fallback_state' => $report->analysis_status, 'runs' => $runs, 'data' => $suggestions]);
+        $model = $runs->first()->model_identifier ?? $this->provider->model();
+
+        return response()->json(['ai_generated' => true, 'simulation_only' => $model === (new StubAiProvider)->model(), 'model_version' => $model, 'review_status' => 'UNVERIFIED', 'fallback_state' => $report->analysis_status, 'runs' => $runs, 'data' => $suggestions]);
     }
 
     public function feedback(Request $request, IncidentReport $report): JsonResponse
@@ -57,7 +66,13 @@ class AiController extends Controller
     {
         Gate::authorize('moderate');
 
-        return response()->json(['simulation_only' => true, 'fallback_state' => $report->duplicate_status, 'method' => 'PostGIS distance/time baseline + lexical stub; not semantic AI', 'data' => DB::table('report_duplicate_candidates')->where('report_id', $report->id)->orderByDesc('text_score')->get()]);
+        $candidates = DB::table('report_duplicate_candidates')->where('report_id', $report->id)->orderByDesc('text_score')->get();
+        $methods = $candidates->pluck('method_version')->unique();
+        $method = $methods->isEmpty()
+            ? ($this->provider instanceof HttpAiProvider ? $this->provider->duplicateMethod() : FindDuplicateReportsJob::SIMULATED_METHOD)
+            : $methods->join(', ');
+
+        return response()->json(['simulation_only' => $method === FindDuplicateReportsJob::SIMULATED_METHOD, 'fallback_state' => $report->duplicate_status, 'method' => $method, 'data' => $candidates]);
     }
 
     public function decideCandidate(Request $request, IncidentReport $report, int $candidate): JsonResponse
@@ -80,7 +95,8 @@ class AiController extends Controller
         Gate::authorize('administer');
 
         return response()->json([
-            'provider' => 'stub', 'simulation_only' => true, 'model_version' => 'synthetic-rule-stub-v1',
+            'provider' => $this->provider instanceof HttpAiProvider ? 'http' : 'stub',
+            'simulation_only' => $this->provider instanceof StubAiProvider, 'model_version' => $this->provider->model(),
             'enabled' => config('disaster.ai_enabled') && (DB::table('operational_settings')->where('key', 'ai')->value('enabled') ?? true),
             'circuit_open' => Cache::has('ai-circuit-open'), 'pending_jobs' => DB::table('jobs')->count(), 'failed_jobs' => DB::table('failed_jobs')->count(),
             'runs' => DB::table('ai_analysis_runs')->selectRaw('status, count(*) AS count')->groupBy('status')->get(),
@@ -106,6 +122,9 @@ class AiController extends Controller
     {
         Gate::authorize('administer');
         AnalyzeIncidentJob::dispatch($report->id)->afterCommit();
+        if (in_array($report->duplicate_status, ['FAILED', 'DISPATCH_FAILED'], true)) {
+            FindDuplicateReportsJob::dispatch($report->id)->afterCommit();
+        }
         Audit::record(auth()->user()?->id, 'incident_report', $report->id, 'ai_retry', [], ['queued' => true]);
 
         return response()->json(['queued' => true], 202);

@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\DB;
 
 class PublicData
 {
+    public function currentForecasts(Builder $query, string $region): Builder
+    {
+        $batch = DB::table('forecasts')->where('region_code', $region)->max('ingestion_run_id');
+
+        return $query->where('region_code', $region)->where('expires_at', '>', now())
+            ->when($batch !== null, fn (Builder $query) => $query->where('ingestion_run_id', $batch));
+    }
+
     public function activeAlerts(Builder $query): Builder
     {
         return $query->where('official_alerts.message_type', '!=', 'Cancel')->whereNull('official_alerts.superseded_at')

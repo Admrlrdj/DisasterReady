@@ -185,6 +185,7 @@ export function DisasterProvider({ children }: { children: React.ReactNode }) {
     }, [overview?.regions]);
 
     const selectedRegionName =
+        overview?.region_name ??
         overview?.regions?.[selectedRegionCode] ??
         regionOptions.find((r) => r.code === selectedRegionCode)?.name ??
         'Kampung Melayu';

@@ -34,7 +34,12 @@ import {
 import { Action, Status } from '@/components/disaster/ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { dateTime, recordLink, stringValue } from '@/lib/disaster';
+import {
+    dateTime,
+    forecastTime,
+    recordLink,
+    stringValue,
+} from '@/lib/disaster';
 import { cn } from '@/lib/utils';
 import type { Hazard, OfficialRecord } from '@/types/disaster';
 import type { MapKindFilter, MapPanelProps } from './map-panel';
@@ -830,7 +835,7 @@ export default function HazardMap({
                 </div>
             )}
 
-            {/* MapLibre Stage + Marker Detail Drawer Overlay */}
+            {/* MapLibre Stage */}
             <div className="dr-live-map relative overflow-hidden rounded-2xl border border-border/80">
                 <div
                     ref={container}
@@ -838,198 +843,203 @@ export default function HazardMap({
                     aria-label="Peta komando multi-bencana Indonesia"
                 />
 
-                {/* Interactive Detail Panel / Drawer when Marker Clicked */}
                 {selected && (
-                    <aside
-                        role="dialog"
-                        aria-label={`Detail titik bencana: ${selected.title}`}
-                        className="dr-map-selection z-20 max-h-[86%] w-full max-w-md space-y-3 overflow-y-auto overscroll-contain rounded-2xl border border-border/90 bg-card/96 p-4 shadow-xl backdrop-blur-xl"
-                    >
-                        <div className="flex items-start justify-between gap-2 border-b border-border/70 pb-2.5">
-                            <div className="space-y-1">
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                    <HazardChipBadge
-                                        hazard={selectedHazard}
-                                        tier={selectedTier}
-                                    />
-                                    <Status
-                                        value={
-                                            selected.alert_state ??
-                                            selected.source.freshness
-                                        }
-                                    />
-                                </div>
-                                <h3 className="text-sm font-bold text-foreground">
-                                    {selected.title}
-                                </h3>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setSelected(null)}
-                                aria-label="Tutup panel detail marker"
-                                className="inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                            >
-                                <X className="size-4" aria-hidden="true" />
-                            </button>
-                        </div>
-
-                        <p className="text-xs leading-relaxed text-foreground/90">
-                            {selected.message ??
-                                stringValue(
-                                    selectedData.Wilayah,
-                                    'Klik detail untuk membaca rincian parameter resmi.',
-                                )}
-                        </p>
-
-                        {/* Real-time Telemetry Parameters */}
-                        <dl className="grid grid-cols-2 gap-2 rounded-xl border border-border/75 bg-background/80 p-3 text-xs">
-                            <div>
-                                <dt className="text-[11px] text-muted-foreground">
-                                    Instansi Sumber
-                                </dt>
-                                <dd className="font-semibold text-foreground">
-                                    {selected.source.agency}
-                                </dd>
-                            </div>
-                            <div>
-                                <dt className="text-[11px] text-muted-foreground">
-                                    Waktu Sumber
-                                </dt>
-                                <dd className="font-semibold text-foreground tabular-nums">
-                                    {dateTime(
-                                        selected.forecast_at ??
-                                            selected.source_time,
-                                    )}
-                                </dd>
-                            </div>
-                            {selectedData.Magnitude !== undefined && (
-                                <div>
-                                    <dt className="text-[11px] text-muted-foreground">
-                                        Magnitudo & Kedalaman
-                                    </dt>
-                                    <dd className="font-bold text-status-siaga-text tabular-nums">
-                                        M{stringValue(selectedData.Magnitude)} ·{' '}
-                                        {stringValue(selectedData.Kedalaman)}
-                                    </dd>
-                                </div>
-                            )}
-                            {selectedData.Level !== undefined && (
-                                <div>
-                                    <dt className="text-[11px] text-muted-foreground">
-                                        Tingkat Aktivitas
-                                    </dt>
-                                    <dd className="font-bold text-status-siaga-text">
-                                        {stringValue(selectedData.Level)}
-                                    </dd>
-                                </div>
-                            )}
-                            {selectedData.t !== undefined && (
-                                <div>
-                                    <dt className="text-[11px] text-muted-foreground">
-                                        Suhu & Kelembapan
-                                    </dt>
-                                    <dd className="font-bold text-primary tabular-nums">
-                                        {stringValue(selectedData.t)} °C ·{' '}
-                                        {stringValue(selectedData.hu)}%
-                                    </dd>
-                                </div>
-                            )}
-                            {selected.expires_at && (
-                                <div>
-                                    <dt className="text-[11px] text-muted-foreground">
-                                        Berlaku Sampai
-                                    </dt>
-                                    <dd className="font-semibold text-foreground tabular-nums">
-                                        {dateTime(selected.expires_at)}
-                                    </dd>
-                                </div>
-                            )}
-                        </dl>
-
-                        {/* Backend AI Analysis & Triage Context Card */}
-                        <div className="space-y-1.5 rounded-xl border border-primary/25 bg-secondary/65 p-3 text-xs">
-                            <div className="flex items-center justify-between gap-2">
-                                <span className="inline-flex items-center gap-1.5 font-bold text-primary">
-                                    <Cpu
-                                        className="size-3.5"
-                                        aria-hidden="true"
-                                    />
-                                    <span>
-                                        Konteks Analisis AI & Triase Backend
-                                    </span>
-                                </span>
-                                <Badge
-                                    variant="outline"
-                                    className="text-[10px]"
-                                >
-                                    AI-01 · AI-02
-                                </Badge>
-                            </div>
-                            <p className="text-[11px] leading-relaxed text-muted-foreground">
-                                {typeof selectedData.ai_note === 'string'
-                                    ? selectedData.ai_note
-                                    : 'Catatan resmi instansi (BMKG/BNPB/PVMBG) tidak pernah diubah oleh AI. Laporan warga di sekitar titik ini dianalisis oleh AI-01 (ekstraksi parameter) dan AI-02 (deteksi duplikat PostGIS 1 km) untuk membantu moderator manusia.'}
-                            </p>
-                            <p className="text-[11px] font-semibold text-foreground">
-                                Rekomendasi {selectedTierMeta.shortLabel}:{' '}
-                                {selectedTierMeta.actionHint}
-                            </p>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2 pt-1">
-                            <Button
-                                asChild
-                                size="sm"
-                                className="rounded-full font-semibold"
-                            >
-                                <Link href={customDetailHref}>
-                                    <span>Buka Detail</span>
-                                </Link>
-                            </Button>
-                            <Button
-                                asChild
-                                size="sm"
-                                variant="outline"
-                                className="rounded-full"
-                            >
-                                <Link href={`/preparedness/${selectedHazard}`}>
-                                    <ShieldCheck
-                                        className="size-3.5"
-                                        aria-hidden="true"
-                                    />
-                                    <span>Panduan Siaga</span>
-                                </Link>
-                            </Button>
-                            <Button
-                                asChild
-                                size="sm"
-                                variant="outline"
-                                className="rounded-full"
-                            >
-                                <Link href="/reports/create">
-                                    <FilePlus2
-                                        className="size-3.5"
-                                        aria-hidden="true"
-                                    />
-                                    <span>Lapor Kondisi</span>
-                                </Link>
-                            </Button>
-                            <a
-                                href={selected.source_url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-primary underline"
-                            >
-                                <span>Sumber</span>
-                                <ExternalLink
-                                    className="size-3"
-                                    aria-hidden="true"
-                                />
-                            </a>
-                        </div>
-                    </aside>
+                    <div className="pointer-events-none absolute top-3 left-3 z-10 flex items-center gap-2 rounded-full border border-border/85 bg-card/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-md backdrop-blur-md">
+                        <HazardChipBadge
+                            hazard={selectedHazard}
+                            tier={selectedTier}
+                        />
+                        <span className="max-w-[220px] truncate sm:max-w-xs">
+                            {selected.title}
+                        </span>
+                    </div>
                 )}
             </div>
+
+            {/* Interactive Detail Panel / Drawer when Marker Clicked (Below Map Stage — Zero Vertical Clipping) */}
+            {selected && (
+                <aside
+                    role="dialog"
+                    aria-label={`Detail titik bencana: ${selected.title}`}
+                    className="w-full space-y-3 rounded-2xl border border-primary/45 bg-card/96 p-4 shadow-lg backdrop-blur-xl"
+                >
+                    <div className="flex items-start justify-between gap-2 border-b border-border/70 pb-2.5">
+                        <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                                <HazardChipBadge
+                                    hazard={selectedHazard}
+                                    tier={selectedTier}
+                                />
+                                <Status
+                                    value={
+                                        selected.alert_state ??
+                                        selected.source.freshness
+                                    }
+                                />
+                            </div>
+                            <h3 className="text-sm font-bold text-foreground">
+                                {selected.title}
+                            </h3>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setSelected(null)}
+                            aria-label="Tutup panel detail marker"
+                            className="inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                            <X className="size-4" aria-hidden="true" />
+                        </button>
+                    </div>
+
+                    <p className="text-xs leading-relaxed text-foreground/90">
+                        {selected.message ??
+                            stringValue(
+                                selectedData.Wilayah,
+                                'Klik detail untuk membaca rincian parameter resmi.',
+                            )}
+                    </p>
+
+                    {/* Real-time Telemetry Parameters */}
+                    <dl className="grid grid-cols-2 gap-2 rounded-xl border border-border/75 bg-background/80 p-3 text-xs sm:grid-cols-4">
+                        <div>
+                            <dt className="text-[11px] text-muted-foreground">
+                                Instansi Sumber
+                            </dt>
+                            <dd className="font-semibold text-foreground">
+                                {selected.source.agency}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt className="text-[11px] text-muted-foreground">
+                                Waktu Sumber
+                            </dt>
+                            <dd className="font-semibold text-foreground tabular-nums">
+                                {selected.kind === 'forecast'
+                                    ? forecastTime(selected)
+                                    : dateTime(selected.source_time)}
+                            </dd>
+                        </div>
+                        {selectedData.Magnitude !== undefined && (
+                            <div>
+                                <dt className="text-[11px] text-muted-foreground">
+                                    Magnitudo & Kedalaman
+                                </dt>
+                                <dd className="font-bold text-status-siaga-text tabular-nums">
+                                    M{stringValue(selectedData.Magnitude)} ·{' '}
+                                    {stringValue(selectedData.Kedalaman)}
+                                </dd>
+                            </div>
+                        )}
+                        {selectedData.Level !== undefined && (
+                            <div>
+                                <dt className="text-[11px] text-muted-foreground">
+                                    Tingkat Aktivitas
+                                </dt>
+                                <dd className="font-bold text-status-siaga-text">
+                                    {stringValue(selectedData.Level)}
+                                </dd>
+                            </div>
+                        )}
+                        {selectedData.t !== undefined && (
+                            <div>
+                                <dt className="text-[11px] text-muted-foreground">
+                                    Suhu & Kelembapan
+                                </dt>
+                                <dd className="font-bold text-primary tabular-nums">
+                                    {stringValue(selectedData.t)} °C ·{' '}
+                                    {stringValue(selectedData.hu)}%
+                                </dd>
+                            </div>
+                        )}
+                        {selected.expires_at && (
+                            <div>
+                                <dt className="text-[11px] text-muted-foreground">
+                                    Berlaku Sampai
+                                </dt>
+                                <dd className="font-semibold text-foreground tabular-nums">
+                                    {dateTime(selected.expires_at)}
+                                </dd>
+                            </div>
+                        )}
+                    </dl>
+
+                    {/* Backend AI Analysis & Triage Context Card */}
+                    <div className="space-y-1.5 rounded-xl border border-primary/25 bg-secondary/65 p-3 text-xs">
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 font-bold text-primary">
+                                <Cpu className="size-3.5" aria-hidden="true" />
+                                <span>
+                                    Konteks Analisis AI & Triase Backend
+                                </span>
+                            </span>
+                            <Badge variant="outline" className="text-[10px]">
+                                AI-01 · AI-02
+                            </Badge>
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-muted-foreground">
+                            {typeof selectedData.ai_note === 'string'
+                                ? selectedData.ai_note
+                                : 'Catatan resmi instansi (BMKG/BNPB/PVMBG) tidak pernah diubah oleh AI. Laporan warga di sekitar titik ini dianalisis oleh AI-01 (ekstraksi parameter) dan AI-02 (deteksi duplikat PostGIS 1 km) untuk membantu moderator manusia.'}
+                        </p>
+                        <p className="text-[11px] font-semibold text-foreground">
+                            Rekomendasi {selectedTierMeta.shortLabel}:{' '}
+                            {selectedTierMeta.actionHint}
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <Button
+                            asChild
+                            size="sm"
+                            className="rounded-full font-semibold"
+                        >
+                            <Link href={customDetailHref}>
+                                <span>Buka Detail</span>
+                            </Link>
+                        </Button>
+                        <Button
+                            asChild
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full"
+                        >
+                            <Link href={`/preparedness/${selectedHazard}`}>
+                                <ShieldCheck
+                                    className="size-3.5"
+                                    aria-hidden="true"
+                                />
+                                <span>Panduan Siaga</span>
+                            </Link>
+                        </Button>
+                        <Button
+                            asChild
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full"
+                        >
+                            <Link href="/reports/create">
+                                <FilePlus2
+                                    className="size-3.5"
+                                    aria-hidden="true"
+                                />
+                                <span>Lapor Kondisi</span>
+                            </Link>
+                        </Button>
+                        <a
+                            href={selected.source_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-primary underline"
+                        >
+                            <span>Sumber</span>
+                            <ExternalLink
+                                className="size-3"
+                                aria-hidden="true"
+                            />
+                        </a>
+                    </div>
+                </aside>
+            )}
 
             {/* Compact Legend + Map Tools Footer */}
             <div className="flex flex-col gap-2.5 rounded-2xl border border-border/80 bg-card/88 p-3 text-xs backdrop-blur-md">
@@ -1135,7 +1145,6 @@ export default function HazardMap({
                     </div>
                 </div>
             </div>
-
             {/* Interactive Quick List of Visible Map Markers (Keyboard-accessible alternative to canvas click) */}
             {visibleFeatures.length > 0 && (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">

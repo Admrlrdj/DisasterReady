@@ -46,7 +46,11 @@ Artisan::command('disaster:ingest', function () {
 
         return 0;
     }
-    foreach (DB::table('sources')->where('enabled', true)->whereIn('slug', ['bmkg-earthquake', 'bmkg-weather', 'bmkg-cap'])->pluck('id') as $id) {
+    $scheduled = ['bmkg-earthquake', 'bmkg-cap'];
+    if (config('disaster.weather_regions')) {
+        $scheduled[] = 'bmkg-weather';
+    }
+    foreach (DB::table('sources')->where('enabled', true)->whereIn('slug', $scheduled)->pluck('id') as $id) {
         IngestSourceJob::dispatch($id);
     }
 

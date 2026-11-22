@@ -102,7 +102,7 @@ export default function Reports({
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Cari nomor atau isi laporan..."
                         aria-label="Cari laporan saya"
-                        className="dr-input h-9 rounded-full pl-8 text-xs"
+                        className="dr-input h-9 rounded-full !pl-9 text-xs"
                     />
                 </div>
             </div>

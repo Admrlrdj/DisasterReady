@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Integrations\RegionalWeather;
+use App\Services\Integrations\WeatherRegions;
 use App\Services\PublicData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,11 +30,21 @@ class PublicDataController extends Controller
         return $this->listing($request, $data, 'official_alerts', 'alert');
     }
 
-    public function weather(Request $request, PublicData $data): JsonResponse
+    public function weather(Request $request, PublicData $data, RegionalWeather $weather): JsonResponse
     {
-        $request->validate(['region' => ['required', 'regex:/^\d{2}\.\d{2}\.\d{2}\.\d{4}$/']]);
+        $request->validate(['region' => ['required', WeatherRegions::RULE]]);
 
-        return $this->listing($request, $data, 'forecasts', 'forecast');
+        $payload = $this->listing($request, $data, 'forecasts', 'forecast')->getData(true);
+        $payload['region_status'] = $weather->status($request->string('region')->toString());
+
+        return response()->json($payload);
+    }
+
+    public function regions(Request $request, WeatherRegions $regions): JsonResponse
+    {
+        $query = $request->validate(['q' => ['required', 'string', 'min:2', 'max:100']]);
+
+        return response()->json(['data' => $regions->search($query['q']), 'catalogue_year' => 2022]);
     }
 
     public function event(int $id, PublicData $data): JsonResponse
@@ -62,9 +74,11 @@ class PublicDataController extends Controller
             $query->where('hazard_type_id', DB::table('hazard_types')->where('slug', $input['hazard'])->value('id'));
         }
         if ($table === 'forecasts') {
-            $query->where('region_code', $request->string('region')->toString());
+            $region = $request->string('region')->toString();
             if ($request->boolean('current')) {
-                $query->where('expires_at', '>', now())->reorder('forecast_at');
+                $data->currentForecasts($query, $region)->reorder('forecast_at');
+            } else {
+                $query->where('region_code', $region);
             }
         }
         $page = $query->orderByDesc('id')->paginate((int) ($input['per_page'] ?? 20))->withQueryString();
@@ -106,7 +120,7 @@ class PublicDataController extends Controller
             $data->activeAlerts($query);
         }
         if ($input['kind'] === 'forecast' && isset($input['region'])) {
-            $query->where('region_code', $input['region'])->where('expires_at', '>', now())->reorder('forecast_at');
+            $data->currentForecasts($query, $input['region'])->reorder('forecast_at');
         }
         if (isset($input['hazard'])) {
             $query->where('hazard_type_id', DB::table('hazard_types')->where('slug', $input['hazard'])->value('id'));

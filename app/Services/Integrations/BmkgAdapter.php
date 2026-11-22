@@ -3,6 +3,7 @@
 namespace App\Services\Integrations;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
@@ -22,10 +23,12 @@ class BmkgAdapter
 
     private function get(string $url): string
     {
-        if (RateLimiter::tooManyAttempts('bmkg-http', 45)) {
-            throw new \RuntimeException('SOURCE_RATE_LIMIT');
-        }
-        RateLimiter::hit('bmkg-http', 60);
+        Cache::lock('bmkg-http:lock', 5)->block(1, function (): void {
+            if (RateLimiter::tooManyAttempts('bmkg-http', 45)) {
+                throw new \RuntimeException('SOURCE_RATE_LIMIT');
+            }
+            RateLimiter::hit('bmkg-http', 60);
+        });
         $response = Http::connectTimeout(5)->timeout(15)->withOptions(['allow_redirects' => false])->get($url)->throw();
         if (strlen($response->body()) > 5_000_000) {
             throw new \RuntimeException('PAYLOAD_TOO_LARGE');

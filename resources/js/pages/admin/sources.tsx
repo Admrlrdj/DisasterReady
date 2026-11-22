@@ -34,6 +34,7 @@ type Run = {
 type Health = {
     enabled: boolean;
     provider: string;
+    simulation_only: boolean;
     model_version: string;
     pending_jobs: number;
     failed_jobs: number;
@@ -97,7 +98,7 @@ export default function Sources({
                     ['Sumber Terdaftar', payload.data?.length ?? 0],
                     ['Job Antrean AI', health.pending_jobs],
                     ['Job Gagal', health.failed_jobs],
-                    ['Token Stub', health.token_usage],
+                    ['Token Tercatat', health.token_usage],
                 ].map(([label, value]) => (
                     <div className="dr-kpi" key={String(label)}>
                         <small>{label}</small>
@@ -260,7 +261,6 @@ export default function Sources({
                         )}
                     </Panel>
                 </div>
-
                 <div
                     className={
                         variant === 'b' ? 'space-y-4 lg:col-span-5' : 'dr-stack'
@@ -270,9 +270,19 @@ export default function Sources({
                         title="Telemetri Pipeline AI"
                         subtitle={`Model: ${health.model_version}`}
                         aside={
-                            <Status tone="simulation">
+                            <Status
+                                tone={
+                                    health.simulation_only
+                                        ? 'simulation'
+                                        : undefined
+                                }
+                            >
                                 <Cpu className="size-3.5" aria-hidden="true" />
-                                <span>Provider Stub</span>
+                                <span>
+                                    {health.simulation_only
+                                        ? 'Provider Stub · Simulasi'
+                                        : 'Provider HTTP'}
+                                </span>
                             </Status>
                         }
                     >
@@ -288,9 +298,19 @@ export default function Sources({
                         </div>
                         <div className="dr-source-line">
                             <span className="text-xs font-semibold">
-                                AI-02 Kandidat Duplikat (PostGIS + Jaccard)
+                                AI-02 Kandidat Duplikat (PostGIS)
                             </span>
-                            <Status tone="simulation">Stub + PostGIS</Status>
+                            <Status
+                                tone={
+                                    health.simulation_only
+                                        ? 'simulation'
+                                        : undefined
+                                }
+                            >
+                                {health.simulation_only
+                                    ? 'Stub + PostGIS'
+                                    : 'Embedding + PostGIS'}
+                            </Status>
                         </div>
                         <div className="dr-source-line">
                             <span className="text-xs font-semibold">

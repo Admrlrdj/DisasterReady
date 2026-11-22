@@ -62,7 +62,7 @@ export default function AuditPage({ payload }: { payload: Pagination<Audit> }) {
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Filter aksi, objek, atau aktor..."
                             aria-label="Filter log audit"
-                            className="dr-input h-9 rounded-full pl-8 text-xs"
+                            className="dr-input h-9 rounded-full !pl-9 text-xs"
                         />
                     </div>
                 }

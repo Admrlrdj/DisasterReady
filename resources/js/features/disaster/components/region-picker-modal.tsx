@@ -1,5 +1,5 @@
 import { Check, MapPin, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,6 +12,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { useDisaster } from '../disaster-context';
 
+type RegionResult = { code: string; name: string; area: string };
+
 export function RegionPickerModal() {
     const {
         regionPickerOpen,
@@ -21,9 +23,55 @@ export function RegionPickerModal() {
         setSelectedRegionCode,
     } = useDisaster();
     const [search, setSearch] = useState('');
+    const [remoteSearch, setRemoteSearch] = useState<{
+        query: string;
+        data: RegionResult[] | null;
+    }>();
+
+    const needle = search.trim();
+
+    useEffect(() => {
+        if (needle.length < 2) return;
+        const request = new AbortController();
+        const timer = window.setTimeout(async () => {
+            try {
+                const response = await fetch(
+                    '/data/regions?' + new URLSearchParams({ q: needle }),
+                    {
+                        headers: { Accept: 'application/json' },
+                        signal: request.signal,
+                    },
+                );
+                if (!response.ok) throw new Error('Region search failed');
+                const { data } = (await response.json()) as {
+                    data: RegionResult[];
+                };
+                setRemoteSearch({ query: needle, data });
+            } catch {
+                if (!request.signal.aborted) {
+                    setRemoteSearch({ query: needle, data: null });
+                }
+            }
+        }, 280);
+        return () => {
+            window.clearTimeout(timer);
+            request.abort();
+        };
+    }, [needle]);
 
     const filtered = useMemo(() => {
-        const q = search.trim().toLowerCase();
+        if (
+            needle.length >= 2 &&
+            remoteSearch?.query === needle &&
+            remoteSearch.data
+        ) {
+            return remoteSearch.data.map((item) => ({
+                code: item.code,
+                name: item.name,
+                province: item.area,
+            }));
+        }
+        const q = needle.toLowerCase();
         if (!q) {
             return regionOptions;
         }
@@ -33,18 +81,18 @@ export function RegionPickerModal() {
                 r.province.toLowerCase().includes(q) ||
                 r.code.includes(q),
         );
-    }, [regionOptions, search]);
+    }, [needle, regionOptions, remoteSearch]);
 
     return (
         <Dialog open={regionPickerOpen} onOpenChange={setRegionPickerOpen}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>
-                        Pilih Wilayah Prakiraan (BMKG adm4)
+                        Pilih Wilayah Prakiraan (BMKG adm4 Nasional)
                     </DialogTitle>
                     <DialogDescription>
-                        Cakupan prakiraan cuaca saat ini melayani dua kelurahan
-                        pilot Jatinegara yang terverifikasi pada backend.
+                        Cari desa atau kelurahan di seluruh Indonesia (kode
+                        adm4) untuk menyinkronkan prakiraan cuaca BMKG 3 jam.
                     </DialogDescription>
                 </DialogHeader>
 

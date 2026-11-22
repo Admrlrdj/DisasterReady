@@ -137,7 +137,7 @@ export default function AuthSplitLayout({
             </div>
 
             {/* Right Form Stage with 3-Version Variant Switcher */}
-            <div className="w-full space-y-4 lg:p-8">
+            <div className="relative z-10 w-full space-y-4 lg:p-8">
                 <div className="mx-auto w-full max-w-md">
                     <PageVariantSwitcherBar pageLabel="Autentikasi" compact />
                 </div>

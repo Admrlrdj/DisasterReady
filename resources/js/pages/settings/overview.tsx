@@ -152,7 +152,6 @@ export default function Settings() {
                         </Action>
                     </div>
                 </Panel>
-
                 <div className="dr-stack">
                     <Panel
                         title="Profil & Keamanan Akun"
@@ -187,13 +186,15 @@ export default function Settings() {
                                 aria-hidden="true"
                             />
                             <Status tone="simulation">
-                                AI Deterministik · Simulasi
+                                Triase Terkawal · Audit Penuh
                             </Status>
                         </div>
                         <p className="text-xs leading-relaxed text-forest-muted">
                             Laporan warga dan foto bukti ditinjau melalui akses
                             privat. Keputusan verifikasi tetap di tangan
                             moderator manusia dan dicatat dalam audit log.
+                            Kesegaran data mengikuti waktu sumber dan
+                            sinkronisasi, bukan preferensi perangkat.
                         </p>
                     </Panel>
                 </div>
