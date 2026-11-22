@@ -938,6 +938,41 @@
     color: var(--primary-foreground);
     font-weight: 600;
 }
+.dr-region-picker {
+    display: grid;
+    gap: 0.4rem;
+    position: relative;
+    inline-size: min(100%, 24rem);
+}
+
+.dr-region-picker input {
+    min-inline-size: 0;
+    inline-size: 100%;
+}
+
+.dr-region-results {
+    max-block-size: 16rem;
+    margin: 0;
+    padding: 0.25rem;
+    overflow: auto;
+    list-style: none;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+}
+
+.dr-region-results button {
+    display: grid;
+    gap: 0.2rem;
+    inline-size: 100%;
+    padding: 0.5rem 0.65rem;
+    text-align: start;
+    cursor: pointer;
+}
+
+.dr-region-results button:is(:hover, :focus-visible) {
+    background: var(--muted);
+}
+
 .dr-inline-field {
     display: flex;
     align-items: center;

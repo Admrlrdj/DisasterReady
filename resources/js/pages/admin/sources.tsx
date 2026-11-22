@@ -28,6 +28,7 @@ type Run = {
 type Health = {
     enabled: boolean;
     provider: string;
+    simulation_only: boolean;
     model_version: string;
     pending_jobs: number;
     failed_jobs: number;
@@ -76,7 +77,7 @@ export default function Sources({
                     ['Sumber terdaftar', payload.data?.length ?? 0],
                     ['Job antrean', health.pending_jobs],
                     ['Job gagal', health.failed_jobs],
-                    ['Token stub', health.token_usage],
+                    ['Token tercatat', health.token_usage],
                 ].map(([label, value]) => (
                     <div className="dr-kpi" key={String(label)}>
                         <small>{label}</small>
@@ -180,8 +181,16 @@ export default function Sources({
                 </div>
                 <div className="dr-stack">
                     <Panel title="Fitur AI">
-                        <Status tone="simulation">
-                            Provider stub · simulasi
+                        <Status
+                            tone={
+                                health.simulation_only
+                                    ? 'simulation'
+                                    : undefined
+                            }
+                        >
+                            {health.simulation_only
+                                ? 'Provider stub · simulasi'
+                                : 'Provider HTTP'}
                         </Status>
                         <p className="dr-caption">{health.model_version}</p>
                         <div className="dr-source-line">
@@ -194,16 +203,24 @@ export default function Sources({
                         </div>
                         <div className="dr-source-line">
                             <span>AI-02 Kandidat duplikat</span>
-                            <Status tone="simulation">Stub + PostGIS</Status>
+                            <Status
+                                tone={
+                                    health.simulation_only
+                                        ? 'simulation'
+                                        : undefined
+                                }
+                            >
+                                {health.simulation_only
+                                    ? 'Stub + PostGIS'
+                                    : 'Embedding + PostGIS'}
+                            </Status>
                         </div>
                         <div className="dr-source-line">
                             <span>AI-03 / AI-04</span>
                             <Status value="UNAVAILABLE" />
                         </div>
                         <p className="dr-caption dr-muted">
-                            Biaya tercatat: {health.estimated_cost}. Stub tidak
-                            mengukur kualitas atau biaya provider nyata.
-                            Circuit:{' '}
+                            Biaya tercatat: {health.estimated_cost}. Circuit:{' '}
                             {health.circuit_open ? 'terbuka' : 'tertutup'}.
                         </p>
                         {health.runs.map((run) => (

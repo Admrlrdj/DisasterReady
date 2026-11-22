@@ -141,7 +141,8 @@ export default function MapPage({ overview }: { overview: Overview }) {
                             ))
                         ) : (
                             <p className="dr-caption dr-muted">
-                                Peta resmi dapat dibuka langsung di WebGIS BNPB.
+                                Sambil menunggu izin penggunaan layer, buka peta
+                                resmi untuk seluruh Indonesia di WebGIS BNPB.
                             </p>
                         )}
                         <Action asChild>
@@ -150,7 +151,7 @@ export default function MapPage({ overview }: { overview: Overview }) {
                                 target="_blank"
                                 rel="noreferrer"
                             >
-                                Buka WebGIS InaRISK ↗
+                                Buka WebGIS Nasional InaRISK ↗
                             </a>
                         </Action>
                         <a

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\FetchRegionalWeatherJob;
 use App\Jobs\IngestSourceJob;
 use App\Services\Audit;
+use App\Services\Integrations\WeatherRegions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,8 +37,16 @@ class DataAdminController extends Controller
     public function retry(Request $request, int $id): JsonResponse
     {
         Gate::authorize('administer');
-        abort_unless(DB::table('sources')->where('id', $id)->exists(), 404);
-        IngestSourceJob::dispatch($id)->afterCommit();
+        $source = DB::table('sources')->where('id', $id)->first();
+        abort_unless($source !== null, 404);
+        abort_unless($source->enabled && config('disaster.sources_enabled'), 422, 'Sinkronisasi sumber nonaktif.');
+        abort_unless(in_array($source->slug, ['bmkg-earthquake', 'bmkg-weather', 'bmkg-cap'], true), 422, 'Sumber ini tidak memiliki adapter sinkronisasi.');
+        if ($source->slug === 'bmkg-weather' && ! config('disaster.weather_regions')) {
+            $region = $request->validate(['region' => ['sometimes', WeatherRegions::RULE]])['region'] ?? WeatherRegions::DEFAULT_REGION;
+            FetchRegionalWeatherJob::dispatch($region)->afterCommit();
+        } else {
+            IngestSourceJob::dispatch($id)->afterCommit();
+        }
         Audit::record($request->user()?->id, 'source', $id, 'retry', [], ['queued' => true]);
 
         return response()->json(['queued' => true], 202);

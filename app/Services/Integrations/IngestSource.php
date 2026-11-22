@@ -33,7 +33,8 @@ class IngestSource
                     }
                 }
                 DB::transaction(function () use ($records, $sourceId, $run, $partial) {
-                    $this->persist($sourceId, $records);
+                    DB::table('sources')->where('id', $sourceId)->lockForUpdate()->first();
+                    $this->persist($sourceId, $records, $run);
                     DB::table('sources')->where('id', $sourceId)->update(['sync_status' => $partial ? 'PARTIAL' : 'OK', 'last_success_at' => now(), 'updated_at' => now()]);
                     DB::table('ingestion_runs')->where('id', $run)->update(['status' => $partial ? 'PARTIAL' : 'COMPLETED', 'error_code' => $partial ? 'EARTHQUAKE_FEED_PARTIAL' : null, 'count' => count($records), 'finished_at' => now()]);
                 });
@@ -46,7 +47,7 @@ class IngestSource
     }
 
     /** @param list<array<string, mixed>> $records */
-    public function persist(int $sourceId, array $records): void
+    public function persist(int $sourceId, array $records, ?int $runId = null): void
     {
         foreach ($records as $record) {
             $table = match ($record['kind']) {
@@ -62,6 +63,12 @@ class IngestSource
             $externalId = $record['external_id'];
             unset($record['external_id']);
             $existing = DB::table($table)->where('source_id', $sourceId)->where('external_id', $externalId)->first();
+            if ($table === 'forecasts' && $runId !== null) {
+                if (($existing->ingestion_run_id ?? 0) > $runId) {
+                    continue;
+                }
+                $record['ingestion_run_id'] = $runId;
+            }
             if ($table === 'disaster_events' && $record['latitude'] !== null && $record['longitude'] !== null) {
                 $existing ??= DB::table($table)->where('source_id', $sourceId)->where('source_time', $record['source_time'])->where('latitude', $record['latitude'])->where('longitude', $record['longitude'])->first();
                 if ($existing) {

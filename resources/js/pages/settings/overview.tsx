@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { Action, PageHeading, Panel, Status } from '@/components/disaster/ui';
+import { Action, PageHeading, Panel } from '@/components/disaster/ui';
 import { useAppearance } from '@/hooks/use-appearance';
 export default function Settings() {
     const { appearance, updateAppearance } = useAppearance();
@@ -48,9 +48,6 @@ export default function Settings() {
                     </div>
                 </Panel>
                 <Panel className="forest" title="Privasi & Kualitas Data">
-                    <Status tone="simulation">
-                        AI deterministik · simulasi
-                    </Status>
                     <p>
                         Laporan dan foto ditinjau melalui akses privat.
                         Keputusan verifikasi tetap di tangan moderator.

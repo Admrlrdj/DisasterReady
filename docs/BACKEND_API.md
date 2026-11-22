@@ -55,24 +55,25 @@ Initial status is PENDING, initial version is 1. Each review requires the curren
 
 Feedback decisions: ACCEPTED, CORRECTED, REJECTED. `corrected_value` must be present; use null unless correcting. For CORRECTED, null remains allowed; depth is numeric 0..100000 cm, hazard uses the category enum, observation_time is a date, other fields are strings up to 2000 characters. Feedback is append-only and each suggestion/candidate can be reviewed once; repeat review returns 409. Feedback does not change report verification status.
 
-The provider is `synthetic-rule-stub-v1`, prompt `incident-v1`, with `simulation_only=true`. Fields: hazard, summary, place, observation_time, water_depth_cm, road_access. The stub detects the literal word banjir and an explicit numeric cm measurement; all other extraction fields remain null. It is neither a language model nor a semantic model. Missing fields/evidence are never invented. Output schema/types/evidence are checked before persistence. Provider input excludes identity/photos/coordinates and redacts email/phone patterns; broader PII redaction and provider terms must be reviewed before enabling an external provider.
+The default provider is `synthetic-rule-stub-v1`, prompt `incident-v1`, with `simulation_only=true`. Fields: hazard, summary, place, observation_time, water_depth_cm, road_access. The stub detects the literal word banjir and an explicit numeric cm measurement and leaves other fields null. The [optional HTTP provider](NATIONAL_P0.md#ai-provider) uses the same server-side schema and evidence validation. Analysis runs identify the provider/model and simulation mode. Input omits separate identity, photo, and location fields and masks common identifiers in the report text.
 
 Analysis states: QUEUED, DISPATCH_FAILED, COMPLETED, FAILED, DISABLED. Duplicate states additionally include POSTGIS_REQUIRED on non-PostgreSQL test environments. Reports remain PENDING during all these states. Retries use 60/180/600-second backoff; stub calls are limited by a configurable daily counter and a temporary circuit after failures. Usage/cost is zero for this local stub.
 
-Duplicates: PostGIS geography distance ≤1000 m, observation window ±24 hours, nearest 20 candidates; lexical Jaccard ranking is explicitly a simulation. Candidate records retain reviewer decisions across retries. No pgvector dependency exists.
+Duplicates: PostGIS geography distance ≤1000 m, observation window ±24 hours, nearest 20 candidates. The method version distinguishes simulated lexical scoring from optional embedding scoring. Candidate records retain reviewer decisions across retries.
 
 ## Official/public data
 
-| Method/path                                                          | Result                                                                                                    |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `GET /data/overview`                                                 | Latest 10 events, latest 10 alert messages, source health                                                 |
-| `GET /data/events`                                                   | Paginated events; `hazard=earthquake` provides the earthquakes feed                                       |
-| `GET /data/events/{id}`                                              | Event detail                                                                                              |
-| `GET /data/alerts` and `/data/alerts/{id}`                           | Official CAP messages, including expired/cancelled/superseded records                                     |
-| `GET /data/weather?region=31.71.03.1001`                             | Paginated forecasts for the supplied adm4 code; example code is from BMKG docs, not a verified pilot code |
-| `GET /data/map?kind=event&bbox[]=106&bbox[]=-7&bbox[]=108&bbox[]=-5` | GeoJSON; kind event/alert/forecast, optional hazard and limit (default 100, max 200)                      |
-| `GET /data/layers`                                                   | Publication-approved historical/modelled hazard-layer metadata                                            |
-| `GET /data/preparedness/{hazard}`                                    | Published guides, references/review dates, checklist, family_plan and verified-source emergency contacts  |
+| Method/path                                                          | Result                                                                                                   |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `GET /data/overview`                                                 | Latest 10 events, latest 10 alert messages, source health                                                |
+| `GET /data/events`                                                   | Paginated events; `hazard=earthquake` provides the earthquakes feed                                      |
+| `GET /data/events/{id}`                                              | Event detail                                                                                             |
+| `GET /data/alerts` and `/data/alerts/{id}`                           | Official CAP messages, including expired/cancelled/superseded records                                    |
+| `GET /data/regions?q=Gurabesi`                                       | National ADM4 catalogue search, up to 20 results                                                         |
+| `GET /data/weather?region=91.71.01.1001&current=1`                   | Paginated, unexpired slots from the latest batch and regional freshness                                  |
+| `GET /data/map?kind=event&bbox[]=106&bbox[]=-7&bbox[]=108&bbox[]=-5` | GeoJSON; kind event/alert/forecast, optional hazard and limit (default 100, max 200)                     |
+| `GET /data/layers`                                                   | Publication-approved historical/modelled hazard-layer metadata                                           |
+| `GET /data/preparedness/{hazard}`                                    | Published guides, references/review dates, checklist, family_plan and verified-source emergency contacts |
 
 Map bbox is `[west,south,east,north]`, must have increasing bounds, width ≤60° and height ≤40°. An over-limit result includes `truncated=true`. Non-PostgreSQL environments return 503 instead of pretending to perform spatial queries. Exact citizen-report coordinates/photos/text are not part of this endpoint. Metadata identifies event, alert, forecast or historical/modelled risk separately; weather forecasts never infer flood status.
 

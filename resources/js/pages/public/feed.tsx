@@ -1,5 +1,9 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
+    RegionPicker,
+    RegionWeatherStatus,
+} from '@/components/disaster/region-picker';
+import {
     EmptyState,
     Notice,
     PageHeading,
@@ -7,7 +11,7 @@ import {
     RecordCard,
     Status,
 } from '@/components/disaster/ui';
-import { dateTime, stringValue, type Overview } from '@/lib/disaster';
+import { forecastTime, stringValue, type Overview } from '@/lib/disaster';
 export default function Feed({ overview }: { overview: Overview }) {
     const weather = usePage().url.startsWith('/weather');
     const forecasts = overview.forecasts.filter((record) => !record.expired);
@@ -38,32 +42,25 @@ export default function Feed({ overview }: { overview: Overview }) {
                 <Panel
                     title="Prakiraan Cuaca"
                     aside={
-                        <select
-                            className="dr-select"
-                            aria-label="Wilayah prakiraan"
-                            value={overview.region}
-                            onChange={(event) =>
+                        <RegionPicker
+                            overview={overview}
+                            onSelect={(region) =>
                                 router.get(
                                     '/weather',
-                                    { region: event.target.value },
-                                    { preserveScroll: true },
+                                    { region },
+                                    {
+                                        preserveScroll: true,
+                                        only: ['overview'],
+                                    },
                                 )
                             }
-                        >
-                            {Object.entries(overview.regions).map(
-                                ([code, name]) => (
-                                    <option key={code} value={code}>
-                                        {name}
-                                    </option>
-                                ),
-                            )}
-                        </select>
+                        />
                     }
                 >
                     <p className="dr-caption dr-muted">
-                        Cakupan saat ini: dua kelurahan pilot Jatinegara.
-                        Prakiraan hujan tidak otomatis berarti banjir.
+                        Prakiraan BMKG per desa dan kelurahan di Indonesia.
                     </p>
+                    <RegionWeatherStatus overview={overview} />
                     {forecasts.length ? (
                         <div className="dr-weather">
                             {forecasts.map((record) => {
@@ -76,14 +73,7 @@ export default function Feed({ overview }: { overview: Overview }) {
                                         className="dr-weather-slot"
                                         key={record.id}
                                     >
-                                        <small>
-                                            {dateTime(
-                                                stringValue(
-                                                    record.forecast_at,
-                                                    record.source_time,
-                                                ),
-                                            )}
-                                        </small>
+                                        <small>{forecastTime(record)}</small>
                                         <strong>
                                             {stringValue(
                                                 data.weather_desc,
@@ -95,7 +85,9 @@ export default function Feed({ overview }: { overview: Overview }) {
                                             Kelembapan {stringValue(data.hu)}%
                                         </small>
                                         <Status
-                                            value={record.source.freshness}
+                                            value={
+                                                overview.weather_status.state
+                                            }
                                         />
                                         <a
                                             href={record.source_url}

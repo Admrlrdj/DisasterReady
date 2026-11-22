@@ -13,7 +13,7 @@ export default function Welcome({ overview }: { overview: Overview }) {
                 <Brand subtitle={false} landing />
                 <nav className="dr-landing-nav">
                     <Link href="/dashboard">Pantauan Nasional</Link>
-                    <Link href="/map">Peta Pilot Jatinegara</Link>
+                    <Link href="/map">Peta Multi-Bencana</Link>
                     <Link href="/preparedness">Kesiapsiagaan</Link>
                     <Link href="/reports/create">Kirim Laporan</Link>
                 </nav>
@@ -138,8 +138,8 @@ export default function Welcome({ overview }: { overview: Overview }) {
                     <Panel title="Cara laporan ditinjau">
                         <p>
                             Moderator memeriksa laporan dan bukti warga.
-                            Ringkasan dan saran duplikat dari simulasi AI
-                            membantu proses peninjauan.
+                            Ringkasan dan saran duplikat dari AI membantu proses
+                            peninjauan.
                         </p>
                         <Action variant="outline" asChild>
                             <Link href="/preparedness">

@@ -3,7 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\IncidentReport;
+use App\Services\AI\AiBudget;
 use App\Services\AI\AiProviderInterface;
+use App\Services\AI\HttpAiProvider;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 class FindDuplicateReportsJob implements ShouldQueue
 {
     use Queueable;
+
+    public const SIMULATED_METHOD = 'postgis-time+lexical-simulation-v1';
 
     public int $tries = 3;
 
@@ -42,13 +46,22 @@ class FindDuplicateReportsJob implements ShouldQueue
             $report->observed_at->copy()->addHours((int) config('disaster.duplicate_window_hours')),
             $report->longitude, $report->latitude, config('disaster.duplicate_radius_m'),
         ]);
-        foreach ($rows as $row) {
-            DB::table('report_duplicate_candidates')->updateOrInsert(['report_id' => $report->id, 'candidate_report_id' => $row->id], [
-                'method_version' => 'postgis-time+lexical-simulation-v1', 'geo_distance_m' => $row->distance,
-                'time_delta_minutes' => $row->minutes, 'text_score' => $provider->similarity($report->description, $row->description),
-            ]);
+        $method = self::SIMULATED_METHOD;
+        $scores = null;
+        if ($provider instanceof HttpAiProvider && $rows !== []) {
+            AiBudget::reserve();
+            $scores = $provider->similarities($report->description, array_column($rows, 'description'));
+            $method = $provider->duplicateMethod();
         }
-        $report->update(['duplicate_status' => 'COMPLETED']);
+        DB::transaction(function () use ($report, $rows, $method, $scores, $provider): void {
+            foreach ($rows as $index => $row) {
+                DB::table('report_duplicate_candidates')->updateOrInsert(['report_id' => $report->id, 'candidate_report_id' => $row->id], [
+                    'method_version' => $method, 'geo_distance_m' => $row->distance,
+                    'time_delta_minutes' => $row->minutes, 'text_score' => $scores[$index] ?? $provider->similarity($report->description, $row->description),
+                ]);
+            }
+            $report->update(['duplicate_status' => 'COMPLETED']);
+        });
     }
 
     public function failed(?\Throwable $exception): void

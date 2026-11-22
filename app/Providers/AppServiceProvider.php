@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Services\AI\AiProviderInterface;
+use App\Services\AI\HttpAiProvider;
 use App\Services\AI\StubAiProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -19,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(AiProviderInterface::class, StubAiProvider::class);
+        $this->app->bind(AiProviderInterface::class, fn (): AiProviderInterface => HttpAiProvider::configured() ?? new StubAiProvider);
     }
 
     /**

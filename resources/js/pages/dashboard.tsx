@@ -10,9 +10,14 @@ import {
     Status,
 } from '@/components/disaster/ui';
 import OfficialList from '@/components/disaster/official-list';
+import {
+    RegionPicker,
+    RegionWeatherStatus,
+} from '@/components/disaster/region-picker';
 import MapPanel from '@/components/maps/map-panel';
 import {
     dateTime,
+    forecastTime,
     stringValue,
     type Overview,
     type Region,
@@ -118,7 +123,16 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                                     key={value}
                                     aria-pressed={kind === value}
                                     className={`dr-choice ${kind === value ? 'active' : ''}`}
-                                    onClick={() => setKind(value)}
+                                    onClick={() => {
+                                        setKind(value);
+                                        if (
+                                            value === 'forecast' &&
+                                            overview.weather_status.state !==
+                                                'FRESH' &&
+                                            !busy
+                                        )
+                                            refresh();
+                                    }}
                                 >
                                     {label}
                                 </button>
@@ -137,25 +151,11 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                             </label>
                         )}
                         {kind === 'forecast' && (
-                            <label className="dr-inline-field">
-                                Wilayah
-                                <select
-                                    className="dr-select"
-                                    value={overview.region}
-                                    disabled={busy}
-                                    onChange={(event) =>
-                                        refresh(event.target.value as Region)
-                                    }
-                                >
-                                    {Object.entries(overview.regions).map(
-                                        ([code, name]) => (
-                                            <option key={code} value={code}>
-                                                {name}
-                                            </option>
-                                        ),
-                                    )}
-                                </select>
-                            </label>
+                            <RegionPicker
+                                overview={overview}
+                                onSelect={refresh}
+                                disabled={busy}
+                            />
                         )}
                     </div>
                     <MapPanel
@@ -164,7 +164,13 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                             kind === 'forecast' ? overview.region : undefined
                         }
                         activeOnly={activeOnly}
-                        revision={revision}
+                        revision={
+                            revision +
+                            (kind === 'forecast' &&
+                            overview.weather_status.fetched_at
+                                ? Date.parse(overview.weather_status.fetched_at)
+                                : 0)
+                        }
                     />
                     <div className="dr-map-legend">
                         <span>
@@ -179,6 +185,9 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                         </span>
                     </div>
                     {kind === 'forecast' && (
+                        <RegionWeatherStatus overview={overview} />
+                    )}
+                    {kind === 'forecast' && (
                         <div className="dr-dashboard-forecast">
                             {overview.forecasts.length ? (
                                 overview.forecasts.slice(0, 4).map((record) => {
@@ -191,7 +200,7 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                                             key={record.id}
                                         >
                                             <small>
-                                                {dateTime(record.forecast_at)}
+                                                {forecastTime(record)}
                                             </small>
                                             <strong>{record.title}</strong>
                                             <span>
@@ -204,7 +213,10 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                                                     : ''}
                                             </span>
                                             <Status
-                                                value={record.source.freshness}
+                                                value={
+                                                    overview.weather_status
+                                                        .state
+                                                }
                                             />
                                         </article>
                                     );
@@ -291,13 +303,9 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                                 </summary>
                                 <p>
                                     Wilayah:{' '}
-                                    {source.agency === 'BNPB'
-                                        ? 'Indonesia'
-                                        : source.name.includes('Prakiraan')
-                                          ? Object.values(
-                                                overview.regions,
-                                            ).join(', ')
-                                          : 'Indonesia'}
+                                    {source.name.includes('Prakiraan')
+                                        ? 'Indonesia · per desa atau kelurahan'
+                                        : 'Indonesia'}
                                 </p>
                                 <p>
                                     Sinkronisasi:{' '}

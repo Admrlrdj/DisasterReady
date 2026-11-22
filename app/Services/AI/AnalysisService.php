@@ -5,7 +5,6 @@ namespace App\Services\AI;
 use App\Models\IncidentReport;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\RateLimiter;
 
 class AnalysisService
 {
@@ -28,17 +27,13 @@ class AnalysisService
 
                 return;
             }
-            $budgetKey = 'ai-budget:'.now()->format('Y-m-d');
-            if (RateLimiter::tooManyAttempts($budgetKey, (int) config('disaster.ai_daily_limit')) || Cache::has('ai-circuit-open')) {
-                throw new \RuntimeException('AI_TEMPORARILY_UNAVAILABLE');
-            }
-            RateLimiter::hit($budgetKey, 86400);
+            AiBudget::reserve();
             $runId = $existing->id ?? DB::table('ai_analysis_runs')->insertGetId($identity + ['status' => 'RUNNING', 'started_at' => now()]);
             $attemptId = DB::table('ai_analysis_attempts')->insertGetId(['analysis_run_id' => $runId, 'status' => 'RUNNING', 'started_at' => now()]);
             $start = microtime(true);
             try {
                 // No identity, photo or coordinates are sent to the provider.
-                $text = preg_replace(['/\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b/i', '/(?<!\w)(?:\+62|0)[\d\s-]{8,15}\d/'], '[REDACTED]', $report->description) ?? '';
+                $text = ReportText::minimize($report->description);
                 $output = $this->provider->analyze($text);
                 $expected = ['hazard', 'summary', 'place', 'observation_time', 'water_depth_cm', 'road_access'];
                 if (count($output) !== count($expected) || array_diff($expected, array_keys($output))) {
@@ -69,7 +64,7 @@ class AnalysisService
                             'suggested_value_json' => json_encode($suggestion['value'], JSON_THROW_ON_ERROR), 'evidence_span' => $suggestion['evidence'],
                         ]);
                     }
-                    DB::table('ai_analysis_runs')->where('id', $runId)->update(['status' => 'COMPLETED', 'output_json' => json_encode($output, JSON_THROW_ON_ERROR), 'completed_at' => now(), 'error_code' => null, 'latency_ms' => (int) ((microtime(true) - $start) * 1000)]);
+                    DB::table('ai_analysis_runs')->where('id', $runId)->update(['status' => 'COMPLETED', 'output_json' => json_encode($output, JSON_THROW_ON_ERROR), 'completed_at' => now(), 'error_code' => null, 'latency_ms' => (int) ((microtime(true) - $start) * 1000), 'token_usage' => $this->provider instanceof HttpAiProvider ? $this->provider->analysisTokens() : 0]);
                     $report->update(['analysis_status' => 'COMPLETED']);
                     DB::table('ai_analysis_attempts')->where('id', $attemptId)->update(['status' => 'COMPLETED', 'completed_at' => now()]);
                 });

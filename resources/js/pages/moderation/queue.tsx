@@ -21,8 +21,17 @@ import type {
 type Props = {
     payload: Pagination<IncidentReport>;
     selected: ReportDetail | null;
-    suggestions: { data: AiSuggestion[]; fallback_state: string } | null;
-    duplicates: { data: DuplicateCandidate[] } | null;
+    suggestions: {
+        data: AiSuggestion[];
+        fallback_state: string;
+        simulation_only: boolean;
+    } | null;
+    duplicates: {
+        data: DuplicateCandidate[];
+        method: string;
+        simulation_only: boolean;
+        fallback_state: string;
+    } | null;
 };
 export default function Queue({
     payload,
@@ -64,9 +73,8 @@ export default function Queue({
                 description="Periksa laporan asli, bukti, saran AI, dan kandidat duplikat sebelum memutuskan."
             />
             <Notice>
-                Provider AI berupa stub deterministik. Saran dan ranking
-                duplikat adalah simulasi; menerima saran tidak memverifikasi
-                laporan.
+                Periksa saran dan kandidat duplikat terhadap laporan asli.
+                Verifikasi laporan memerlukan keputusan moderator.
             </Notice>
             <div className="dr-queue">
                 <Panel
@@ -121,9 +129,19 @@ export default function Queue({
                             <Panel
                                 title="Saran AI-01"
                                 aside={
-                                    <Status tone="simulation">
-                                        Simulasi stub
-                                    </Status>
+                                    suggestions && (
+                                        <Status
+                                            tone={
+                                                suggestions.simulation_only
+                                                    ? 'simulation'
+                                                    : undefined
+                                            }
+                                        >
+                                            {suggestions.simulation_only
+                                                ? 'Simulasi stub'
+                                                : 'Saran provider'}
+                                        </Status>
+                                    )
                                 }
                             >
                                 <span className="dr-caption dr-muted">
@@ -215,9 +233,17 @@ export default function Queue({
                 </div>
                 <div className="dr-stack">
                     <Panel title="Kandidat Duplikat · AI-02">
-                        <Status tone="simulation">
-                            PostGIS + lexical stub
-                        </Status>
+                        {duplicates && (
+                            <Status
+                                tone={
+                                    duplicates.simulation_only
+                                        ? 'simulation'
+                                        : undefined
+                                }
+                            >
+                                {duplicates.method}
+                            </Status>
+                        )}
                         <p className="dr-caption dr-muted">
                             Kandidat tidak digabung otomatis. Bandingkan laporan
                             dan beri keputusan manusia.
@@ -231,7 +257,13 @@ export default function Queue({
                                 />
                             ))}
                         {!duplicates?.data.length && (
-                            <EmptyState title="Tidak ada kandidat" />
+                            <EmptyState
+                                title={
+                                    duplicates?.fallback_state === 'FAILED'
+                                        ? 'Pemeringkatan belum tersedia'
+                                        : 'Tidak ada kandidat'
+                                }
+                            />
                         )}
                     </Panel>
                     <Panel title="Riwayat Review">

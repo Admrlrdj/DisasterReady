@@ -10,7 +10,7 @@ Web application built for **IT RUSH 2026 (Universitas Bengkulu)** — Subtema: _
 
 ## Local Setup
 
-1. Ensure PHP 8.3+ (with `pdo_pgsql`, `pgsql`, GD and EXIF enabled), Composer, a supported Node.js version (verified: 24.13.0), and PostgreSQL with PostGIS are installed.
+1. Ensure PHP 8.3+ (with `pdo_pgsql`, `pgsql`, GD, EXIF and zlib enabled), Composer, a supported Node.js version (verified: 24.13.0), and PostgreSQL with PostGIS are installed.
 2. Copy environment configuration and configure PostgreSQL / Supabase credentials:
     ```bash
     cp .env.example .env
@@ -27,8 +27,9 @@ Web application built for **IT RUSH 2026 (Universitas Bengkulu)** — Subtema: _
 
 For live local BMKG updates, enable the adapters as described in the
 [runbook](docs/BACKEND_RUNBOOK.md) and run `php artisan schedule:work` alongside
-the development processes. Use an isolated `disaster_ready_test` database for
-the PostGIS test suite.
+the queue worker. Use an isolated `disaster_ready_test` database for the PostGIS
+test suite. See the [national P0 handoff](docs/NATIONAL_P0.md) for coverage,
+provider configuration, and the UI/UX sprint.
 
 ## Backend implementation
 

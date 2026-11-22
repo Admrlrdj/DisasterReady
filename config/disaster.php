@@ -3,6 +3,11 @@
 return [
     'ai_enabled' => env('DISASTER_AI_ENABLED', true),
     'ai_daily_limit' => (int) env('DISASTER_AI_DAILY_LIMIT', 500),
+    'ai_provider' => env('DISASTER_AI_PROVIDER', 'stub'),
+    'ai_api_base' => env('DISASTER_AI_API_BASE'),
+    'ai_api_key' => env('DISASTER_AI_API_KEY'),
+    'ai_chat_model' => env('DISASTER_AI_CHAT_MODEL'),
+    'ai_embedding_model' => env('DISASTER_AI_EMBEDDING_MODEL'),
     'duplicate_radius_m' => 1000,
     'duplicate_window_hours' => 24,
     'photo_disk' => 'local',

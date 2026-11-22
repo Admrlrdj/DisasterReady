@@ -6,7 +6,12 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import type { FeatureCollection, Geometry } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Action, Status } from '@/components/disaster/ui';
-import { dateTime, recordLink, stringValue } from '@/lib/disaster';
+import {
+    dateTime,
+    forecastTime,
+    recordLink,
+    stringValue,
+} from '@/lib/disaster';
 import type { OfficialRecord } from '@/types/disaster';
 import type { MapPanelProps } from './map-panel';
 
@@ -319,9 +324,9 @@ export default function HazardMap({
                             </Action>
                         </div>
                         <p className="dr-caption">
-                            {dateTime(
-                                selected.forecast_at ?? selected.source_time,
-                            )}
+                            {selected.kind === 'forecast'
+                                ? forecastTime(selected)
+                                : dateTime(selected.source_time)}
                         </p>
                         {selected.expires_at && (
                             <p className="dr-caption">
@@ -410,8 +415,7 @@ export default function HazardMap({
                                         type="button"
                                         onClick={() => setSelected(record)}
                                     >
-                                        {record.title} ·{' '}
-                                        {dateTime(record.forecast_at)}
+                                        {record.title} · {forecastTime(record)}
                                     </button>
                                 ) : (
                                     <Link href={recordLink(record)}>

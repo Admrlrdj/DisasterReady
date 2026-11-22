@@ -102,11 +102,11 @@ export default function Preparedness({
                             </a>
                         )}
                         <a
-                            href="https://www.bnpb.go.id/"
+                            href="https://www.bnpb.go.id/buku/buku-saku-bencana"
                             target="_blank"
                             rel="noreferrer"
                         >
-                            Buka portal BNPB ↗
+                            Buka Buku Saku Kesiapsiagaan BNPB ↗
                         </a>
                     </Panel>
                     <Panel title="Tanya Panduan Berbasis Sumber">

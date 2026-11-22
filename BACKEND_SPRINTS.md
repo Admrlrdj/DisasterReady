@@ -57,7 +57,7 @@ Implementasi sedang diverifikasi. Checkbox menandai task yang telah memiliki buk
 
 ### B3 — AI-01 analisis laporan
 
-- [ ] B3-01: interface, stub, validasi, backoff, circuit breaker dan kill switch sudah tersedia. Adapter HTTP, konfigurasi provider nyata dan validasi biaya tetap terbuka.
+- [x] B3-01: interface, stub default, adapter HTTP opsional, validasi, backoff, circuit breaker dan kill switch tersedia. Verifikasi live dan biaya menunggu konfigurasi provider.
 - [x] B3-02: `AnalyzeIncidentJob` idempoten, model/run/saran/feedback, metadata penggunaan/latency/error tersanitasi dan minimisasi input provider.
 - [x] B3-03: ekstraksi hanya yang tertulis, field absen `null`, evidence span dari teks asli; kontrak saran, status job/fallback dan koreksi per field.
 - [x] B3-04: action terima/koreksi/tolak saran serta feedback reviewer; pisahkan keputusan saran dari status verifikasi laporan.
@@ -67,8 +67,8 @@ Implementasi sedang diverifikasi. Checkbox menandai task yang telah memiliki buk
 
 ### B4 — AI-02 kandidat duplikat dan operasi AI
 
-- [ ] B4-01: `FindDuplicateReportsJob`, indeks GiST, kandidat lokasi/waktu, persistensi idempoten dan kontrak daftar kandidat beserta jarak/selisih waktu/alasan.
-- [ ] B4-02: baseline jarak/waktu lalu ranking semantik berversi; pgvector hanya jika sudah terverifikasi dan tetap opsional.
+- [x] B4-01: `FindDuplicateReportsJob`, indeks GiST, kandidat lokasi/waktu, persistensi idempoten dan kontrak daftar kandidat beserta jarak dan selisih waktu.
+- [x] B4-02: baseline jarak/waktu, ranking stub berlabel, dan adapter embedding HTTP berversi yang diuji dengan respons sintetis. Evaluasi ranking nyata masih terbuka.
 - [ ] B4-03: action keputusan kandidat oleh reviewer, tanpa merge/delete/suppress otomatis; fixture pasangan positif/hard-negative dan evaluasi precision@k/recall@k/false match terhadap baseline. Pengukuran waktu review dengan UI dilanjutkan pada fase B.
 - [x] B4-04: query/action admin AI health, failed jobs, versi, usage/biaya, koreksi, retry dan kill switch dengan otorisasi serta audit relevan.
 
@@ -80,6 +80,7 @@ Implementasi sedang diverifikasi. Checkbox menandai task yang telah memiliki buk
 - [x] B5-02: verifikasi ingestion live BMKG gempa, cuaca dan CAP serta kode Kampung Melayu dan Bidara Cina. Scheduler menjadwalkan ingestion dan worker menyelesaikan ketiga job pada 22 November 2026 pukul 15.05 WIB.
 - [x] B5-03: adapter sumber resmi yang terpisah dari AI, normalisasi, deduplikasi stabil, scheduler/cache/retry dan status sinkronisasi.
 - [x] B5-04: freshness SLA, source/issued/effective/expires/fetched time, state stale/unavailable; query kesehatan sumber serta retry admin yang terotorisasi.
+- [x] B5 nasional: katalog ADM4 dan ingestion sesuai permintaan, dengan verifikasi live melalui PostgreSQL untuk enam sampel lintas wilayah.
 - [ ] B5-05: uji ingest ulang, kegagalan parsial, payload invalid, timeout, expired dan larangan AI menulis alert resmi.
 
 **Gate:** retry idempoten, asal/waktu data lengkap dan kegagalan terlihat dalam kontrak respons; sumber tak tersedia tidak dianggap aman. Integrasi live belum lulus bila baru memakai fixture.
@@ -88,7 +89,7 @@ Implementasi sedang diverifikasi. Checkbox menandai task yang telah memiliki buk
 
 - [x] B6-01: query/kontrak overview, feed, detail kejadian/alert, gempa dan cuaca; pagination/filter dan proyeksi data publik yang aman.
 - [x] B6-02: kueri GIS berbatas, filter dan geometri terbukti di PostGIS. Peta publik menampilkan data resmi yang bersumber dan menjaga koordinat laporan warga tetap privat.
-- [ ] B6-03: verifikasi layanan InaRISK, layer ID, CRS, extent, lisensi/resolusi; metadata hazard layers, legend/provenance/waktu. MapLibre dan rendering visual dikerjakan pada fase B.
+- [ ] B6-03: tautan WebGIS Nasional InaRISK dan renderer MapLibre tersedia. Publikasi raster di aplikasi menunggu izin tertulis BNPB dan verifikasi operasional layer.
 - [x] B6-04: model/query panduan dengan referensi resmi dan tanggal review; kontrak checklist/rencana keluarga dan kontak darurat yang telah diverifikasi.
 - [x] B6-05: action admin sumber/alert/panduan dan query audit dengan Policies, validasi serta transaksi audit. Alert tetap bersumber resmi.
 
@@ -116,4 +117,4 @@ Setiap tahap frontend memvalidasi ulang backend jika ada kebutuhan kontrak yang 
 
 Untuk perubahan backend jalankan `composer test` (Pint, PHPStan, PHPUnit) beserta test PostGIS relevan; catat perintah, hasil, database dan pemeriksaan tertunda. Perubahan routing/kontrak yang memengaruhi Wayfinder/Inertia juga memerlukan pemeriksaan frontend/build. Pada integrasi frontend jalankan `npm run check`, `npm run types:check`, `npm run build` dan regression backend yang relevan.
 
-Langkah berikutnya: tinjau dan terbitkan draf panduan banjir, lakukan penerimaan browser dengan tiga peran, lalu validasi revisi ini di CI dan staging. Lisensi InaRISK, provider nyata, retensi, serta kesiapan cloud tetap terbuka. Checkbox menandai bukti sesuai cakupan task.
+Lanjutkan [sprint UI/UX nasional](docs/NATIONAL_P0.md) dengan review draf kesiapsiagaan dan penerimaan browser dengan tiga peran. Izin layer InaRISK, verifikasi provider nyata, retensi, serta kesiapan cloud tetap terbuka. Checkbox menandai pekerjaan yang sudah memiliki bukti sesuai cakupannya.

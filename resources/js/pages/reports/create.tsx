@@ -261,9 +261,6 @@ export default function CreateReport({
                             asli, bukti, dan keputusan manusia tetap menjadi
                             dasar peninjauan.
                         </p>
-                        <Status tone="simulation">
-                            Stub · bukan model AI nyata
-                        </Status>
                     </Panel>
                 </div>
             </div>
