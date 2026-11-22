@@ -1,6 +1,6 @@
 # DisasterReady
 
-Web application built for **IT RUSH 2026 (Universitas Bengkulu)** — Subtema: *Mitigasi Bencana dan Perubahan Iklim*.
+Web application built for **IT RUSH 2026 (Universitas Bengkulu)** — Subtema: _Mitigasi Bencana dan Perubahan Iklim_.
 
 ## Tech Stack
 
@@ -12,17 +12,17 @@ Web application built for **IT RUSH 2026 (Universitas Bengkulu)** — Subtema: *
 
 1. Ensure PHP 8.3+ (with `pdo_pgsql` and `pgsql` extensions enabled), Composer, and Node.js 22+ are installed.
 2. Copy environment configuration and configure PostgreSQL / Supabase credentials:
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 3. Install dependencies, generate application key, run migrations, and start the dev servers:
-   ```bash
-   composer install
-   php artisan key:generate
-   php artisan migrate
-   npm install
-   composer run dev
-   ```
+    ```bash
+    composer install
+    php artisan key:generate
+    php artisan migrate
+    npm install
+    composer run dev
+    ```
 
 ## Attribution & Open-Source Libraries
 
