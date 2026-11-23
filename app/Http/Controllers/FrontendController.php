@@ -21,6 +21,7 @@ class FrontendController extends Controller
             'home' => 'welcome', 'dashboard' => 'dashboard', 'map' => 'public/map',
             'preparedness', 'preparedness.hazard' => 'public/preparedness',
             'reports.create' => 'reports/create', 'settings.overview' => 'settings/overview',
+            'weather' => 'public/weather',
             default => 'public/feed',
         };
         $props = ['overview' => $data->overview(

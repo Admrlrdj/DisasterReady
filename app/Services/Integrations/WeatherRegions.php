@@ -37,6 +37,44 @@ final class WeatherRegions
         return $matches;
     }
 
+    /** @return array{name: string, districts: list<array{code: string, locality: string, name: string}>}|null */
+    public function province(string $region): ?array
+    {
+        $file = resource_path('data/adm4-2022.tsv.gz');
+        if (! function_exists('gzopen') || ! is_file($file) || ($input = gzopen($file, 'rb')) === false) {
+            return null;
+        }
+
+        $prefix = substr($region, 0, 2).'.';
+        $province = null;
+        $districts = [];
+        try {
+            while (($line = gzgets($input)) !== false) {
+                if (! str_starts_with($line, $prefix)) {
+                    continue;
+                }
+                [$code, $locality, $area] = str_getcsv(rtrim($line, "
+"), "	", '"', '');
+                $parts = array_map('trim', explode(',', $area));
+                $district = substr($code, 0, 5);
+                if (count($parts) < 3 || (isset($districts[$district]) && $code !== $region)) {
+                    continue;
+                }
+                $province ??= self::displayName($parts[count($parts) - 1]);
+                $districts[$district] = ['code' => $code, 'locality' => $locality, 'name' => self::displayName($parts[count($parts) - 2])];
+            }
+        } finally {
+            gzclose($input);
+        }
+
+        return $province === null ? null : ['name' => $province, 'districts' => array_values($districts)];
+    }
+
+    private static function displayName(string $name): string
+    {
+        return str_replace(['Dki ', 'Di ', 'Kab. '], ['DKI ', 'DI ', 'Kabupaten '], mb_convert_case($name, MB_CASE_TITLE, 'UTF-8'));
+    }
+
     /** @param list<string> $terms */
     private static function matches(string $text, array $terms): bool
     {

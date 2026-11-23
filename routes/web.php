@@ -4,6 +4,7 @@ use App\Http\Controllers\FrontendController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FrontendController::class, 'page'])->name('home');
+Route::get('/bantuan', [FrontendController::class, 'help'])->name('help');
 Route::get('/dashboard', [FrontendController::class, 'page'])->name('dashboard');
 Route::get('/map', [FrontendController::class, 'page'])->name('map');
 Route::get('/earthquakes', [FrontendController::class, 'page'])->name('earthquakes');

@@ -2,6 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { Action, Brand } from '@/components/disaster/ui';
+import { CloudSun } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -18,9 +19,10 @@ const navigation = [
     { href: '/map', label: 'Peta Multi-Bencana', icon: icons.imgFrame2 },
     {
         href: '/earthquakes',
-        label: 'Gempa & Cuaca BMKG',
+        label: 'Gempa Bumi',
         icon: icons.imgFrame3,
     },
+    { href: '/weather', label: 'Prakiraan Cuaca', icon: null },
     { href: '/volcanoes', label: 'Gunung Api PVMBG', icon: icons.imgFrame4 },
     {
         href: '/preparedness',
@@ -43,7 +45,7 @@ const navigation = [
         icon: icons.imgFrame7,
         role: 'moderator',
     },
-    { href: '/shelters', label: 'Kandidat Shelter', icon: icons.imgFrame8 },
+    { href: '/shelters', label: 'Lokasi Pengungsian', icon: icons.imgFrame8 },
     {
         href: '/admin/sources',
         label: 'Adapter & AI Health',
@@ -95,8 +97,7 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
     );
     const active = (href: string) =>
         url.split('?')[0] === href ||
-        (href !== '/dashboard' && url.startsWith(href + '/')) ||
-        (href === '/earthquakes' && url.startsWith('/weather'));
+        (href !== '/dashboard' && url.startsWith(href + '/'));
     const nav = (
         <>
             <div className="dr-sidebar-top">
@@ -140,6 +141,7 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                             )}
                             <Link
                                 title={item.label}
+                                aria-label={item.label}
                                 href={item.href}
                                 className={cn(
                                     'dr-nav-item',
@@ -150,9 +152,16 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                                 }
                                 onClick={() => setMenuOpen(false)}
                             >
-                                <span className="dr-nav-icon">
-                                    <img src={item.icon} alt="" />
-                                </span>
+                                {item.icon ? (
+                                    <span className="dr-nav-icon">
+                                        <img src={item.icon} alt="" />
+                                    </span>
+                                ) : (
+                                    <CloudSun
+                                        className="dr-nav-icon p-0.5 dark:text-[#315748]"
+                                        aria-hidden="true"
+                                    />
+                                )}
                                 <span>{item.label}</span>
                                 {item.href === '/admin/reports' &&
                                     pending_reports !== null && (

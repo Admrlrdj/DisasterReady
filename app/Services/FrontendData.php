@@ -22,6 +22,7 @@ class FrontendData
             'sources' => DB::table('sources')->orderBy('id')->pluck('id')->map(fn (int $id) => $this->publicData->source($id))->all(),
             'forecasts' => $this->publicData->currentForecasts(DB::table('forecasts'), $region)->orderBy('forecast_at')->limit(80)->get()->map(fn (\stdClass $row) => $this->publicData->record($row, 'forecast'))->all(),
             'region' => $region,
+            'map_weather_regions' => array_values(config('disaster.weather_regions')),
             'region_name' => $this->regions->search($region, 1)[0]['name'] ?? $region,
             'weather_status' => $weather,
             'hazards' => DB::table('hazard_types')->orderBy('id')->get()->all(),

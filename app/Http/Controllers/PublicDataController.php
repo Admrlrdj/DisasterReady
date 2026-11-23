@@ -40,6 +40,27 @@ class PublicDataController extends Controller
         return response()->json($payload);
     }
 
+    public function provinceWeather(Request $request, WeatherRegions $regions, PublicData $data, RegionalWeather $weather): JsonResponse
+    {
+        $input = $request->validate(['region' => ['required', WeatherRegions::RULE]]);
+        $province = $regions->province($input['region']);
+        abort_if($province === null, 404, 'Provinsi belum tersedia dalam katalog wilayah.');
+
+        $target = now()->addHour();
+        $districts = collect($province['districts'])->sortBy('name')->values();
+        $rows = $districts->map(function (array $district) use ($target, $data, $weather) {
+            $code = $district['code'];
+            $state = $weather->status($code);
+            $slot = $data->currentForecasts(DB::table('forecasts'), $code)
+                ->where('forecast_at', '<=', $target)->where('expires_at', '>', $target)
+                ->orderByDesc('forecast_at')->first();
+
+            return $district + ['status' => $state['state'], 'forecast' => $slot ? $data->record($slot, 'forecast') : null];
+        });
+
+        return response()->json(['province' => $province['name'], 'target_at' => $target->toIso8601String(), 'districts' => $rows]);
+    }
+
     public function regions(Request $request, WeatherRegions $regions): JsonResponse
     {
         $query = $request->validate(['q' => ['required', 'string', 'min:2', 'max:100']]);
@@ -108,7 +129,7 @@ class PublicDataController extends Controller
 
     public function map(Request $request, PublicData $data): JsonResponse
     {
-        $input = $request->validate(['bbox' => ['required', 'array', 'size:4'], 'bbox.*' => ['required', 'numeric'], 'kind' => ['required', 'in:event,alert,forecast'], 'limit' => ['sometimes', 'integer', 'between:1,200'], 'hazard' => ['sometimes', 'exists:hazard_types,slug'], 'region' => ['sometimes', 'regex:/^\d{2}\.\d{2}\.\d{2}\.\d{4}$/'], 'status' => ['sometimes', 'in:active']]);
+        $input = $request->validate(['bbox' => ['required', 'array', 'size:4'], 'bbox.*' => ['required', 'numeric'], 'kind' => ['required', 'in:event,alert,forecast'], 'limit' => ['sometimes', 'integer', 'between:1,200'], 'hazard' => ['sometimes', 'exists:hazard_types,slug'], 'region' => ['sometimes', 'regex:/^\d{2}\.\d{2}\.\d{2}\.\d{4}$/'], 'status' => ['sometimes', 'in:active'], 'weather_points' => ['sometimes', 'boolean'], 'event_days' => ['sometimes', 'integer', 'in:1,7']]);
         [$west, $south, $east, $north] = array_map('floatval', $input['bbox']);
         abort_if($west < -180 || $east > 180 || $south < -90 || $north > 90 || $west >= $east || $south >= $north || $east - $west > 60 || $north - $south > 40, 422, 'Bbox tidak valid atau terlalu luas.');
         abort_unless(DB::getDriverName() === 'pgsql', 503, 'POSTGIS_REQUIRED');
@@ -119,6 +140,9 @@ class PublicDataController extends Controller
         if ($input['kind'] === 'alert' && isset($input['status'])) {
             $data->activeAlerts($query);
         }
+        if ($input['kind'] === 'event' && isset($input['event_days'])) {
+            $query->where('source_time', '>=', now()->subDays((int) $input['event_days']));
+        }
         if ($input['kind'] === 'forecast' && isset($input['region'])) {
             $data->currentForecasts($query, $input['region'])->reorder('forecast_at');
         }
@@ -127,8 +151,13 @@ class PublicDataController extends Controller
         }
         $limit = (int) ($input['limit'] ?? 100);
         $regionalForecast = $input['kind'] === 'forecast' && isset($input['region']);
-        $rows = $query->select('*')->selectRaw('ST_AsGeoJSON(geom) AS geojson')->orderByDesc('source_time')->orderBy('id')->limit($regionalForecast ? 1 : $limit + 1)->get();
+        $query->select('*')->selectRaw('ST_AsGeoJSON(geom) AS geojson');
+        if ($input['kind'] === 'alert' && $request->boolean('weather_points')) {
+            $query->selectRaw('ST_AsGeoJSON(ST_PointOnSurface(geom)) AS weather_point');
+        }
 
-        return response()->json(['type' => 'FeatureCollection', 'truncated' => $rows->count() > $limit, 'features' => $rows->take($limit)->map(fn (object $row) => ['type' => 'Feature', 'geometry' => json_decode($row->geojson, true, 512, JSON_THROW_ON_ERROR), 'properties' => $data->record($row, $input['kind'])])->values()]);
+        $rows = $query->orderByDesc('source_time')->orderBy('id')->limit($regionalForecast ? 1 : $limit + 1)->get();
+
+        return response()->json(['type' => 'FeatureCollection', 'truncated' => $rows->count() > $limit, 'features' => $rows->take($limit)->map(fn (object $row) => ['type' => 'Feature', 'geometry' => json_decode($row->geojson, true, 512, JSON_THROW_ON_ERROR), 'properties' => $data->record($row, $input['kind'])] + (isset($row->weather_point) ? ['weather_point' => json_decode($row->weather_point, true, 512, JSON_THROW_ON_ERROR)] : []))->values()]);
     }
 }

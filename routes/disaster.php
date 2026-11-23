@@ -17,6 +17,7 @@ Route::middleware(NormalizeDisasterDates::class)->group(function () {
         Route::get('/alerts', [PublicDataController::class, 'alerts'])->name('data.alerts');
         Route::get('/alerts/{id}', [PublicDataController::class, 'alert'])->name('data.alert');
         Route::get('/weather', [PublicDataController::class, 'weather'])->name('data.weather');
+        Route::get('/weather/province', [PublicDataController::class, 'provinceWeather'])->name('data.weather.province');
         Route::get('/regions', [PublicDataController::class, 'regions'])->name('data.regions');
         Route::get('/map', [PublicDataController::class, 'map'])->name('data.map');
         Route::get('/layers', [PublicDataController::class, 'layers'])->name('data.layers');

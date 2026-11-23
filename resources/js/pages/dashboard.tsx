@@ -1,66 +1,69 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import { CloudLightning, CloudRain, RefreshCw } from 'lucide-react';
 import {
     Action,
-    EmptyState,
     Notice,
     PageHeading,
     Panel,
     Status,
 } from '@/components/disaster/ui';
 import OfficialList from '@/components/disaster/official-list';
-import {
-    RegionPicker,
-    RegionWeatherStatus,
-} from '@/components/disaster/region-picker';
+import ProvinceForecast from '@/components/disaster/province-forecast';
+import WeatherLocation from '@/components/disaster/weather-location';
 import MapPanel from '@/components/maps/map-panel';
-import {
-    dateTime,
-    forecastTime,
-    stringValue,
-    type Overview,
-    type Region,
-} from '@/lib/disaster';
+import { dateTime, type Overview, type Region } from '@/lib/disaster';
 
 export default function Dashboard({ overview }: { overview: Overview }) {
-    const { auth, pending_reports: pending } = usePage().props;
-    const [kind, setKind] = useState<'event' | 'alert' | 'forecast'>('event');
+    const {
+        props: { auth, pending_reports: pending },
+        url,
+    } = usePage();
+    const selectedRegion = new URLSearchParams(url.split('?')[1]).has('region')
+        ? overview.region
+        : undefined;
+    const weatherRegions = useMemo(
+        () => [
+            ...new Set(
+                selectedRegion
+                    ? [selectedRegion, ...overview.map_weather_regions]
+                    : overview.map_weather_regions,
+            ),
+        ],
+        [selectedRegion, overview.map_weather_regions],
+    );
+    const [eventDays, setEventDays] = useState<1 | 7>();
     const [activeOnly, setActiveOnly] = useState(true);
     const [revision, setRevision] = useState(0);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState(false);
     const [announcement, setAnnouncement] = useState('');
 
-    function refresh(region: Region = overview.region) {
+    const refresh = useCallback((region?: Region) => {
         setBusy(true);
         setError(false);
         setAnnouncement('');
-        router.get(
-            '/dashboard',
-            { region },
-            {
-                only: ['overview', 'pending_reports'],
-                preserveScroll: true,
-                preserveState: true,
-                replace: true,
-                onSuccess: () => {
-                    setRevision((value) => value + 1);
-                    setAnnouncement('Tampilan data diperbarui.');
-                },
-                onError: () => setError(true),
-                onHttpException: () => {
-                    setError(true);
-                    return false;
-                },
-                onNetworkError: () => {
-                    setError(true);
-                    return false;
-                },
-                onFinish: () => setBusy(false),
+        router.get('/dashboard', region ? { region } : {}, {
+            only: ['overview', 'pending_reports'],
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+            onSuccess: () => {
+                setRevision((value) => value + 1);
+                setAnnouncement('Tampilan data diperbarui.');
             },
-        );
-    }
+            onError: () => setError(true),
+            onHttpException: () => {
+                setError(true);
+                return false;
+            },
+            onNetworkError: () => {
+                setError(true);
+                return false;
+            },
+            onFinish: () => setBusy(false),
+        });
+    }, []);
 
     const alertSource = overview.sources.find(
         (source) => source.name === 'Peringatan cuaca BMKG CAP',
@@ -76,15 +79,15 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                 <Action
                     variant="outline"
                     disabled={busy}
-                    onClick={() => refresh()}
+                    onClick={() => refresh(selectedRegion)}
                 >
                     <RefreshCw aria-hidden="true" />
-                    {busy ? 'Memuat…' : 'Perbarui Data'}
+                    {busy ? 'Memuat…' : 'Muat Ulang'}
                 </Action>
                 <Action variant="outline" asChild>
-                    <Link href="/map">Buka Peta</Link>
+                    <Link href="/map">Buka Peta Lengkap</Link>
                 </Action>
-                <Action asChild>
+                <Action variant="outline" asChild>
                     <Link href="/reports/create">Buat Laporan</Link>
                 </Action>
             </PageHeading>
@@ -97,6 +100,30 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                     tersedia.
                 </Notice>
             )}
+            <section
+                className="dr-alert-strip"
+                aria-label="Kondisi peringatan cuaca"
+            >
+                <div>
+                    <Status value={alertSource?.freshness ?? 'UNAVAILABLE'} />
+                    <h2>
+                        {alertSource?.freshness === 'FRESH' &&
+                        overview.active_alert_count === 0
+                            ? 'Tidak ada peringatan aktif dalam data BMKG'
+                            : alertSource?.last_success_at
+                              ? overview.active_alert_count +
+                                ' peringatan aktif dalam data tersimpan'
+                              : 'Status peringatan belum tersedia'}
+                    </h2>
+                    <p>
+                        Terakhir diterima dari BMKG:{' '}
+                        {dateTime(alertSource?.last_success_at ?? null)}
+                    </p>
+                </div>
+                <Action asChild>
+                    <Link href="/weather#peringatan">Lihat Peringatan</Link>
+                </Action>
+            </section>
             <div className="dr-dashboard-main">
                 <section
                     className="dr-dashboard-map"
@@ -106,165 +133,109 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                         Peta Multi-Bahaya Indonesia
                     </h2>
                     <div className="dr-map-toolbar">
-                        <div
-                            className="dr-choices"
-                            role="group"
-                            aria-label="Lapisan peta"
-                        >
-                            {(
-                                [
-                                    ['event', 'Gempa'],
-                                    ['alert', 'Peringatan Cuaca'],
-                                    ['forecast', 'Prakiraan'],
-                                ] as const
-                            ).map(([value, label]) => (
-                                <button
-                                    type="button"
-                                    key={value}
-                                    aria-pressed={kind === value}
-                                    className={`dr-choice ${kind === value ? 'active' : ''}`}
-                                    onClick={() => {
-                                        setKind(value);
-                                        if (
-                                            value === 'forecast' &&
-                                            overview.weather_status.state !==
-                                                'FRESH' &&
-                                            !busy
-                                        )
-                                            refresh();
-                                    }}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                        {kind === 'alert' && (
-                            <label className="dr-inline-field">
-                                <input
-                                    type="checkbox"
-                                    checked={!activeOnly}
-                                    onChange={(event) =>
-                                        setActiveOnly(!event.target.checked)
-                                    }
-                                />
-                                Sertakan riwayat
-                            </label>
-                        )}
-                        {kind === 'forecast' && (
-                            <RegionPicker
-                                overview={overview}
-                                onSelect={refresh}
-                                disabled={busy}
+                        <label className="dr-inline-field">
+                            Rentang gempa
+                            <select
+                                className="dr-select"
+                                value={eventDays ?? ''}
+                                onChange={(event) =>
+                                    setEventDays(
+                                        event.target.value === '1'
+                                            ? 1
+                                            : event.target.value === '7'
+                                              ? 7
+                                              : undefined,
+                                    )
+                                }
+                            >
+                                <option value="">Semua data terbaru</option>
+                                <option value="1">24 jam terakhir</option>
+                                <option value="7">7 hari terakhir</option>
+                            </select>
+                        </label>
+                        <label className="dr-inline-field">
+                            <input
+                                type="checkbox"
+                                checked={!activeOnly}
+                                onChange={(event) =>
+                                    setActiveOnly(!event.target.checked)
+                                }
                             />
-                        )}
+                            Sertakan riwayat peringatan
+                        </label>
+                    </div>
+                    <div className="dr-map-legend" aria-label="Legenda peta">
+                        <span className="inline-flex items-center gap-2">
+                            <span
+                                className="mx-1 size-2 rounded-full bg-red-700 ring-2 ring-red-400 ring-offset-2"
+                                aria-hidden="true"
+                            />
+                            Gempa · cincin pada kejadian terbaru
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                            <CloudRain size={16} aria-hidden="true" />
+                            Hujan
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                            <CloudLightning size={16} aria-hidden="true" />
+                            Petir
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                            <span className="flex gap-0.5" aria-hidden="true">
+                                {['#93c5fd', '#3b82f6', '#1e3a8a'].map(
+                                    (color) => (
+                                        <span
+                                            key={color}
+                                            className="size-3 rounded-sm"
+                                            style={{ backgroundColor: color }}
+                                        />
+                                    ),
+                                )}
+                            </span>
+                            Area peringatan · intensitas lebih tinggi, biru
+                            lebih gelap
+                        </span>
                     </div>
                     <MapPanel
-                        kind={kind}
-                        region={
-                            kind === 'forecast' ? overview.region : undefined
-                        }
+                        combined
+                        eventDays={eventDays}
+                        weatherRegions={weatherRegions}
                         activeOnly={activeOnly}
                         revision={
                             revision +
-                            (kind === 'forecast' &&
-                            overview.weather_status.fetched_at
+                            (overview.weather_status.fetched_at
                                 ? Date.parse(overview.weather_status.fetched_at)
                                 : 0)
                         }
                     />
-                    <div className="dr-map-legend">
-                        <span>
-                            {kind === 'event'
-                                ? 'Titik gempa BMKG'
-                                : kind === 'alert'
-                                  ? 'Area peringatan CAP BMKG'
-                                  : 'Titik prakiraan kelurahan · BMKG'}
-                        </span>
-                        <span>
-                            Data dimuat {dateTime(overview.generated_at)}
-                        </span>
-                    </div>
-                    {kind === 'forecast' && (
-                        <RegionWeatherStatus overview={overview} />
-                    )}
-                    {kind === 'forecast' && (
-                        <div className="dr-dashboard-forecast">
-                            {overview.forecasts.length ? (
-                                overview.forecasts.slice(0, 4).map((record) => {
-                                    const temperature = (
-                                        record.data as Record<string, unknown>
-                                    ).t;
-                                    return (
-                                        <article
-                                            className="dr-weather-slot"
-                                            key={record.id}
-                                        >
-                                            <small>
-                                                {forecastTime(record)}
-                                            </small>
-                                            <strong>{record.title}</strong>
-                                            <span>
-                                                {stringValue(
-                                                    temperature,
-                                                    'Suhu belum tersedia',
-                                                )}
-                                                {temperature != null
-                                                    ? ' °C'
-                                                    : ''}
-                                            </span>
-                                            <Status
-                                                value={
-                                                    overview.weather_status
-                                                        .state
-                                                }
-                                            />
-                                        </article>
-                                    );
-                                })
-                            ) : (
-                                <EmptyState title="Prakiraan berlaku belum tersedia" />
-                            )}
-                            <Link
-                                className="dr-caption underline"
-                                href={`/weather?region=${overview.region}`}
-                            >
-                                Lihat prakiraan lengkap
-                            </Link>
-                        </div>
+                    <p className="dr-caption dr-muted">
+                        Titik cuaca menunjukkan prakiraan di kelurahan yang
+                        memiliki data.
+                    </p>
+                    <h3 className="font-semibold">Prakiraan Provinsi</h3>
+                    <WeatherLocation
+                        autoLocate={!selectedRegion}
+                        overview={
+                            selectedRegion
+                                ? overview
+                                : { region_name: 'Cari nama atau kode wilayah' }
+                        }
+                        onSelect={refresh}
+                        disabled={busy}
+                    />
+                    {selectedRegion ? (
+                        <ProvinceForecast
+                            key={selectedRegion}
+                            region={selectedRegion}
+                        />
+                    ) : (
+                        <p className="dr-caption dr-muted">
+                            Izinkan lokasi perangkat atau pilih desa atau
+                            kelurahan untuk menentukan provinsi.
+                        </p>
                     )}
                 </section>
                 <div className="dr-stack dr-dashboard-aside">
-                    <Panel title="Peringatan Resmi">
-                        <div className="dr-row">
-                            <button
-                                type="button"
-                                className="dr-metric-button"
-                                aria-label="Tampilkan peringatan aktif pada peta"
-                                disabled={alertSource?.last_success_at == null}
-                                onClick={() => {
-                                    setKind('alert');
-                                    setActiveOnly(true);
-                                    document
-                                        .getElementById('dashboard-map-title')
-                                        ?.scrollIntoView({ block: 'nearest' });
-                                }}
-                            >
-                                {alertSource?.last_success_at
-                                    ? overview.active_alert_count
-                                    : '…'}
-                            </button>
-                            <Status
-                                value={alertSource?.freshness ?? 'UNAVAILABLE'}
-                            />
-                        </div>
-                        <p className="dr-caption dr-muted">
-                            Peringatan aktif menurut masa berlaku data BMKG yang
-                            tersimpan.
-                        </p>
-                        <Link href="/weather" className="dr-caption underline">
-                            Lihat peringatan cuaca
-                        </Link>
-                    </Panel>
                     <Panel title="Laporan Warga">
                         {typeof pending === 'number' && (
                             <strong className="text-3xl font-bold">
@@ -291,7 +262,8 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                                 : 'Laporan Saya'}
                         </Link>
                     </Panel>
-                    <Panel title="Status Sumber Data">
+                    <details className="dr-source-fold">
+                        <summary>Status sumber data</summary>
                         {overview.sources.map((source) => (
                             <details
                                 className="dr-source-detail"
@@ -320,7 +292,7 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                                 </a>
                             </details>
                         ))}
-                    </Panel>
+                    </details>
                 </div>
             </div>
             <div className="dr-dashboard-lower">
@@ -331,7 +303,7 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                             href="/earthquakes"
                             className="dr-caption underline"
                         >
-                            Lihat feed
+                            Lihat daftar
                         </Link>
                     }
                 >
@@ -343,8 +315,11 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                 <Panel
                     title="Peringatan Cuaca Resmi"
                     aside={
-                        <Link href="/weather" className="dr-caption underline">
-                            Lihat feed
+                        <Link
+                            href="/weather#peringatan"
+                            className="dr-caption underline"
+                        >
+                            Lihat daftar
                         </Link>
                     }
                 >

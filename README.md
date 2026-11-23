@@ -26,10 +26,16 @@ Web application built for **IT RUSH 2026 (Universitas Bengkulu)** — Subtema: _
     ```
 
 For live local BMKG updates, enable the adapters as described in the
-[runbook](docs/BACKEND_RUNBOOK.md) and run `php artisan schedule:work` alongside
-the queue worker. Use an isolated `disaster_ready_test` database for the PostGIS
+[runbook](docs/BACKEND_RUNBOOK.md) `composer run dev` starts the web server, queue listener, Vite, and scheduler together. Use an isolated `disaster_ready_test` database for the PostGIS
 test suite. See the [national P0 handoff](docs/NATIONAL_P0.md) for coverage,
 provider configuration, and the UI/UX sprint.
+
+
+### Handover to another computer
+
+Git does not include `.env`, PostgreSQL data, or private uploaded evidence. Configure a local PostgreSQL database with PostGIS, run migrations, and run `php artisan db:seed --class=DisasterSourceSeeder`. To restore existing accounts, reports, guides, and history, obtain a database backup and private storage from the previous maintainer.
+
+For official BMKG feeds, set `DISASTER_SOURCES_ENABLED=true`, configure `BMKG_WEATHER_REGIONS` with supported adm4 codes (the documented pilot uses `31.75.03.1001,31.75.03.1002`), and enable the BMKG sources in admin settings. Run `php artisan config:clear`, then `php artisan disaster:ingest` with the queue listener running. `composer run dev` includes the scheduler, which dispatches updates every five minutes. Restart that command after changing environment settings. The port 55432 mentioned in earlier verification notes belongs to the previous maintainer's local instance; use the port of your actual PostGIS installation.
 
 ## Backend implementation
 

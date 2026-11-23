@@ -21,7 +21,7 @@ class FrontendTest extends TestCase
     public function test_public_pages_render_real_empty_data_and_do_not_require_login(): void
     {
         $this->seed(DisasterSourceSeeder::class);
-        foreach (['/' => 'welcome', '/dashboard' => 'dashboard', '/map' => 'public/map', '/weather' => 'public/feed', '/earthquakes' => 'public/feed', '/preparedness' => 'public/preparedness'] as $url => $component) {
+        foreach (['/' => 'welcome', '/dashboard' => 'dashboard', '/map' => 'public/map', '/weather' => 'public/weather', '/earthquakes' => 'public/feed', '/preparedness' => 'public/preparedness'] as $url => $component) {
             $this->get($url)->assertOk()->assertInertia(fn (Assert $page) => $page->component($component)->has('overview.sources', 4)->has('overview.events', 0));
         }
         $this->get('/preparedness/invalid')->assertNotFound();

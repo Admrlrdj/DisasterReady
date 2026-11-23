@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { lazy, Suspense, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
     Action,
@@ -10,6 +11,10 @@ import {
 } from '@/components/disaster/ui';
 import { dateTime, hazardLabels, type Overview } from '@/lib/disaster';
 import type { IncidentReport } from '@/types/disaster';
+const ReportLocationMap = lazy(
+    () => import('@/components/maps/report-location-map'),
+);
+
 export default function CreateReport({
     overview,
     reports,
@@ -27,6 +32,50 @@ export default function CreateReport({
         privacy_consent: false,
         photo_consent: false,
     });
+    const [showMap, setShowMap] = useState(false);
+    const latitude = Number(form.data.latitude);
+    const longitude = Number(form.data.longitude);
+    const position: [number, number] | null =
+        form.data.latitude &&
+        form.data.longitude &&
+        Math.abs(latitude) <= 90 &&
+        Math.abs(longitude) <= 180
+            ? [longitude, latitude]
+            : null;
+    const [locating, setLocating] = useState(false);
+    const [locationStatus, setLocationStatus] = useState('');
+
+    function locate() {
+        if (!navigator.geolocation) {
+            setLocationStatus(
+                'Lokasi perangkat tidak tersedia. Isi koordinat kejadian secara manual.',
+            );
+            return;
+        }
+        setLocating(true);
+        setLocationStatus('');
+        navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+                form.setData((data) => ({
+                    ...data,
+                    latitude: coords.latitude.toFixed(6),
+                    longitude: coords.longitude.toFixed(6),
+                }));
+                setLocating(false);
+                setLocationStatus(
+                    'Lokasi perangkat terisi. Pastikan ini lokasi kejadian.',
+                );
+            },
+            () => {
+                setLocating(false);
+                setLocationStatus(
+                    'Lokasi perangkat belum tersedia. Isi koordinat kejadian secara manual.',
+                );
+            },
+            { enableHighAccuracy: true, timeout: 10_000 },
+        );
+    }
+
     const submit = (event: FormEvent) => {
         event.preventDefault();
         form.transform((data) => ({
@@ -59,6 +108,9 @@ export default function CreateReport({
                                         type="button"
                                         className={`dr-choice ${form.data.category === hazard.slug ? 'active' : ''}`}
                                         key={hazard.slug}
+                                        aria-pressed={
+                                            form.data.category === hazard.slug
+                                        }
                                         onClick={() =>
                                             form.setData(
                                                 'category',
@@ -112,6 +164,61 @@ export default function CreateReport({
                                 }
                             />
                         </div>
+                        <div className="dr-field">
+                            <strong>Lokasi kejadian</strong>
+                            <Action
+                                type="button"
+                                variant="outline"
+                                disabled={locating}
+                                onClick={locate}
+                            >
+                                {locating
+                                    ? 'Mencari lokasi…'
+                                    : 'Gunakan lokasi perangkat'}
+                            </Action>
+                            <Action
+                                type="button"
+                                variant="outline"
+                                aria-expanded={showMap}
+                                onClick={() => setShowMap(!showMap)}
+                            >
+                                {showMap
+                                    ? 'Tutup peta lokasi'
+                                    : 'Pilih di peta'}
+                            </Action>
+                            {showMap && (
+                                <>
+                                    <p className="dr-caption dr-muted">
+                                        Perbesar peta, lalu klik lokasi kejadian
+                                        atau geser pin. Koordinat bisa diubah di
+                                        bawah.
+                                    </p>
+                                    <Suspense
+                                        fallback={
+                                            <p role="status">
+                                                Memuat peta lokasi…
+                                            </p>
+                                        }
+                                    >
+                                        <ReportLocationMap
+                                            position={position}
+                                            onSelect={([lng, lat]) =>
+                                                form.setData((data) => ({
+                                                    ...data,
+                                                    longitude: lng.toFixed(6),
+                                                    latitude: lat.toFixed(6),
+                                                }))
+                                            }
+                                        />
+                                    </Suspense>
+                                </>
+                            )}
+                            {locationStatus && (
+                                <p role="status" className="dr-caption">
+                                    {locationStatus}
+                                </p>
+                            )}
+                        </div>
                         <div className="dr-two-col equal">
                             {(['latitude', 'longitude'] as const).map(
                                 (field) => (
@@ -150,7 +257,7 @@ export default function CreateReport({
                         </div>
                         <p className="dr-caption dr-muted">
                             Koordinat presisi hanya dapat diakses pemilik dan
-                            reviewer berwenang. Periksa koordinat sebelum
+                            petugas yang berwenang. Periksa lokasi sebelum
                             mengirim.
                         </p>
                         <label className="dr-upload">

@@ -14,7 +14,7 @@ const inariskWebgis = 'https://inarisk.bnpb.go.id/webgis/';
 const inariskJakarta = 'https://inarisk.bnpb.go.id/dashboard_jakarta/';
 
 export default function MapPage({ overview }: { overview: Overview }) {
-    const [kind, setKind] = useState<'event' | 'alert' | 'forecast'>('event');
+    const [kind, setKind] = useState<'event' | 'alert'>('event');
     const [hazard, setHazard] = useState('');
     const [layerId, setLayerId] = useState<number | null>(null);
     const layer = overview.layers.find(
@@ -25,7 +25,7 @@ export default function MapPage({ overview }: { overview: Overview }) {
             <Head title="Peta Multi-Bahaya" />
             <PageHeading
                 title="Peta Multi-Bahaya"
-                description="Pisahkan kejadian, peringatan, prakiraan, dan risiko historis."
+                description="Jelajahi kejadian, peringatan, dan risiko historis. Cek prakiraan BMKG untuk wilayahmu."
             />
             <div className="dr-two-col">
                 <Panel title="Eksplorasi Wilayah">
@@ -50,10 +50,7 @@ export default function MapPage({ overview }: { overview: Overview }) {
                                 }
                             >
                                 <option value="event">Kejadian resmi</option>
-                                <option value="alert">Peringatan resmi</option>
-                                <option value="forecast">
-                                    Prakiraan cuaca
-                                </option>
+                                <option value="alert">Peringatan aktif</option>
                             </select>
                             <select
                                 aria-label="Jenis bahaya"
@@ -74,6 +71,8 @@ export default function MapPage({ overview }: { overview: Overview }) {
                     )}
                     <MapPanel
                         kind={kind}
+                        hazardMarkers
+                        activeOnly
                         hazard={hazard}
                         historicalTiles={layer?.tile_template ?? undefined}
                     />
@@ -93,7 +92,7 @@ export default function MapPage({ overview }: { overview: Overview }) {
                     </p>
                 </Panel>
                 <div className="dr-stack">
-                    <Panel title="Peta Bahaya dan Risiko InaRISK">
+                    <Panel title="Peta Risiko InaRISK">
                         <p className="dr-caption dr-muted">
                             Kajian BNPB menunjukkan indeks bahaya dan risiko
                             wilayah. Untuk kondisi terkini, lihat kejadian dan
@@ -169,7 +168,6 @@ export default function MapPage({ overview }: { overview: Overview }) {
                             Belum ada lokasi pengungsian yang terverifikasi
                             operasional. Simulasi rute belum diaktifkan.
                         </p>
-                        <Action disabled>Simulasikan Rute</Action>
                         <Action variant="outline" asChild>
                             <Link href="/preparedness">
                                 Lihat Panduan Siaga

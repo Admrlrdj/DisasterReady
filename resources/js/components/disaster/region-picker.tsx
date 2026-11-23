@@ -1,19 +1,21 @@
 import { router } from '@inertiajs/react';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { dateTime, type Overview } from '@/lib/disaster';
 
-type RegionResult = { code: string; name: string; area: string };
+export type RegionResult = { code: string; name: string; area: string };
 
 export function RegionPicker({
     overview,
     onSelect,
     disabled,
 }: {
-    overview: Overview;
-    onSelect: (region: string) => void;
+    overview: Pick<Overview, 'region_name'>;
+    onSelect: (region: string, result: RegionResult) => void;
     disabled?: boolean;
 }) {
     const id = useId();
+    const input = useRef<HTMLInputElement>(null);
+    const list = useRef<HTMLUListElement>(null);
     const [query, setQuery] = useState('');
     const [search, setSearch] = useState<{
         query: string;
@@ -55,6 +57,19 @@ export function RegionPicker({
             <label htmlFor={id}>Desa atau kelurahan</label>
             <input
                 id={id}
+                ref={input}
+                aria-controls={results?.length ? id + '-results' : undefined}
+                onKeyDown={(event) => {
+                    if (event.key === 'Escape') setQuery('');
+                    if (
+                        event.key === 'ArrowDown' &&
+                        results?.length &&
+                        !disabled
+                    ) {
+                        event.preventDefault();
+                        list.current?.querySelector('button')?.focus();
+                    }
+                }}
                 className="dr-select"
                 type="search"
                 placeholder={overview.region_name}
@@ -75,6 +90,14 @@ export function RegionPicker({
                     </span>
                     {!!results?.length && (
                         <ul
+                            id={id + '-results'}
+                            ref={list}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Escape') {
+                                    setQuery('');
+                                    input.current?.focus();
+                                }
+                            }}
                             aria-label="Hasil pencarian wilayah"
                             className="dr-region-results"
                         >
@@ -85,7 +108,12 @@ export function RegionPicker({
                                         disabled={disabled}
                                         onClick={() => {
                                             setQuery('');
-                                            onSelect(code);
+                                            input.current?.focus();
+                                            onSelect(code, {
+                                                code,
+                                                name,
+                                                area,
+                                            });
                                         }}
                                     >
                                         <strong>{name}</strong>

@@ -139,6 +139,7 @@ export type Overview = {
     forecasts: OfficialRecord[];
     sources: SourceHealth[];
     region: Region;
+    map_weather_regions: string[];
     region_name: string;
     weather_status: { state: string; fetched_at: string | null };
     hazards: { id: number; slug: Hazard; label: string }[];

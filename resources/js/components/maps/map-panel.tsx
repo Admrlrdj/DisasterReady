@@ -3,8 +3,12 @@ const HazardMap = lazy(() => import('./hazard-map'));
 export type MapPanelProps = {
     kind?: 'event' | 'alert' | 'forecast';
     hazard?: string;
+    combined?: boolean;
+    hazardMarkers?: boolean;
+    weatherRegions?: string[];
     region?: string;
     activeOnly?: boolean;
+    eventDays?: 1 | 7;
     revision?: number;
     historicalTiles?: string;
 };

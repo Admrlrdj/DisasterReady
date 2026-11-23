@@ -63,6 +63,30 @@ class NationalWeatherTest extends TestCase
         $this->getJson($url)->assertOk()->assertJsonCount(0, 'data')->assertJsonPath('region_status.state', 'STALE');
     }
 
+    public function test_province_lists_each_district_and_only_the_slot_covering_one_hour_ahead(): void
+    {
+        $this->freezeTime();
+        $this->enableWeather();
+        $region = '31.75.03.1002';
+        $forecast = $this->forecast($region, 0);
+        $forecast['data'][0]['cuaca'][0][] = $this->forecast($region, 3)['data'][0]['cuaca'][0][0];
+        Http::fake(['api.bmkg.go.id/*' => Http::response($forecast)]);
+        (new FetchRegionalWeatherJob($region))->handle(app(BmkgAdapter::class), app(IngestSource::class));
+        Queue::fake();
+
+        $url = '/data/weather/province?region='.$region;
+        $rows = collect($this->getJson($url)->assertOk()->assertJsonPath('province', 'DKI Jakarta')->assertJsonCount(6, 'districts')->json('districts'));
+        $chosen = $rows->firstWhere('code', $region);
+        $this->assertSame('Bidara Cina', $chosen['locality']);
+        $this->assertSame(now()->utc()->toIso8601String(), $chosen['forecast']['forecast_at']);
+        $this->assertCount(1, $rows->whereNotNull('forecast'));
+        Queue::assertPushed(FetchRegionalWeatherJob::class, 5);
+
+        $this->travel(2)->hours();
+        $row = collect($this->getJson($url)->assertOk()->json('districts'))->firstWhere('code', $region);
+        $this->assertSame(now()->addHour()->utc()->toIso8601String(), $row['forecast']['forecast_at']);
+    }
+
     public function test_wrong_region_does_not_pollute_forecasts(): void
     {
         $this->enableWeather();

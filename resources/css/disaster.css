@@ -1241,7 +1241,7 @@
     .dr-sidebar .dr-brand > span:last-child,
     .dr-sidebar .dr-account,
     .dr-sidebar .dr-nav-label,
-    .dr-sidebar .dr-nav-item span,
+    .dr-sidebar .dr-nav-item > span:not(.dr-nav-icon),
     .dr-sidebar .dr-nav-item b,
     .dr-sidebar-footer {
         display: none;
@@ -1539,5 +1539,102 @@
         scroll-behavior: auto !important;
         animation: none !important;
         transition: none !important;
+    }
+}
+
+.dr-caption,
+.dr-map-legend {
+    font-size: 0.8125rem;
+}
+.dr-hero.dr-front {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+}
+.dr-front .dr-front-intro {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.dr-front-intro h1 {
+    text-wrap: pretty;
+    margin-bottom: 10px;
+}
+.dr-front-intro p,
+.dr-front-alert p,
+.dr-alert-strip p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+.dr-front-priority {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 24px;
+    align-items: center;
+    border-block: 1px solid var(--border);
+    padding-block: 14px;
+}
+.dr-front-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px 20px;
+    flex-wrap: wrap;
+    flex: 1 1 300px;
+    border-radius: 4px;
+}
+.dr-front-alert:hover strong,
+.dr-front-emergency a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.dr-front-emergency {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    font-size: 0.875rem;
+}
+.dr-front .dr-hero-preview .dr-live-map {
+    min-height: clamp(330px, 34vw, 510px);
+}
+.dr-alert-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+}
+.dr-alert-strip h2 {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    line-height: 1.25;
+    margin-block: 6px;
+    font-weight: 700;
+}
+.dr-source-fold {
+    padding: 14px 4px;
+    border-block: 1px solid var(--border);
+}
+.dr-source-fold > summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 5px;
+}
+
+.dr-dashboard-main {
+    grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 768px) {
+    .dr-dashboard-aside {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .dr-dashboard-aside > :last-child {
+        grid-column: auto;
     }
 }
