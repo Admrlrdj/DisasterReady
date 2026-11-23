@@ -21,6 +21,7 @@ import type {
 type Props = {
     payload: Pagination<IncidentReport>;
     selected: ReportDetail | null;
+    canReview: boolean;
     suggestions: {
         data: AiSuggestion[];
         fallback_state: string;
@@ -36,6 +37,7 @@ type Props = {
 export default function Queue({
     payload,
     selected,
+    canReview,
     suggestions,
     duplicates,
 }: Props) {
@@ -44,7 +46,7 @@ export default function Queue({
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
     const review = async () => {
-        if (!selected) return;
+        if (!selected || !canReview) return;
         setBusy(true);
         setError('');
         try {
@@ -154,6 +156,7 @@ export default function Queue({
                                             key={suggestion.id}
                                             suggestion={suggestion}
                                             reportId={selected.id}
+                                            canReview={canReview}
                                         />
                                     ))
                                 ) : (
@@ -164,65 +167,78 @@ export default function Queue({
                                 )}
                             </Panel>
                             <Panel title="Keputusan Moderator">
-                                <form
-                                    className="dr-form"
-                                    onSubmit={(event) => {
-                                        event.preventDefault();
-                                        void review();
-                                    }}
-                                >
-                                    <label className="dr-field">
-                                        Keputusan
-                                        <select
-                                            className="dr-select"
-                                            value={decision}
-                                            onChange={(event) =>
-                                                setDecision(event.target.value)
-                                            }
-                                        >
-                                            <option value="NEEDS_EVIDENCE">
-                                                Minta bukti tambahan
-                                            </option>
-                                            <option value="VERIFIED">
-                                                Verifikasi laporan
-                                            </option>
-                                            <option value="REJECTED">
-                                                Tolak laporan
-                                            </option>
-                                        </select>
-                                    </label>
-                                    <label className="dr-field">
-                                        Alasan wajib
-                                        <textarea
-                                            className="dr-textarea"
-                                            minLength={5}
-                                            maxLength={2000}
-                                            required
-                                            value={reason}
-                                            onChange={(event) =>
-                                                setReason(event.target.value)
-                                            }
-                                        />
-                                    </label>
-                                    {error && (
-                                        <Notice danger>
-                                            {error} Jika versi berubah, muat
-                                            ulang laporan sebelum memutuskan.
-                                        </Notice>
-                                    )}
-                                    <Action disabled={busy}>
-                                        {busy
-                                            ? 'Menyimpan…'
-                                            : 'Simpan Keputusan & Audit'}
-                                    </Action>
-                                    <Action
-                                        variant="outline"
-                                        type="button"
-                                        onClick={() => router.reload()}
+                                {canReview ? (
+                                    <form
+                                        className="dr-form"
+                                        onSubmit={(event) => {
+                                            event.preventDefault();
+                                            void review();
+                                        }}
                                     >
-                                        Muat Ulang Laporan
-                                    </Action>
-                                </form>
+                                        <label className="dr-field">
+                                            Keputusan
+                                            <select
+                                                className="dr-select"
+                                                value={decision}
+                                                onChange={(event) =>
+                                                    setDecision(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                            >
+                                                <option value="NEEDS_EVIDENCE">
+                                                    Minta bukti tambahan
+                                                </option>
+                                                <option value="VERIFIED">
+                                                    Verifikasi laporan
+                                                </option>
+                                                <option value="REJECTED">
+                                                    Tolak laporan
+                                                </option>
+                                            </select>
+                                        </label>
+                                        <label className="dr-field">
+                                            Alasan wajib
+                                            <textarea
+                                                className="dr-textarea"
+                                                minLength={5}
+                                                maxLength={2000}
+                                                required
+                                                value={reason}
+                                                onChange={(event) =>
+                                                    setReason(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </label>
+                                        {error && (
+                                            <Notice danger>
+                                                {error} Jika versi berubah, muat
+                                                ulang laporan sebelum
+                                                memutuskan.
+                                            </Notice>
+                                        )}
+                                        <Action disabled={busy}>
+                                            {busy
+                                                ? 'Menyimpan…'
+                                                : 'Simpan Keputusan & Audit'}
+                                        </Action>
+                                        <Action
+                                            variant="outline"
+                                            type="button"
+                                            onClick={() => router.reload()}
+                                        >
+                                            Muat Ulang Laporan
+                                        </Action>
+                                    </form>
+                                ) : (
+                                    <Notice>
+                                        Kamu mengirim laporan ini. Moderator
+                                        atau admin lain yang bisa mengambil
+                                        keputusan dan meninjau saran AI.
+                                    </Notice>
+                                )}
                             </Panel>
                         </>
                     ) : (
@@ -254,6 +270,7 @@ export default function Queue({
                                     key={candidate.id}
                                     candidate={candidate}
                                     reportId={selected.id}
+                                    canReview={canReview}
                                 />
                             ))}
                         {!duplicates?.data.length && (
@@ -288,9 +305,11 @@ export default function Queue({
 function Suggestion({
     suggestion,
     reportId,
+    canReview,
 }: {
     suggestion: AiSuggestion;
     reportId: number;
+    canReview: boolean;
 }) {
     const [decision, setDecision] = useState('ACCEPTED');
     const [reason, setReason] = useState('');
@@ -314,7 +333,7 @@ function Suggestion({
             <blockquote className="dr-caption dr-muted">
                 Bukti teks asli: {suggestion.evidence_span ?? 'Tidak ditemukan'}
             </blockquote>
-            {suggestion.review_status === 'UNREVIEWED' && (
+            {canReview && suggestion.review_status === 'UNREVIEWED' && (
                 <form
                     className="dr-form"
                     onSubmit={async (event) => {
@@ -394,9 +413,11 @@ function Suggestion({
 function Candidate({
     candidate,
     reportId,
+    canReview,
 }: {
     candidate: DuplicateCandidate;
     reportId: number;
+    canReview: boolean;
 }) {
     const [reason, setReason] = useState('');
     const [decision, setDecision] = useState('NOT_DUPLICATE');
@@ -418,53 +439,59 @@ function Candidate({
             {candidate.reviewer_decision ? (
                 <Status tone="neutral">{candidate.reviewer_decision}</Status>
             ) : (
-                <form
-                    className="dr-form"
-                    onSubmit={async (event) => {
-                        event.preventDefault();
-                        setBusy(true);
-                        setError('');
-                        try {
-                            await api(
-                                `/admin/reports/${reportId}/duplicate-candidates/${candidate.id}`,
-                                { decision, reason },
-                            );
-                            router.reload();
-                        } catch (problem) {
-                            setError(
-                                problem instanceof Error
-                                    ? problem.message
-                                    : 'Gagal menyimpan.',
-                            );
-                        } finally {
-                            setBusy(false);
-                        }
-                    }}
-                >
-                    <select
-                        aria-label="Keputusan kandidat"
-                        className="dr-select"
-                        value={decision}
-                        onChange={(event) => setDecision(event.target.value)}
+                canReview && (
+                    <form
+                        className="dr-form"
+                        onSubmit={async (event) => {
+                            event.preventDefault();
+                            setBusy(true);
+                            setError('');
+                            try {
+                                await api(
+                                    `/admin/reports/${reportId}/duplicate-candidates/${candidate.id}`,
+                                    { decision, reason },
+                                );
+                                router.reload();
+                            } catch (problem) {
+                                setError(
+                                    problem instanceof Error
+                                        ? problem.message
+                                        : 'Gagal menyimpan.',
+                                );
+                            } finally {
+                                setBusy(false);
+                            }
+                        }}
                     >
-                        <option value="NOT_DUPLICATE">Bukan duplikat</option>
-                        <option value="DUPLICATE">Duplikat</option>
-                    </select>
-                    <input
-                        aria-label="Alasan keputusan duplikat"
-                        className="dr-input"
-                        required
-                        minLength={5}
-                        maxLength={2000}
-                        value={reason}
-                        onChange={(event) => setReason(event.target.value)}
-                        placeholder="Alasan keputusan"
-                    />
-                    {error && <p className="dr-error">{error}</p>}
-                    <Action variant="outline" disabled={busy}>
-                        Simpan Keputusan
-                    </Action>
-                </form>
+                        <select
+                            aria-label="Keputusan kandidat"
+                            className="dr-select"
+                            value={decision}
+                            onChange={(event) =>
+                                setDecision(event.target.value)
+                            }
+                        >
+                            <option value="NOT_DUPLICATE">
+                                Bukan duplikat
+                            </option>
+                            <option value="DUPLICATE">Duplikat</option>
+                        </select>
+                        <input
+                            aria-label="Alasan keputusan duplikat"
+                            className="dr-input"
+                            required
+                            minLength={5}
+                            maxLength={2000}
+                            value={reason}
+                            onChange={(event) => setReason(event.target.value)}
+                            placeholder="Alasan keputusan"
+                        />
+                        {error && <p className="dr-error">{error}</p>}
+                        <Action variant="outline" disabled={busy}>
+                            Simpan Keputusan
+                        </Action>
+                    </form>
+                )
             )}
         </div>
     );

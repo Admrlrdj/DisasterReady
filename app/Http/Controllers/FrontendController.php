@@ -7,6 +7,7 @@ use App\Models\IncidentReport;
 use App\Services\FrontendData;
 use App\Services\Integrations\WeatherRegions;
 use App\Services\PublicData;
+use App\Services\VolcanoSnapshot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -61,7 +62,16 @@ class FrontendController extends Controller
         $row = DB::table($kind === 'event' ? 'disaster_events' : 'official_alerts')->where('id', $id)->first();
         abort_unless($row !== null, 404);
 
-        return Inertia::render('public/detail', app(NormalizeDisasterDates::class)->normalize(['record' => $data->record($row, $kind)]));
+        $eventPosition = null;
+        if ($kind === 'event' && is_numeric($row->longitude) && is_numeric($row->latitude)
+            && abs((float) $row->longitude) <= 180 && abs((float) $row->latitude) <= 90) {
+            $eventPosition = [(float) $row->longitude, (float) $row->latitude];
+        }
+
+        return Inertia::render('public/detail', app(NormalizeDisasterDates::class)->normalize([
+            'record' => $data->record($row, $kind),
+            'eventPosition' => $eventPosition,
+        ]));
     }
 
     public function unavailable(Request $request): Response
@@ -69,16 +79,15 @@ class FrontendController extends Controller
         return Inertia::render('public/unavailable', ['feature' => $request->route()?->getName()]);
     }
 
-    public function volcanoes(?string $id = null): Response
+    public function volcanoes(VolcanoSnapshot $source, ?string $id = null): Response
     {
-        /** @var array<string, array<string, mixed>> $reports */
-        $reports = config('pvmbg.reports');
-        abort_if($id !== null && ! isset($reports[$id]), 404);
+        $snapshot = $source->snapshot();
+        abort_if($id !== null && ! in_array($id, array_column($snapshot['volcanoes'], 'slug'), true), 404);
 
         return Inertia::render('public/volcanoes', [
-            'reports' => $id === null ? $reports : [$id => $reports[$id]],
+            'snapshot' => $snapshot,
             'selected' => $id,
-            'statusUrl' => config('pvmbg.status_url'),
+            'archived' => $source->isArchived($snapshot['checked_at']),
         ]);
     }
 }

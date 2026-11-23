@@ -9,6 +9,7 @@ use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -54,6 +55,7 @@ class FrontendResponse
             $selectedId = $request->integer('report', (int) ($payload['data'][0]['id'] ?? 0));
             $report = $selectedId ? IncidentReport::findOrFail($selectedId) : null;
             $props['selected'] = $report ? app(ReportController::class)->show($report)->getData(true)['data'] : null;
+            $props['canReview'] = $report !== null && Gate::allows('review', $report);
             $props['suggestions'] = $report ? app(AiController::class)->suggestions($report)->getData(true) : null;
             $props['duplicates'] = $report ? app(AiController::class)->candidates($report)->getData(true) : null;
         }

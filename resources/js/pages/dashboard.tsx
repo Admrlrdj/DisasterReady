@@ -155,6 +155,40 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                     </Panel>
                 </div>
                 <div className="dr-stack dr-response-situation">
+                    <Panel
+                        title="Peta Situasi Indonesia"
+                        aside={
+                            <Link className="dr-caption underline" href="/map">
+                                Buka peta lengkap
+                            </Link>
+                        }
+                    >
+                        <p className="dr-caption dr-muted">
+                            Titik merah: gempa. Area biru: peringatan cuaca.
+                        </p>
+                        <MapPanel combined activeOnly showLoadingPreview />
+                        <details className="dr-source-fold">
+                            <summary>Daftar gempa terbaru</summary>
+                            {latestEvents.length ? (
+                                latestEvents.map((record) => (
+                                    <RecordCard
+                                        key={record.id}
+                                        record={record}
+                                    />
+                                ))
+                            ) : (
+                                <p className="dr-caption dr-muted">
+                                    Belum ada data gempa yang bisa ditampilkan.
+                                </p>
+                            )}
+                            <Link
+                                className="dr-caption underline"
+                                href="/earthquakes"
+                            >
+                                Lihat semua data gempa
+                            </Link>
+                        </details>
+                    </Panel>
                     <Panel title="Peringatan Resmi di Indonesia">
                         <div className="dr-row">
                             <p className="dr-caption dr-muted">
@@ -199,40 +233,6 @@ export default function Dashboard({ overview }: { overview: Overview }) {
                                 Buka panduan cuaca ekstrem
                             </Link>
                         )}
-                    </Panel>
-                    <Panel
-                        title="Peta Situasi Indonesia"
-                        aside={
-                            <Link className="dr-caption underline" href="/map">
-                                Buka peta lengkap
-                            </Link>
-                        }
-                    >
-                        <p className="dr-caption dr-muted">
-                            Titik merah: gempa. Area biru: peringatan cuaca.
-                        </p>
-                        <MapPanel combined activeOnly />
-                        <details className="dr-source-fold">
-                            <summary>Daftar gempa terbaru</summary>
-                            {latestEvents.length ? (
-                                latestEvents.map((record) => (
-                                    <RecordCard
-                                        key={record.id}
-                                        record={record}
-                                    />
-                                ))
-                            ) : (
-                                <p className="dr-caption dr-muted">
-                                    Belum ada data gempa yang bisa ditampilkan.
-                                </p>
-                            )}
-                            <Link
-                                className="dr-caption underline"
-                                href="/earthquakes"
-                            >
-                                Lihat semua data gempa
-                            </Link>
-                        </details>
                     </Panel>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 // Components
 import { Form, Head } from '@inertiajs/react';
-import TextLink from '@/components/text-link';
+import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { logout } from '@/routes';
@@ -18,21 +18,25 @@ export default function VerifyEmail({ status }: { status?: string }) {
                 </div>
             )}
 
-            <Form {...send.form()} className="space-y-6 text-center">
+            <Form {...send.form()} className="text-center">
                 {({ processing }) => (
-                    <>
-                        <Button disabled={processing} variant="secondary">
-                            {processing && <Spinner />}
-                            Resend verification email
-                        </Button>
-
-                        <TextLink
-                            href={logout()}
-                            className="mx-auto block text-sm"
-                        >
-                            Log out
-                        </TextLink>
-                    </>
+                    <Button disabled={processing} variant="secondary">
+                        {processing && <Spinner />}
+                        Resend verification email
+                    </Button>
+                )}
+            </Form>
+            <Form {...logout.form()}>
+                {({ processing }) => (
+                    <Button
+                        type="submit"
+                        variant="outline"
+                        className="min-h-11 w-full"
+                        disabled={processing}
+                    >
+                        <LogOut aria-hidden="true" />
+                        {processing ? 'Keluar…' : 'Keluar akun'}
+                    </Button>
                 )}
             </Form>
         </>

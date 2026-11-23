@@ -84,6 +84,7 @@ export async function api<T>(
     url: string,
     data?: Record<string, unknown>,
     method = 'POST',
+    signal?: AbortSignal,
 ): Promise<T> {
     const token =
         document.cookie
@@ -93,6 +94,7 @@ export async function api<T>(
             .slice(1)
             .join('=') ?? '';
     const response = await fetch(url, {
+        signal,
         method: data ? method : 'GET',
         credentials: 'same-origin',
         headers: {

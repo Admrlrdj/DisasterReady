@@ -9,7 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { hazardLabels } from '@/lib/disaster';
+import { api, ApiError, hazardLabels } from '@/lib/disaster';
 import type { Hazard } from '@/types/disaster';
 
 type Reply = { text: string; href?: string; label?: string };
@@ -83,21 +83,25 @@ async function findReply(
         };
     }
     try {
-        const response = await fetch('/data/guide-chat', {
-            method: 'POST',
-            signal: AbortSignal.any([signal, AbortSignal.timeout(23_000)]),
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN':
-                    document.querySelector<HTMLMetaElement>(
-                        'meta[name="csrf-token"]',
-                    )?.content ?? '',
-            },
-            body: JSON.stringify({ question, previous }),
-        });
-        if (response.ok) return (await response.json()) as Reply;
-    } catch {
+        return await api<Reply>(
+            '/data/guide-chat',
+            { question, previous },
+            'POST',
+            AbortSignal.any([signal, AbortSignal.timeout(25_000)]),
+        );
+    } catch (error) {
+        if (error instanceof ApiError && error.status === 419) {
+            return {
+                text: 'Sesi berakhir. Muat ulang halaman sebelum bertanya lagi.',
+            };
+        }
+        if (error instanceof ApiError && error.status === 429) {
+            return {
+                text: 'Batas permintaan chatbot tercapai. Coba lagi nanti atau buka panduan siaga.',
+                href: '/preparedness',
+                label: 'Buka Panduan Siaga',
+            };
+        }
         // The source-based fallback keeps the chat useful when Gemini is unavailable.
     }
     if (signal.aborted) return { text: '' };

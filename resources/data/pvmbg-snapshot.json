@@ -1,0 +1,589 @@
+{
+    "checked_at": "2026-11-23T13:33:29Z",
+    "status_url": "https://magma.esdm.go.id/v1/gunung-api/tingkat-aktivitas",
+    "reports_url": "https://magma.esdm.go.id/v1/gunung-api/laporan",
+    "volcanoes": [
+        {
+            "slug": "anak-krakatau",
+            "name": "Anak Krakatau",
+            "region": "Lampung",
+            "level": 3,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331454?signature=0423204873560a0b23f187875b91451461699facc46c0e4dbef1f95ffa271fdb",
+            "report": {
+                "id": "331454",
+                "observed_from": "2026-11-23T05:00:00Z",
+                "observed_until": "2026-11-23T11:00:00Z",
+                "timezone": "WIB",
+                "summary": "Petugas mencatat satu tremor menerus. Asap dari kawah tidak terlihat selama pengamatan."
+            }
+        },
+        {
+            "slug": "merapi",
+            "name": "Merapi",
+            "region": "Daerah Istimewa Yogyakarta dan Jawa Tengah",
+            "level": 3,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331452?signature=93b010e5205e02127b3b5fa27900ac11fe3f617e53db0b561ef24df04333baad",
+            "report": {
+                "id": "331452",
+                "observed_from": "2026-11-23T05:00:00Z",
+                "observed_until": "2026-11-23T11:00:00Z",
+                "timezone": "WIB",
+                "summary": "Instrumen mencatat 20 gempa guguran, 3 gempa hembusan, dan 8 gempa fase banyak."
+            }
+        },
+        {
+            "slug": "semeru",
+            "name": "Semeru",
+            "region": "Jawa Timur",
+            "level": 3,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331453?signature=f48f57e0a8c852d64355512c1e1ea7ab72743ad32acbb0980de8a427da9ea60d",
+            "report": {
+                "id": "331453",
+                "observed_from": "2026-11-23T05:00:00Z",
+                "observed_until": "2026-11-23T11:00:00Z",
+                "timezone": "WIB",
+                "summary": "Instrumen merekam 16 gempa letusan, 2 gempa guguran, dan 6 gempa hembusan. Kabut menutupi gunung selama pengamatan."
+            }
+        },
+        {
+            "slug": "anak-ranakah",
+            "name": "Anak Ranakah",
+            "region": "Nusa Tenggara Timur",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331438?signature=fc128fca681ca80834029c8b33639173da7bfb1b916323b61217a4875562f72f",
+            "report": null
+        },
+        {
+            "slug": "awu",
+            "name": "Awu",
+            "region": "Sulawesi Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331420?signature=15726456c0cd93f463c8458446ba57373b3059391e3f7feea61795301ccb1686",
+            "report": null
+        },
+        {
+            "slug": "banda-api",
+            "name": "Banda Api",
+            "region": "Maluku",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331429?signature=18a68fc6bcd9c9d8645377e33a6cc51cd09675752db2a384571999901a86d452",
+            "report": null
+        },
+        {
+            "slug": "bromo",
+            "name": "Bromo",
+            "region": "Jawa Timur",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331394?signature=7c0debef87bd605bc8902b7ac87f577b8917ba3112d8db0611f7dc5f477748d8",
+            "report": null
+        },
+        {
+            "slug": "dempo",
+            "name": "Dempo",
+            "region": "Sumatera Selatan",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331416?signature=62ad0510a1dc718e007492dac14b9ca80e5eaf6497e28a8032df1d0163ddaaff",
+            "report": null
+        },
+        {
+            "slug": "dukono",
+            "name": "Dukono",
+            "region": "Maluku Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331398?signature=172b1166c18c77996460958d62d1fbaf34129ff0f422740d6e305ba45bde36cf",
+            "report": null
+        },
+        {
+            "slug": "gamalama",
+            "name": "Gamalama",
+            "region": "Maluku Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331396?signature=e3971bdcb7346604bfc0d8bc4ab129f29f542f6442adec53d247aedead1d9b76",
+            "report": null
+        },
+        {
+            "slug": "gamkonora",
+            "name": "Gamkonora",
+            "region": "Maluku Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331375?signature=a78cff9c16a0efbb07900a6e563f92c23319cfbe8742b2109022020552fd45ba",
+            "report": null
+        },
+        {
+            "slug": "ibu",
+            "name": "Ibu",
+            "region": "Maluku Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331376?signature=46ff224d6de0809b3727f569295ecbf1513fc6e3ff74d62c99267d163679d408",
+            "report": null
+        },
+        {
+            "slug": "ili-lewotolok",
+            "name": "Ili Lewotolok",
+            "region": "Nusa Tenggara Timur",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331378?signature=c60aa5d499595eeba05b113e7dfe20d828fcce10c567df78b7e5e36452324b36",
+            "report": null
+        },
+        {
+            "slug": "iya",
+            "name": "Iya",
+            "region": "Nusa Tenggara Timur",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331444?signature=5a1b05dba8d601776e620fdb2d0e53501a63eecaa8da55a40a9d3f502956f9ab",
+            "report": null
+        },
+        {
+            "slug": "karangetang",
+            "name": "Karangetang",
+            "region": "Sulawesi Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331451?signature=be93a1a8c6fa27bcb8db0934344fa335abcb29b451ada5dfafe01303855861c2",
+            "report": {
+                "id": "331451",
+                "observed_from": "2026-11-22T22:00:00Z",
+                "observed_until": "2026-11-23T04:00:00Z",
+                "timezone": "WITA",
+                "summary": "Petugas mengamati asap kawah setinggi sekitar 5–50 meter dan mencatat 10 gempa guguran serta 33 gempa hembusan."
+            }
+        },
+        {
+            "slug": "kerinci",
+            "name": "Kerinci",
+            "region": "Jambi, Sumatera Barat",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331389?signature=a86087b3c696f5c21aeaa54fdf22b681738f06cba3648f080ce520bbff77fe5f",
+            "report": null
+        },
+        {
+            "slug": "lewotobi-laki-laki",
+            "name": "Lewotobi Laki-laki",
+            "region": "Nusa Tenggara Timur",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331383?signature=275c01f6ff4a5847e4fdbbcdec245ae0f668eb1ddbab958b5113a9920d5d01ea",
+            "report": null
+        },
+        {
+            "slug": "lokon",
+            "name": "Lokon",
+            "region": "Sulawesi Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331424?signature=4dd54eedf226871b24f1ffe206951e2796da2d730ac40f12f53a4e2212521379",
+            "report": null
+        },
+        {
+            "slug": "marapi",
+            "name": "Marapi",
+            "region": "Sumatera Barat",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331388?signature=2326d2ee3a4e5822f7588ead8aa6fafb7f31ded6bba79503b9cc14dd069906d5",
+            "report": null
+        },
+        {
+            "slug": "raung",
+            "name": "Raung",
+            "region": "Jawa Timur",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331419?signature=8b0393e93d09ca931350c7ae2e8797d0deb36628238993129ca734bc3c4e2816",
+            "report": null
+        },
+        {
+            "slug": "rinjani",
+            "name": "Rinjani",
+            "region": "Nusa Tenggara Barat",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331406?signature=18d892d6430320234cddca8415b733a011b7b2d0db3027758ba4f0e2225db3e7",
+            "report": null
+        },
+        {
+            "slug": "sangeangapi",
+            "name": "Sangeangapi",
+            "region": "Nusa Tenggara Barat",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331445?signature=118016ee2ad19c6c96305f8e2d476d9f6680f84d3b218e21bac33e959499d9a0",
+            "report": null
+        },
+        {
+            "slug": "sinabung",
+            "name": "Sinabung",
+            "region": "Sumatera Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331413?signature=6560f4b4d4b539aff75c5a6d6eb854f00520007ed9c3e2aa9a591101a9d69fae",
+            "report": null
+        },
+        {
+            "slug": "slamet",
+            "name": "Slamet",
+            "region": "Jawa Tengah",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331421?signature=2e304a0cbc21d4576909bb7927897a4a84035ac9785e62f40b13fdaa6de1573c",
+            "report": null
+        },
+        {
+            "slug": "soputan",
+            "name": "Soputan",
+            "region": "Sulawesi Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331417?signature=973e35aed8f81b49d419bcfb560a2f8f25d7ebb73b7bee665682e8a1c5e4940f",
+            "report": null
+        },
+        {
+            "slug": "sorikmarapi",
+            "name": "Sorikmarapi",
+            "region": "Sumatera Utara",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331422?signature=1ce252ae32c6b61b03447296aeaf56ee2c438d8a119721c836bc2365050cbba9",
+            "report": null
+        },
+        {
+            "slug": "tambora",
+            "name": "Tambora",
+            "region": "Nusa Tenggara Barat",
+            "level": 2,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331377?signature=9cba66811a76fed026cc3a18611d14edff24a93d5726f000f951376c5e5e9ab8",
+            "report": null
+        },
+        {
+            "slug": "agung",
+            "name": "Agung",
+            "region": "Bali",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331432?signature=5f792424bc16b98531bb1ccd7f7dce2c6a047ad74c025f54e97fa26b2dbb5a2b",
+            "report": null
+        },
+        {
+            "slug": "ambang",
+            "name": "Ambang",
+            "region": "Sulawesi Utara",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331442?signature=4b052110c6d08685f8e549ca38ace3b85ed203ddab5cf3bfdc251e109d38870d",
+            "report": null
+        },
+        {
+            "slug": "arjuno-welirang",
+            "name": "Arjuno Welirang",
+            "region": "Jawa Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331435?signature=c751da7e54200255ab5802e572722e73cf3ce6bc3d0492c184afd93160a6697c",
+            "report": null
+        },
+        {
+            "slug": "batur",
+            "name": "Batur",
+            "region": "Bali",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331437?signature=057adf50b31ed8df4e2ed27308a59d2348fb37c56a587026e9ec0e67e5e99428",
+            "report": null
+        },
+        {
+            "slug": "batutara",
+            "name": "Batutara",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/304360?signature=9fc9cb41fee7945dcaf55e401991812d3efa16f558033d67049b5ff9ec490e18",
+            "report": null
+        },
+        {
+            "slug": "bur-ni-telong",
+            "name": "Bur Ni Telong",
+            "region": "Aceh",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331439?signature=44ac3d288c2c0f1e6d1fb0993c41ce817eef9860c2d4870b42c729ad182a94dd",
+            "report": null
+        },
+        {
+            "slug": "ciremai",
+            "name": "Ciremai",
+            "region": "Jawa Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331405?signature=e3a833f9c75f5b39f7aa21b978a53574f67b657d5142f0a56cdefe208769d000",
+            "report": null
+        },
+        {
+            "slug": "colo",
+            "name": "Colo",
+            "region": "Sulawesi Tengah",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331381?signature=9707ade2f873a347dceaa72f3d0c3da56c7abc67bf06585ea2d55a6da2f83da2",
+            "report": null
+        },
+        {
+            "slug": "dieng",
+            "name": "Dieng",
+            "region": "Jawa Tengah",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331423?signature=c09d77995fd06934016071879fbab0bb3760da8e241e0eaa00a236ec981ebef1",
+            "report": null
+        },
+        {
+            "slug": "ebulobo",
+            "name": "Ebulobo",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331393?signature=d65955b795767f3ce89e9c60720b27e1423633e7aaf248ce1fc98563b740f4db",
+            "report": null
+        },
+        {
+            "slug": "egon",
+            "name": "Egon",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331380?signature=e93fd9eae3e667dbf68cb94f6a2a9dbc0868cb9c6aa89c447125ed427dbb70d9",
+            "report": null
+        },
+        {
+            "slug": "galunggung",
+            "name": "Galunggung",
+            "region": "Jawa Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331403?signature=4005ea60d5fe2834c273312de6871da7f510ac10fb9ae78088a27eaf74ebf1a2",
+            "report": null
+        },
+        {
+            "slug": "gede",
+            "name": "Gede",
+            "region": "Jawa Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331431?signature=74626f782ee37e285c2582666dc4e377932dc2a949784cc632e421d4e4d94c94",
+            "report": null
+        },
+        {
+            "slug": "guntur",
+            "name": "Guntur",
+            "region": "Jawa Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331414?signature=992e6aae71e88ad942c378a1c282953ee52839b184b9d1393da847ae64eb1fdf",
+            "report": null
+        },
+        {
+            "slug": "hobal",
+            "name": "Hobal",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/293107?signature=f959cd69680f596cadcabcf3f7941886b8e715da2686516bdb856fd27f93c5f6",
+            "report": null
+        },
+        {
+            "slug": "ijen",
+            "name": "Ijen",
+            "region": "Jawa Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331443?signature=756de078af3387ba49600e364e330c809b876030328a4e1e5ac78f80fd5134ed",
+            "report": null
+        },
+        {
+            "slug": "ile-werung",
+            "name": "Ile Werung",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331400?signature=c9b63536406e17694a519efe6f537f7060e649cb27d9e60f88627f79f79ef607",
+            "report": null
+        },
+        {
+            "slug": "ili-boleng",
+            "name": "Ili Boleng",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331433?signature=6433071db200192e377c3819b2aaee5431a6fc9e627b1cf323bfd298c9371207",
+            "report": null
+        },
+        {
+            "slug": "inielika",
+            "name": "Inielika",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331428?signature=becdf79c63b7beceef8fa050a62afee45d0c9921fedb8dbc20fff38b9ad154e0",
+            "report": null
+        },
+        {
+            "slug": "inierie",
+            "name": "Inierie",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331404?signature=69d032ade5ae36e4fafcffcc29b86961719d0ab14d415c78e05b8a90f7009274",
+            "report": null
+        },
+        {
+            "slug": "kaba",
+            "name": "Kaba",
+            "region": "Bengkulu",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331427?signature=ce736bf473e3c1e3574cc3211496d691ec976fb22ae56fdc087e8855e61274ef",
+            "report": null
+        },
+        {
+            "slug": "kelimutu",
+            "name": "Kelimutu",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331408?signature=f9f909ef800b319a4ccaa310d1ba486001fbff0bd813013086f617e9718b0809",
+            "report": null
+        },
+        {
+            "slug": "kelud",
+            "name": "Kelud",
+            "region": "Jawa Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331407?signature=3d36ae0396fd63477561ca6cb2e2e0c0af51bff69517d9b3ee2f9cb5f766a49b",
+            "report": null
+        },
+        {
+            "slug": "kie-besi",
+            "name": "Kie Besi",
+            "region": "Maluku Utara",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331397?signature=d75c3f406f1f227f064019482945cc67d320a2bb1132e0085524c6dc69577b4c",
+            "report": null
+        },
+        {
+            "slug": "lamongan",
+            "name": "Lamongan",
+            "region": "Jawa Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331441?signature=ad9fbc618cc7a6eb922e67a9103090beb38945bfc6c2dcc697f25eef55d546d3",
+            "report": null
+        },
+        {
+            "slug": "lereboleng",
+            "name": "Lereboleng",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331399?signature=d6999008a53b421fd4dd366a6990e3b7777b309a86ac03f2e8fa2facbacb5ba3",
+            "report": null
+        },
+        {
+            "slug": "lewotobi-perempuan",
+            "name": "Lewotobi Perempuan",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331382?signature=61b64adfe37d4107b9874c200dbdb07b4f672f6bb5debea230fa16e4c4dc8851",
+            "report": null
+        },
+        {
+            "slug": "mahawu",
+            "name": "Mahawu",
+            "region": "Sulawesi Utara",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331401?signature=c02f4a5e198c3dbe5e8f7bfe3c95ab8046e347ae62967f8322d7c65c41a1a94c",
+            "report": null
+        },
+        {
+            "slug": "papandayan",
+            "name": "Papandayan",
+            "region": "Jawa Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331395?signature=0ed36a4d8c50db5ac28e3ebc71ba6c01eff9bec4b4d3849a990550454c48eb6b",
+            "report": {
+                "id": "331395",
+                "observed_from": "2026-11-21T17:00:00Z",
+                "observed_until": "2026-11-22T17:00:00Z",
+                "timezone": "WIB",
+                "summary": "Petugas mencatat 6 gempa vulkanik dangkal dan 2 gempa vulkanik dalam. Asap putih terlihat sekitar 15–25 meter di atas puncak."
+            }
+        },
+        {
+            "slug": "peut-sague",
+            "name": "Peut Sague",
+            "region": "Daerah Istimewa Aceh",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331436?signature=42698718d3a1773188ee477a586acf9c0b86a3657055734794288f79d2c49127",
+            "report": null
+        },
+        {
+            "slug": "rokatenda",
+            "name": "Rokatenda",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331387?signature=9fb51800925b2771c1430bcc546b4d3f7441ef18416a064b184485ef528fc1f0",
+            "report": null
+        },
+        {
+            "slug": "ruang",
+            "name": "Ruang",
+            "region": "Sulawesi Utara",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331434?signature=a1f61165c9f3c852d833c4611480a2606dd4e2b1fcf64adc42af08718f752a68",
+            "report": null
+        },
+        {
+            "slug": "salak",
+            "name": "Salak",
+            "region": "Jawa Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331402?signature=ebdbe729dedf51d512cd3f122c2eb982c2db12dd2a8adb750264ec95c75cef99",
+            "report": null
+        },
+        {
+            "slug": "seulawah-agam",
+            "name": "Seulawah Agam",
+            "region": "Daerah Istimewa Aceh",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331447?signature=4880840e58dbbdd0da7e4bd78530aa3cdf7cfc84975d21cc80e9eb84aec774a5",
+            "report": null
+        },
+        {
+            "slug": "sirung",
+            "name": "Sirung",
+            "region": "Nusa Tenggara Timur",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331411?signature=6e376163e00df0c112afaff22a0f300a3ee20c43ae7b1babebae5ee9e5f8a3b1",
+            "report": null
+        },
+        {
+            "slug": "sumbing",
+            "name": "Sumbing",
+            "region": "Jawa Tengah",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331425?signature=966a596e83f4353de46e1e722c4835dab91bfd7c0bd3566d791b8e98a2a7f95e",
+            "report": null
+        },
+        {
+            "slug": "sundoro",
+            "name": "Sundoro",
+            "region": "Jawa Tengah",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331426?signature=02f337e2734e277ca5a135297aa607dabeb723cff98eb10aab7798ae17a9b15f",
+            "report": null
+        },
+        {
+            "slug": "talang",
+            "name": "Talang",
+            "region": "Sumatera Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331430?signature=8e54b3263a2a6ec04a73cbf2cc2e2eaf742449ff3fde3ece314a726513c8163c",
+            "report": null
+        },
+        {
+            "slug": "tandikat",
+            "name": "Tandikat",
+            "region": "Sumatera Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331446?signature=58bb40436d5afb5c06a72034e9be5e72af6a8fded406dae8db6dc6bec8f6f381",
+            "report": null
+        },
+        {
+            "slug": "tangkoko",
+            "name": "Tangkoko",
+            "region": "Sulawesi Utara",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331418?signature=74eff4a659d682bbf665c178b59c77520a56e1a81ff000aea9cd234047852ae9",
+            "report": null
+        },
+        {
+            "slug": "tangkuban-parahu",
+            "name": "Tangkuban Parahu",
+            "region": "Jawa Barat",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331440?signature=731b70dc271c3d2c9775b5a1b411889a61a1dd66564af2909e6df77788b72636",
+            "report": null
+        },
+        {
+            "slug": "wurlali",
+            "name": "Wurlali",
+            "region": "Maluku",
+            "level": 1,
+            "source_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/331409?signature=018309aac0932793a90be970711cdaecfd449ab987d007afb15d69a1923570aa",
+            "report": null
+        }
+    ]
+}

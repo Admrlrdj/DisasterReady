@@ -25,7 +25,7 @@ Official BMKG gempa, weather and CAP adapters were enabled locally and successfu
 
 The map links directly to the national and Jakarta InaRISK viewers. MapLibre can render allowlisted BNPB ImageServer rasters when the database layer is marked publication-approved. The seeded flood-hazard layer stays unpublished because [BNPB's catalog](https://data.bnpb.go.id/tr/dataset/indeks-bahaya-banjir-inarisk-2021) requires written permission for use. The official WebGIS disallows cross-origin framing.
 
-The PVMBG snapshot is maintained in `config/pvmbg.php` with explicit observation periods and source links. The public MAGMA site restricts automated collection in its [robots policy](https://magma.esdm.go.id/robots.txt). Live integration depends on a documented [CAP endpoint](https://geologi.esdm.go.id/media-center/wajah-baru-magma-indonesia-ekosistem-digital-kebencanaan-geologi-yang-lebih-inovatif-terintegrasi-dan-hadir-di-semua-perangkat). Operational shelter/roads and RAG remain deferred.
+The national PVMBG catalogue is maintained in `resources/data/pvmbg-snapshot.json`. For each refresh, review the [MAGMA status list](https://magma.esdm.go.id/v1/gunung-api/tingkat-aktivitas), preserve existing volcano slugs, update `checked_at` in UTC, and copy each official report link. Populate `report` only after checking its observation period and factual summary against the [official report](https://magma.esdm.go.id/v1/gunung-api/laporan). The index and modal mark the dataset's scope through the check time. The index labels it archival after 24 hours. The activity feed only surfaces verified report periods ending in the last 24 hours.
 
 ```powershell
 ./scripts/local-postgis.ps1 start

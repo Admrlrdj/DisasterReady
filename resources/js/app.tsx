@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import ActivityToasts from '@/components/disaster/activity-toasts';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -30,6 +31,7 @@ void createInertiaApp({
             <TooltipProvider delayDuration={0}>
                 {app}
                 <Toaster />
+                <ActivityToasts />
             </TooltipProvider>
         );
     },

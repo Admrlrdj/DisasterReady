@@ -30,6 +30,7 @@ For live local BMKG updates, enable the adapters as described in the
 test suite. See the [national P0 handoff](docs/NATIONAL_P0.md) for coverage,
 provider configuration, and the UI/UX sprint.
 
+The [frontend notes](docs/FRONTEND_PROGRESS.md#data-and-local-database) describe how to refresh the dated PVMBG catalogue.
 
 ### Handover to another computer
 

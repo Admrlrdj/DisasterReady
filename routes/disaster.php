@@ -18,6 +18,7 @@ Route::middleware(NormalizeDisasterDates::class)->group(function () {
 
     Route::prefix('data')->middleware('throttle:60,1')->group(function () {
         Route::get('/overview', [PublicDataController::class, 'overview'])->name('data.overview');
+        Route::get('/activity', [PublicDataController::class, 'activity'])->name('data.activity');
         Route::get('/events', [PublicDataController::class, 'events'])->name('data.events');
         Route::get('/events/{id}', [PublicDataController::class, 'event'])->name('data.event');
         Route::get('/alerts', [PublicDataController::class, 'alerts'])->name('data.alerts');

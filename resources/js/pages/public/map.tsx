@@ -77,6 +77,7 @@ export default function MapPage({ overview }: { overview: Overview }) {
                     <MapPanel
                         kind={floodReports ? 'flood-report' : kind}
                         allHazards={!hazard}
+                        showLoadingPreview
                         hazardMarkers
                         activeOnly
                         hazard={hazard}

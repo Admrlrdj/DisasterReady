@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { lazy, Suspense } from 'react';
 import {
     Action,
     Notice,
@@ -9,7 +10,18 @@ import {
 import { dateTime, stringValue } from '@/lib/disaster';
 import type { OfficialRecord } from '@/types/disaster';
 import MapPanel from '@/components/maps/map-panel';
-export default function Detail({ record }: { record: OfficialRecord }) {
+
+const ReportLocationMap = lazy(
+    () => import('@/components/maps/report-location-map'),
+);
+
+export default function Detail({
+    record,
+    eventPosition,
+}: {
+    record: OfficialRecord;
+    eventPosition: [number, number] | null;
+}) {
     const data = record.data as Record<string, unknown>;
     return (
         <>
@@ -36,14 +48,50 @@ export default function Detail({ record }: { record: OfficialRecord }) {
             </PageHeading>
             <div className="dr-two-col">
                 <div className="dr-stack">
-                    <Panel title="Konteks Peta Resmi">
-                        <MapPanel
-                            kind={record.kind === 'alert' ? 'alert' : 'event'}
-                        />
-                        <p className="dr-caption dr-muted">
-                            Klik fitur pada peta nasional untuk melihat
-                            ringkasan dan sumbernya.
-                        </p>
+                    <Panel
+                        title={
+                            record.kind === 'event'
+                                ? 'Episentrum Gempa'
+                                : 'Konteks Peta Resmi'
+                        }
+                    >
+                        {record.kind === 'alert' ? (
+                            <>
+                                <MapPanel kind="alert" />
+                                <p className="dr-caption dr-muted">
+                                    Klik fitur pada peta nasional untuk melihat
+                                    ringkasan dan sumbernya.
+                                </p>
+                            </>
+                        ) : eventPosition ? (
+                            <>
+                                <Suspense
+                                    fallback={
+                                        <div
+                                            className="dr-live-map dr-map-preview dr-empty"
+                                            role="status"
+                                        >
+                                            Memuat peta episentrum…
+                                        </div>
+                                    }
+                                >
+                                    <ReportLocationMap
+                                        key={record.id}
+                                        position={eventPosition}
+                                        label={`Peta episentrum ${record.title}`}
+                                    />
+                                </Suspense>
+                                <p className="dr-caption dr-muted">
+                                    Lintang {eventPosition[1].toFixed(4)}° ·
+                                    Bujur {eventPosition[0].toFixed(4)}°
+                                </p>
+                            </>
+                        ) : (
+                            <Notice>
+                                Koordinat episentrum belum tersedia untuk
+                                kejadian ini.
+                            </Notice>
+                        )}
                     </Panel>
                     <Panel title={record.title}>
                         <div className="dr-actions">

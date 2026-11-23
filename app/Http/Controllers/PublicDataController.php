@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Integrations\RegionalWeather;
 use App\Services\Integrations\WeatherRegions;
+use App\Services\OfficialActivity;
 use App\Services\PublicData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 class PublicDataController extends Controller
 {
+    public function activity(OfficialActivity $activity): JsonResponse
+    {
+        return response()->json(['data' => $activity->latest()]);
+    }
+
     public function overview(PublicData $data): JsonResponse
     {
         return response()->json([

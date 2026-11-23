@@ -1,9 +1,9 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { Action, Brand } from '@/components/disaster/ui';
 import GuideChat from '@/components/disaster/guide-chat';
-import { CloudSun } from 'lucide-react';
+import { CloudSun, LogOut } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -13,6 +13,7 @@ import {
 import { figmaAssets } from '@/lib/figma-assets';
 import type { Contact } from '@/lib/disaster';
 import { cn } from '@/lib/utils';
+import { logout } from '@/routes';
 
 const icons = figmaAssets['5-14'];
 const navigation = [
@@ -118,6 +119,24 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                         </small>
                     </span>
                 </Link>
+                {auth.user && (
+                    <Form
+                        {...logout.form()}
+                        onSuccess={() => setMenuOpen(false)}
+                    >
+                        {({ processing }) => (
+                            <Action
+                                type="submit"
+                                variant="outline"
+                                className="dr-account-logout"
+                                disabled={processing}
+                            >
+                                <LogOut aria-hidden="true" />
+                                {processing ? 'Keluar…' : 'Keluar akun'}
+                            </Action>
+                        )}
+                    </Form>
+                )}
                 <nav aria-label="Navigasi utama">
                     {visible.map((item, index) => (
                         <div key={item.href}>
@@ -189,16 +208,8 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                     </div>
                     <small>Bukan pengganti peringatan resmi</small>
                 </div>
-                {auth.user ? (
-                    <button
-                        type="button"
-                        className="dr-logout"
-                        onClick={() => router.post('/logout')}
-                    >
-                        Keluar akun
-                    </button>
-                ) : (
-                    <Link className="dr-logout" href="/login">
+                {!auth.user && (
+                    <Link className="dr-sign-in" href="/login">
                         Masuk ke akun
                     </Link>
                 )}

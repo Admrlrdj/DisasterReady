@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\IncidentReport;
 use App\Models\User;
+use App\Services\Integrations\IngestSource;
+use App\Services\VolcanoSnapshot;
+use Carbon\CarbonImmutable;
 use Database\Seeders\DisasterSourceSeeder;
 use Database\Seeders\PilotFloodGuideSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,9 +52,45 @@ class FrontendTest extends TestCase
 
     public function test_volcano_pages_expose_dated_official_reports(): void
     {
-        $this->get('/volcanoes')->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/volcanoes')->has('reports', 3)->where('selected', null));
-        $this->get('/volcanoes/merapi')->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/volcanoes')->has('reports', 1)->where('reports.merapi.level', 3)->where('reports.merapi.observed_until', '2026-11-22T05:00:00Z'));
+        $snapshot = app(VolcanoSnapshot::class)->snapshot();
+        $checked = CarbonImmutable::parse($snapshot['checked_at']);
+        $this->travelTo($checked);
+        $this->get('/volcanoes')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->component('public/volcanoes')->has('snapshot.volcanoes', count($snapshot['volcanoes']))
+            ->where('snapshot.checked_at', $snapshot['checked_at'])->where('archived', false)->where('selected', null));
+        $this->travelTo($checked->addDay());
+        $this->get('/volcanoes/merapi')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->component('public/volcanoes')->where('selected', 'merapi')->where('archived', true));
         $this->get('/volcanoes/unknown')->assertNotFound();
+    }
+
+    public function test_earthquake_detail_uses_only_the_requested_events_epicenter(): void
+    {
+        $this->seed(DisasterSourceSeeder::class);
+        $source = DB::table('sources')->where('slug', 'bmkg-earthquake')->value('id');
+        $event = [
+            'kind' => 'event', 'hazard' => 'earthquake', 'external_id' => 'synthetic-focus',
+            'title' => 'Gempa sintetis', 'source_url' => 'https://data.bmkg.go.id/gempabumi/',
+            'source_time' => now(), 'latitude' => -1.25, 'longitude' => 130.75, 'payload_json' => [], 'synthetic' => true,
+        ];
+        app(IngestSource::class)->persist($source, [
+            $event,
+            array_replace($event, ['external_id' => 'synthetic-other', 'latitude' => -7.25, 'longitude' => 112.75]),
+            array_replace($event, ['external_id' => 'synthetic-no-position', 'latitude' => null, 'longitude' => null]),
+        ]);
+        $ids = DB::table('disaster_events')->pluck('id', 'external_id');
+        $this->get('/events/'.$ids['synthetic-focus'])->assertInertia(fn (Assert $page) => $page
+            ->component('public/detail')->where('record.id', $ids['synthetic-focus'])->where('eventPosition', [130.75, -1.25]));
+        $this->get('/events/'.$ids['synthetic-other'])->assertInertia(fn (Assert $page) => $page
+            ->where('eventPosition', [112.75, -7.25]));
+        $this->get('/events/'.$ids['synthetic-no-position'])->assertInertia(fn (Assert $page) => $page
+            ->where('eventPosition', null));
+    }
+
+    public function test_light_theme_applies_before_javascript_with_saved_dark_cookie(): void
+    {
+        $this->withUnencryptedCookie('appearance', 'dark')->get('/')
+            ->assertOk()->assertSee('<html lang="id" style="color-scheme: light">', false);
     }
 
     public function test_pilot_guide_stays_private_until_admin_records_a_review_and_publishes(): void
@@ -95,6 +134,12 @@ class FrontendTest extends TestCase
         $this->actingAs($moderator)->get('/admin/reports')->assertInertia(fn (Assert $page) => $page->component('moderation/queue')->where('selected.id', $report->id)->has('suggestions.data', 0));
         $this->get('/admin/sources')->assertForbidden();
         $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->get('/admin/reports?report='.$report->id)->assertInertia(fn (Assert $page) => $page->where('canReview', true));
+        $ownReport = $report->replicate();
+        $ownReport->reporter_id = $admin->id;
+        $ownReport->save();
+        $this->get('/admin/reports?report='.$ownReport->id)->assertInertia(fn (Assert $page) => $page->where('selected.id', $ownReport->id)->where('canReview', false));
+        $this->postJson('/admin/reports/'.$ownReport->id.'/reviews', ['version' => 1, 'decision' => 'VERIFIED', 'reason' => 'Percobaan keputusan atas laporan sendiri.'])->assertForbidden();
         foreach (['/admin/sources' => 'admin/sources', '/admin/guides' => 'admin/guides', '/admin/alerts' => 'admin/alerts', '/admin/audit-logs' => 'admin/audit', '/settings' => 'settings/overview'] as $url => $component) {
             $this->actingAs($admin)->get($url)->assertOk()->assertInertia(fn (Assert $page) => $page->component($component));
         }

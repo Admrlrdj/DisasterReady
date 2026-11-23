@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
 import { edit as editAppearance } from '@/routes/appearance';
 
@@ -14,9 +13,8 @@ export default function Appearance() {
                 <Heading
                     variant="small"
                     title="Appearance settings"
-                    description="Update the appearance settings for your account"
+                    description="DisasterReady sementara menggunakan tema terang."
                 />
-                <AppearanceTabs />
             </div>
         </>
     );

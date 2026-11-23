@@ -180,6 +180,7 @@ export default function HazardMap({
     eventDays,
     revision = 0,
     historicalTiles,
+    showLoadingPreview,
 }: MapPanelProps) {
     const flood = kind === 'flood-report' || kind === 'flood-area';
     const tsunami =
@@ -213,6 +214,7 @@ export default function HazardMap({
     const [renderError, setRenderError] = useState('');
     const [dataError, setDataError] = useState('');
     const [loading, setLoading] = useState(true);
+    const [firstDataReady, setFirstDataReady] = useState(false);
     const [attempt, setAttempt] = useState(0);
     const [requestAttempt, setRequestAttempt] = useState(0);
     const hasEarthquakes = data.features.some(
@@ -255,13 +257,14 @@ export default function HazardMap({
                 setDataError(
                     'Layer InaRISK belum dapat dimuat. Buka WebGIS BNPB untuk melihat peta sumber.',
                 );
-            } else {
+            } else if (!ready) {
                 setRenderError('Sebagian peta dasar belum dapat dimuat.');
             }
         });
         instance.on('load', () => {
             ready = true;
             clearTimeout(timeout);
+            setRenderError('');
             instance.fitBounds(indonesia, { padding: 24, duration: 0 });
             instance.addSource('official', { type: 'geojson', data: empty });
             instance.addLayer({
@@ -481,6 +484,9 @@ export default function HazardMap({
         lastLoadedLayers.current = [];
         setSelected(null);
         setData(empty);
+        setFirstDataReady(false);
+        setDataError('');
+        setLoading(true);
         const source = map.getSource('official') as GeoJSONSource;
         void source.setData(empty).catch(() => undefined);
     }, [
@@ -509,6 +515,10 @@ export default function HazardMap({
             timer = setTimeout(async () => {
                 const request = new AbortController();
                 pending = request;
+                const signal = AbortSignal.any([
+                    request.signal,
+                    AbortSignal.timeout(15_000),
+                ]);
                 setLoading(true);
                 setDataError('');
                 try {
@@ -569,7 +579,7 @@ export default function HazardMap({
                         const responses = await Promise.allSettled(
                             urls.map(async (url) => {
                                 const response = await fetch(url, {
-                                    signal: request.signal,
+                                    signal,
                                     headers: { Accept: 'application/json' },
                                 });
                                 if (!response.ok)
@@ -593,9 +603,7 @@ export default function HazardMap({
                             (response, index) =>
                                 response.status === 'fulfilled'
                                     ? response.value
-                                    : urls[index].startsWith('/data/map?')
-                                      ? lastLoadedLayers.current[index]
-                                      : undefined,
+                                    : lastLoadedLayers.current[index],
                         );
                         const loaded = lastLoadedLayers.current.filter(
                             (layer) => layer !== undefined,
@@ -667,6 +675,7 @@ export default function HazardMap({
                     });
                     if (!request.signal.aborted) {
                         setData(result);
+                        setFirstDataReady(true);
                         if (snapshotUrl || allHazards) {
                             setSelected((previous) =>
                                 previous
@@ -681,16 +690,11 @@ export default function HazardMap({
                     }
                 } catch {
                     if (!request.signal.aborted) {
-                        if (snapshotUrl || allHazards) {
-                            setData(empty);
-                            setSelected(null);
-                            void source.setData(empty).catch(() => undefined);
-                        }
                         setDataError(
                             allHazards
-                                ? 'Data peta gagal diperbarui.'
+                                ? 'Data peta gagal diperbarui. Data terakhir tetap ditampilkan jika tersedia.'
                                 : snapshotUrl
-                                  ? `Data ${provider} gagal diperbarui.`
+                                  ? `Data ${provider} gagal diperbarui. Data terakhir tetap ditampilkan jika tersedia.`
                                   : 'Data BMKG gagal diperbarui. Data terakhir tetap ditampilkan jika tersedia.',
                         );
                     }
@@ -736,9 +740,13 @@ export default function HazardMap({
         setSelected(null);
         setDataError('');
         setLoading(true);
+        setFirstDataReady(false);
         map.setLayoutProperty('official-points', 'visibility', 'none');
         map.setLayoutProperty('official-areas', 'visibility', 'none');
-        const onIdle = map.on('idle', () => setLoading(false));
+        const onIdle = map.on('idle', () => {
+            setFirstDataReady(true);
+            setLoading(false);
+        });
         map.addSource('inarisk', {
             type: 'raster',
             tiles: [historicalTiles],
@@ -822,22 +830,38 @@ export default function HazardMap({
 
     function retry() {
         setRenderError('');
+        setDataError('');
+        setLoading(true);
         if (!map) {
-            setLoading(true);
             setAttempt((value) => value + 1);
         } else {
             setRequestAttempt((value) => value + 1);
         }
     }
 
+    const preview =
+        showLoadingPreview &&
+        !firstDataReady &&
+        loading &&
+        !renderError &&
+        !dataError;
+
     return (
         <div className="dr-map-frame">
-            <div className="dr-live-map">
+            <div
+                className={`dr-live-map${preview ? ' dr-map-preview' : ''}`}
+                aria-busy={loading}
+            >
                 <div
                     ref={container}
                     className="maplibregl-map"
                     aria-label="Peta data resmi Indonesia"
                 />
+                {preview && (
+                    <div className="dr-map-preview-label" aria-hidden="true">
+                        Memuat peta…
+                    </div>
+                )}
                 {selected && (
                     <div
                         className="dr-map-selection"
@@ -941,7 +965,7 @@ export default function HazardMap({
                                 ? 'Memuat layer kajian InaRISK…'
                                 : 'Layer kajian historis · BNPB InaRISK'
                             : loading
-                              ? data.features.length
+                              ? firstDataReady
                                   ? `Memuat ulang data ${provider}…`
                                   : `Memuat peta dan data ${provider}…`
                               : (data.message ??
