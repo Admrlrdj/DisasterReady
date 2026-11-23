@@ -13,7 +13,7 @@ import {
     stringValue,
 } from '@/lib/disaster';
 import type { OfficialRecord } from '@/types/disaster';
-import type { MapPanelProps } from './map-panel';
+import type { FloodMapKind, MapPanelProps } from './map-panel';
 
 setWorkerUrl(workerUrl);
 
@@ -26,11 +26,23 @@ const earthquakeRings = [
     { id: 'earthquake-ring-21', radius: 21, opacity: 0.4 },
 ];
 
-type MapRecord = OfficialRecord & { weatherIcon?: string; rainLevel?: number };
+type FloodRecord = Pick<
+    OfficialRecord,
+    'id' | 'title' | 'source_time' | 'fetched_at' | 'expires_at' | 'source_url'
+> & {
+    kind: FloodMapKind;
+};
+type MapRecord = (OfficialRecord | FloodRecord) & {
+    external?: boolean;
+    volcanoLevel?: number;
+    weatherIcon?: string;
+    rainLevel?: number;
+};
 type MapFeature = Feature<Geometry, MapRecord> & { weather_point?: Point };
 type MapData = Omit<FeatureCollection<Geometry, MapRecord>, 'features'> & {
     features: MapFeature[];
     truncated: boolean;
+    message?: string;
 };
 const empty: MapData = {
     type: 'FeatureCollection',
@@ -48,24 +60,45 @@ const weatherIcons = {
     fog: 'M5 10a4 4 0 1 1 7.8-1.2A3 3 0 1 1 17 13H7m-3 3h16m-13 3h10',
 };
 
+const volcanoPath =
+    'M3 20 9 10l3 3 3-3 6 10H3Zm6-10 1 5m5-5-1 5M12 8V5m-3 2L7 5m8 2 2-2';
+const hazardIcons = {
+    flood: {
+        path: 'M2 7c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 13c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 19c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2',
+        color: '#075d9c',
+    },
+    volcano: { path: volcanoPath, color: '#b73536' },
+    'volcano-2': { path: volcanoPath, color: '#c84244' },
+    'volcano-3': { path: volcanoPath, color: '#9d1d24' },
+    'volcano-4': { path: volcanoPath, color: '#650912' },
+};
+
 function addWeatherIcons(map: Map) {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 64;
     const context = canvas.getContext('2d', { willReadFrequently: true });
     if (!context) return;
     context.scale(2, 2);
-    for (const [name, path] of Object.entries(weatherIcons)) {
+    for (const [name, { path, color }] of Object.entries({
+        ...Object.fromEntries(
+            Object.entries(weatherIcons).map(([name, path]) => [
+                name,
+                { path, color: '#123c68' },
+            ]),
+        ),
+        ...hazardIcons,
+    })) {
         context.clearRect(0, 0, 32, 32);
         context.beginPath();
         context.arc(16, 16, 15, 0, Math.PI * 2);
-        context.fillStyle = '#eff6ff';
+        context.fillStyle = name.startsWith('volcano') ? '#fff0ef' : '#eff6ff';
         context.fill();
-        context.strokeStyle = '#2563a5';
+        context.strokeStyle = name in hazardIcons ? color : '#2563a5';
         context.lineWidth = 1.5;
         context.stroke();
         context.save();
         context.translate(4, 4);
-        context.strokeStyle = '#123c68';
+        context.strokeStyle = color;
         context.lineWidth = 1.65;
         context.lineCap = 'round';
         context.lineJoin = 'round';
@@ -77,7 +110,17 @@ function addWeatherIcons(map: Map) {
     }
 }
 
-function mapWeather(record: OfficialRecord): MapRecord {
+function mapWeather(record: MapRecord): MapRecord {
+    if (record.volcanoLevel !== undefined) {
+        const icon = 'volcano-' + record.volcanoLevel;
+        return {
+            ...record,
+            weatherIcon: icon in hazardIcons ? icon : 'volcano',
+        };
+    }
+    if (record.kind === 'flood-report')
+        return { ...record, weatherIcon: 'flood' };
+    if (record.external) return record;
     const title = record.title.toLowerCase();
     if (record.kind === 'forecast') {
         const weatherIcon = /petir|guntur/.test(title)
@@ -114,10 +157,22 @@ function mapWeather(record: OfficialRecord): MapRecord {
     return { ...record, rainLevel, weatherIcon };
 }
 
+function recordGroup(record: MapRecord) {
+    if (record.volcanoLevel !== undefined)
+        return record.kind === 'alert' ? 'volcano-status' : 'eruption';
+    if (record.external && record.kind === 'alert') return 'tsunami';
+    return record.kind;
+}
+
+function recordKey(record: MapRecord) {
+    return recordGroup(record) + '-' + record.id;
+}
+
 export default function HazardMap({
     kind = 'event',
     hazard = '',
     combined = false,
+    allHazards = false,
     hazardMarkers = combined,
     weatherRegions,
     region,
@@ -126,6 +181,27 @@ export default function HazardMap({
     revision = 0,
     historicalTiles,
 }: MapPanelProps) {
+    const flood = kind === 'flood-report' || kind === 'flood-area';
+    const tsunami =
+        kind === 'alert' && hazard === 'tsunami' && !!activeOnly && !combined;
+    const volcano =
+        hazard === 'volcano' &&
+        !combined &&
+        (kind === 'event' || kind === 'alert');
+    const snapshotUrl = flood
+        ? '/data/flood/' + kind
+        : tsunami
+          ? '/data/map/tsunami'
+          : volcano
+            ? '/data/map/volcano/' + kind
+            : null;
+    const provider = flood
+        ? 'PetaBencana.id'
+        : tsunami
+          ? 'InaTEWS BMKG'
+          : volcano
+            ? 'MAGMA PVMBG'
+            : 'BMKG';
     const weatherRegionKey = weatherRegions?.join(',') ?? '';
     const container = useRef<HTMLDivElement>(null);
     const selectionTitle = useRef<HTMLElement>(null);
@@ -133,14 +209,14 @@ export default function HazardMap({
     const lastLoadedLayers = useRef<(MapData | undefined)[]>([]);
     const [map, setMap] = useState<Map | null>(null);
     const [data, setData] = useState<MapData>(empty);
-    const [selected, setSelected] = useState<OfficialRecord | null>(null);
+    const [selected, setSelected] = useState<MapRecord | null>(null);
     const [renderError, setRenderError] = useState('');
     const [dataError, setDataError] = useState('');
     const [loading, setLoading] = useState(true);
     const [attempt, setAttempt] = useState(0);
     const [requestAttempt, setRequestAttempt] = useState(0);
     const hasEarthquakes = data.features.some(
-        ({ properties }) => properties.kind === 'event',
+        ({ properties }) => properties.kind === 'event' && !properties.external,
     );
 
     useEffect(() => {
@@ -260,7 +336,16 @@ export default function HazardMap({
                     ? [
                           'all',
                           ['==', ['geometry-type'], 'Point'],
-                          ['==', ['get', 'kind'], 'event'],
+                          ['!', ['has', 'weatherIcon']],
+                          [
+                              'any',
+                              ['has', 'external'],
+                              [
+                                  'in',
+                                  ['get', 'kind'],
+                                  ['literal', ['event', 'flood-report']],
+                              ],
+                          ],
                       ]
                     : ['==', ['geometry-type'], 'Point'],
                 paint: {
@@ -271,6 +356,8 @@ export default function HazardMap({
                         '#226781',
                         'alert',
                         '#ad6306',
+                        'flood-report',
+                        '#226781',
                         hazardMarkers ? '#aa3022' : '#13604b',
                     ],
                     'circle-radius': 7,
@@ -288,6 +375,8 @@ export default function HazardMap({
                         'all',
                         ['==', ['geometry-type'], 'Point'],
                         ['has', 'weatherIcon'],
+                        ['!', ['has', 'volcanoLevel']],
+                        ['!=', ['get', 'kind'], 'flood-report'],
                     ],
                     layout: {
                         'icon-image': ['get', 'weatherIcon'],
@@ -303,6 +392,25 @@ export default function HazardMap({
                             1,
                             0.8,
                         ],
+                    },
+                });
+                instance.addLayer({
+                    id: 'hazard-icons',
+                    type: 'symbol',
+                    source: 'official',
+                    filter: [
+                        'all',
+                        ['==', ['geometry-type'], 'Point'],
+                        ['has', 'weatherIcon'],
+                        [
+                            'any',
+                            ['has', 'volcanoLevel'],
+                            ['==', ['get', 'kind'], 'flood-report'],
+                        ],
+                    ],
+                    layout: {
+                        'icon-image': ['get', 'weatherIcon'],
+                        'icon-allow-overlap': true,
                     },
                 });
             }
@@ -384,6 +492,7 @@ export default function HazardMap({
         eventDays,
         historicalTiles,
         combined,
+        allHazards,
         hazardMarkers,
         weatherRegionKey,
     ]);
@@ -425,31 +534,44 @@ export default function HazardMap({
                                       })),
                               ]
                             : [{ kind, region }];
+                        const urls = layers.map((layer) => {
+                            const query = new URLSearchParams({
+                                kind: layer.kind,
+                                limit: '100',
+                            });
+                            bbox.forEach((value) =>
+                                query.append('bbox[]', String(value)),
+                            );
+                            if (hazard) query.set('hazard', hazard);
+                            if (layer.kind === 'event' && eventDays)
+                                query.set('event_days', String(eventDays));
+                            if (layer.kind === 'alert' && activeOnly)
+                                query.set('status', 'active');
+                            if (hazardMarkers && layer.kind === 'alert')
+                                query.set('weather_points', '1');
+                            if (layer.kind === 'forecast' && layer.region)
+                                query.set('region', layer.region);
+                            return snapshotUrl ?? '/data/map?' + query;
+                        });
+                        if (allHazards) {
+                            if (kind === 'event') {
+                                urls.push(
+                                    '/data/flood/flood-report',
+                                    '/data/map/volcano/event',
+                                );
+                            } else if (kind === 'alert') {
+                                urls.push(
+                                    '/data/map/volcano/alert',
+                                    '/data/map/tsunami',
+                                );
+                            }
+                        }
                         const responses = await Promise.allSettled(
-                            layers.map(async (layer) => {
-                                const query = new URLSearchParams({
-                                    kind: layer.kind,
-                                    limit: '100',
+                            urls.map(async (url) => {
+                                const response = await fetch(url, {
+                                    signal: request.signal,
+                                    headers: { Accept: 'application/json' },
                                 });
-                                bbox.forEach((value) =>
-                                    query.append('bbox[]', String(value)),
-                                );
-                                if (hazard) query.set('hazard', hazard);
-                                if (layer.kind === 'event' && eventDays)
-                                    query.set('event_days', String(eventDays));
-                                if (layer.kind === 'alert' && activeOnly)
-                                    query.set('status', 'active');
-                                if (hazardMarkers && layer.kind === 'alert')
-                                    query.set('weather_points', '1');
-                                if (layer.kind === 'forecast' && layer.region)
-                                    query.set('region', layer.region);
-                                const response = await fetch(
-                                    '/data/map?' + query,
-                                    {
-                                        signal: request.signal,
-                                        headers: { Accept: 'application/json' },
-                                    },
-                                );
                                 if (!response.ok)
                                     throw new Error('Map data request failed');
                                 return (await response.json()) as MapData;
@@ -459,17 +581,21 @@ export default function HazardMap({
                         const failures = responses.filter(
                             (response) => response.status === 'rejected',
                         ).length;
-                        if (failures === layers.length)
+                        if (failures === urls.length)
                             throw new Error('Map data request failed');
                         if (failures)
                             setDataError(
-                                'Sebagian lapisan BMKG gagal diperbarui. Data terakhir tetap ditampilkan jika tersedia.',
+                                allHazards
+                                    ? 'Sebagian sumber gagal diperbarui. Data dari sumber lain tetap ditampilkan.'
+                                    : 'Sebagian lapisan BMKG gagal diperbarui. Data terakhir tetap ditampilkan jika tersedia.',
                             );
                         lastLoadedLayers.current = responses.map(
                             (response, index) =>
                                 response.status === 'fulfilled'
                                     ? response.value
-                                    : lastLoadedLayers.current[index],
+                                    : urls[index].startsWith('/data/map?')
+                                      ? lastLoadedLayers.current[index]
+                                      : undefined,
                         );
                         const loaded = lastLoadedLayers.current.filter(
                             (layer) => layer !== undefined,
@@ -477,25 +603,33 @@ export default function HazardMap({
                         result = {
                             type: 'FeatureCollection',
                             features: loaded.flatMap(({ features }) =>
-                                features.map((feature) =>
-                                    hazardMarkers
-                                        ? {
-                                              ...feature,
-                                              properties: mapWeather(
-                                                  feature.properties,
-                                              ),
-                                          }
-                                        : feature,
-                                ),
+                                features.map((feature) => ({
+                                    ...feature,
+                                    properties: {
+                                        ...(hazardMarkers
+                                            ? mapWeather(feature.properties)
+                                            : feature.properties),
+                                        recordKey: recordKey(
+                                            feature.properties,
+                                        ),
+                                    },
+                                })),
                             ),
                             truncated: loaded.some((layer) => layer.truncated),
+                            message: snapshotUrl
+                                ? loaded[0]?.message
+                                : undefined,
                         };
                     }
                     if (request.signal.aborted) return;
                     const latestEvent =
                         result.features.reduce<MapRecord | null>(
                             (latest, { properties }) => {
-                                if (properties.kind !== 'event') return latest;
+                                if (
+                                    properties.kind !== 'event' ||
+                                    properties.external
+                                )
+                                    return latest;
                                 return !latest ||
                                     Date.parse(properties.source_time) >
                                         Date.parse(latest.source_time)
@@ -531,11 +665,33 @@ export default function HazardMap({
                         type: 'FeatureCollection',
                         features: [...markers, ...weatherPoints],
                     });
-                    if (!request.signal.aborted) setData(result);
+                    if (!request.signal.aborted) {
+                        setData(result);
+                        if (snapshotUrl || allHazards) {
+                            setSelected((previous) =>
+                                previous
+                                    ? (result.features.find(
+                                          ({ properties }) =>
+                                              recordKey(properties) ===
+                                              recordKey(previous),
+                                      )?.properties ?? null)
+                                    : null,
+                            );
+                        }
+                    }
                 } catch {
                     if (!request.signal.aborted) {
+                        if (snapshotUrl || allHazards) {
+                            setData(empty);
+                            setSelected(null);
+                            void source.setData(empty).catch(() => undefined);
+                        }
                         setDataError(
-                            'Data BMKG gagal diperbarui. Data terakhir tetap ditampilkan jika tersedia.',
+                            allHazards
+                                ? 'Data peta gagal diperbarui.'
+                                : snapshotUrl
+                                  ? `Data ${provider} gagal diperbarui.`
+                                  : 'Data BMKG gagal diperbarui. Data terakhir tetap ditampilkan jika tersedia.',
                         );
                     }
                 } finally {
@@ -545,9 +701,14 @@ export default function HazardMap({
         };
 
         refresh();
-        map.on('moveend', refresh);
+        const poll =
+            snapshotUrl || allHazards
+                ? window.setInterval(refresh, 60_000)
+                : undefined;
+        if (!snapshotUrl) map.on('moveend', refresh);
         return () => {
             clearTimeout(timer);
+            window.clearInterval(poll);
             pending?.abort();
             map.off('moveend', refresh);
         };
@@ -562,8 +723,11 @@ export default function HazardMap({
         requestAttempt,
         historicalTiles,
         combined,
+        allHazards,
         hazardMarkers,
         weatherRegionKey,
+        snapshotUrl,
+        provider,
     ]);
 
     useEffect(() => {
@@ -603,6 +767,7 @@ export default function HazardMap({
         if (!map || historicalTiles) return;
         const layers = hazardMarkers
             ? [
+                  'hazard-icons',
                   'weather-icons',
                   'official-points',
                   ...earthquakeRings.map(({ id }) => id),
@@ -614,8 +779,7 @@ export default function HazardMap({
             setSelected(
                 data.features.find(
                     ({ properties }) =>
-                        properties.id === Number(hit?.id) &&
-                        properties.kind === hit?.kind,
+                        recordKey(properties) === hit?.recordKey,
                 )?.properties ?? null,
             );
         });
@@ -637,16 +801,20 @@ export default function HazardMap({
         if (selected && resultTrigger.current) selectionTitle.current?.focus();
     }, [selected]);
 
-    const resultCounts = (['event', 'alert', 'forecast'] as const)
-        .map((type) => {
+    const resultCounts = Object.entries({
+        event: 'gempa',
+        alert: 'peringatan cuaca',
+        forecast: 'prakiraan',
+        'flood-report': 'laporan banjir',
+        'flood-area': 'area genangan',
+        eruption: 'gunung dengan laporan erupsi',
+        'volcano-status': 'gunung berstatus Waspada atau lebih tinggi',
+        tsunami: 'buletin tsunami',
+    })
+        .map(([type, label]) => {
             const count = data.features.filter(
-                ({ properties }) => properties.kind === type,
+                ({ properties }) => recordGroup(properties) === type,
             ).length;
-            const label = {
-                event: 'gempa',
-                alert: 'peringatan',
-                forecast: 'prakiraan',
-            }[type];
             return count ? count + ' ' + label : '';
         })
         .filter(Boolean)
@@ -694,25 +862,43 @@ export default function HazardMap({
                         <p className="dr-caption">
                             {selected.kind === 'forecast'
                                 ? forecastTime(selected)
-                                : dateTime(selected.source_time)}
+                                : recordGroup(selected) === 'volcano-status'
+                                  ? 'Status dicek ' +
+                                    dateTime(selected.fetched_at)
+                                  : dateTime(selected.source_time)}
                         </p>
-                        {selected.expires_at && (
+                        {selected.kind === 'flood-report' ||
+                        selected.kind === 'flood-area' ? (
                             <p className="dr-caption">
-                                Berlaku sampai {dateTime(selected.expires_at)}
+                                Data diambil {dateTime(selected.fetched_at)} ·{' '}
+                                <a href={selected.source_url}>
+                                    PetaBencana.id ↗
+                                </a>
                             </p>
+                        ) : (
+                            selected.expires_at && (
+                                <p className="dr-caption">
+                                    Berlaku sampai{' '}
+                                    {dateTime(selected.expires_at)}
+                                </p>
+                            )
                         )}
-                        <div className="dr-actions">
-                            <Status
-                                value={
-                                    selected.alert_state ??
-                                    selected.source.freshness
-                                }
-                            />
-                            {selected.alert_state &&
-                                selected.source.freshness !== 'FRESH' && (
-                                    <Status value={selected.source.freshness} />
-                                )}
-                        </div>
+                        {'source' in selected && (
+                            <div className="dr-actions">
+                                <Status
+                                    value={
+                                        selected.alert_state ??
+                                        selected.source.freshness
+                                    }
+                                />
+                                {selected.alert_state &&
+                                    selected.source.freshness !== 'FRESH' && (
+                                        <Status
+                                            value={selected.source.freshness}
+                                        />
+                                    )}
+                            </div>
+                        )}
                         {selected.kind === 'forecast' ? (
                             <p>
                                 {stringValue(
@@ -727,13 +913,21 @@ export default function HazardMap({
                                     : ''}{' '}
                                 · <a href={selected.source_url}>BMKG ↗</a>
                             </p>
+                        ) : selected.external ? (
+                            <a className="underline" href={selected.source_url}>
+                                {selected.volcanoLevel !== undefined
+                                    ? 'Buka laporan dan rekomendasi PVMBG'
+                                    : 'Buka buletin InaTEWS BMKG'}
+                            </a>
                         ) : (
-                            <Link
-                                href={recordLink(selected)}
-                                className="underline"
-                            >
-                                Buka detail
-                            </Link>
+                            'source' in selected && (
+                                <Link
+                                    href={recordLink(selected)}
+                                    className="underline"
+                                >
+                                    Buka detail
+                                </Link>
+                            )
                         )}
                     </div>
                 )}
@@ -748,13 +942,26 @@ export default function HazardMap({
                                 : 'Layer kajian historis · BNPB InaRISK'
                             : loading
                               ? data.features.length
-                                  ? 'Memuat ulang data BMKG…'
-                                  : 'Memuat peta dan data BMKG…'
-                              : data.features.length
-                                ? `${resultCounts}${data.truncated ? ' · Perbesar peta untuk melihat hasil lain' : ''}`
-                                : kind === 'alert' && activeOnly && !combined
-                                  ? 'Belum ada peringatan aktif dalam data BMKG untuk area ini.'
-                                  : 'Tidak ada hasil BMKG untuk area dan filter ini.')}
+                                  ? `Memuat ulang data ${provider}…`
+                                  : `Memuat peta dan data ${provider}…`
+                              : (data.message ??
+                                (tsunami
+                                    ? 'Menyiapkan buletin InaTEWS…'
+                                    : data.features.length
+                                      ? `${resultCounts}${data.truncated ? ' · Perbesar peta untuk melihat hasil lain' : ''}`
+                                      : volcano
+                                        ? kind === 'event'
+                                            ? 'Belum ada laporan erupsi MAGMA dalam 24 jam terakhir.'
+                                            : 'Tidak ada gunung berstatus Waspada atau lebih tinggi dalam daftar MAGMA.'
+                                        : kind === 'alert' &&
+                                            activeOnly &&
+                                            !combined
+                                          ? 'Belum ada peringatan aktif dalam data BMKG untuk area ini.'
+                                          : kind === 'flood-report'
+                                            ? 'Belum ada laporan banjir dalam 24 jam terakhir.'
+                                            : kind === 'flood-area'
+                                              ? 'Belum ada area genangan Jakarta yang diperbarui dalam 6 jam terakhir.'
+                                              : 'Tidak ada hasil BMKG untuk area dan filter ini.')))}
                 </p>
                 <div className="dr-actions">
                     {(dataError || renderError) && (
@@ -781,8 +988,10 @@ export default function HazardMap({
                     <summary>Lihat hasil peta</summary>
                     <ul>
                         {data.features.map(({ properties: record }) => (
-                            <li key={record.kind + '-' + record.id}>
-                                {record.kind === 'forecast' ? (
+                            <li key={recordKey(record)}>
+                                {record.kind === 'forecast' ||
+                                !('source' in record) ||
+                                record.external ? (
                                     <button
                                         type="button"
                                         onClick={(event) => {
@@ -791,7 +1000,14 @@ export default function HazardMap({
                                             setSelected(record);
                                         }}
                                     >
-                                        {record.title} · {forecastTime(record)}
+                                        {record.title} ·{' '}
+                                        {record.kind === 'forecast'
+                                            ? forecastTime(record)
+                                            : recordGroup(record) ===
+                                                'volcano-status'
+                                              ? 'Dicek ' +
+                                                dateTime(record.fetched_at)
+                                              : dateTime(record.source_time)}
                                     </button>
                                 ) : (
                                     <Link href={recordLink(record)}>

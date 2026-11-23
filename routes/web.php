@@ -15,7 +15,7 @@ Route::get('/events/{id}', [FrontendController::class, 'detail'])->name('events.
 Route::get('/alerts/{id}', [FrontendController::class, 'detail'])->name('alerts.show');
 Route::get('/volcanoes', [FrontendController::class, 'volcanoes'])->name('volcanoes');
 Route::get('/volcanoes/{id}', [FrontendController::class, 'volcanoes'])->name('volcanoes.show');
-Route::get('/shelters', [FrontendController::class, 'unavailable'])->name('shelters');
+Route::inertia('/shelters', 'public/shelters')->name('shelters');
 Route::get('/shelters/{id}', [FrontendController::class, 'unavailable'])->name('shelters.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {

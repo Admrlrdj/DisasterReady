@@ -16,7 +16,7 @@ class StoreReportRequest extends FormRequest
     {
         return [
             'category' => ['nullable', 'in:flood,earthquake,tsunami,volcano,landslide,extreme_weather,other'],
-            'description' => ['required', 'string', 'min:10', 'max:5000'],
+            'description' => ['nullable', 'required_without:photo', 'string', 'min:10', 'max:5000'],
             'observed_at' => ['required', 'date', 'regex:/T.*(?:Z|[+-]\d{2}:\d{2})$/', 'before_or_equal:now'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],

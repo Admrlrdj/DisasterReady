@@ -19,7 +19,7 @@ class FrontendData
             'events' => $this->records('disaster_events', 'event', 30),
             'alerts' => $this->records('official_alerts', 'alert', 50),
             'active_alert_count' => $this->publicData->activeAlerts(DB::table('official_alerts'))->count(),
-            'sources' => DB::table('sources')->orderBy('id')->pluck('id')->map(fn (int $id) => $this->publicData->source($id))->all(),
+            'sources' => $this->sources(),
             'forecasts' => $this->publicData->currentForecasts(DB::table('forecasts'), $region)->orderBy('forecast_at')->limit(80)->get()->map(fn (\stdClass $row) => $this->publicData->record($row, 'forecast'))->all(),
             'region' => $region,
             'map_weather_regions' => array_values(config('disaster.weather_regions')),
@@ -29,6 +29,12 @@ class FrontendData
             'layers' => DB::table('hazard_layers')->where('publication_approved', true)->get()->map($this->historicalLayer(...))->all(),
             'generated_at' => now()->toIso8601String(),
         ];
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function sources(): array
+    {
+        return DB::table('sources')->orderBy('id')->pluck('id')->map($this->publicData->source(...))->all();
     }
 
     /** @return array<string, mixed> */

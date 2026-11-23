@@ -39,6 +39,11 @@ For official BMKG feeds, set `DISASTER_SOURCES_ENABLED=true`, configure `BMKG_WE
 
 ## Backend implementation
 
+### Shelter and photo reporting demo
+
+- Open `/shelters` to choose a fictional shelter and open a walking route in Google Maps. The points and routes are for demonstration only.
+- For photo category suggestions, set `GEMINI_API_KEY` in the server's `.env`, then run `php artisan config:clear`. `GEMINI_MODEL` defaults to `gemini-3.8-flash`. Keep the key out of the repository. Users opt in before a metadata-free JPEG is sent to Gemini. The result is an editable category suggestion, with the existing human review still required.
+
 The backend includes private citizen reports, human moderation/audit, deterministic AI simulation, official-source adapters, public/GIS data contracts and admin operations. The Figma-based React/Inertia frontend now connects these flows, with responsive public pages and role-protected reporting/admin pages. Live ingestion remains disabled by default in shared configuration; the local project database has verified BMKG ingestion. See the frontend progress document for database port 55432, setup, verification and remaining acceptance gates.
 
 - [API contract](docs/BACKEND_API.md)
@@ -51,3 +56,4 @@ The backend includes private citizen reports, human moderation/audit, determinis
 
 - Built on the official [Laravel 13 React Starter Kit](https://github.com/laravel/react-starter-kit) (MIT License) with [shadcn/ui](https://ui.shadcn.com/) and [Lucide Icons](https://lucide.dev/).
 - Development assisted using Antigravity AI coding assistant (documented per IT RUSH 2026 competition guidelines).
+- Codex assisted development and local verification. The report form uses [Google Gemini](https://ai.google.dev/gemini-api/docs/image-understanding) for optional image classification.

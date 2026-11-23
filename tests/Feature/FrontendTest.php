@@ -21,12 +21,18 @@ class FrontendTest extends TestCase
     public function test_public_pages_render_real_empty_data_and_do_not_require_login(): void
     {
         $this->seed(DisasterSourceSeeder::class);
-        foreach (['/' => 'welcome', '/dashboard' => 'dashboard', '/map' => 'public/map', '/weather' => 'public/weather', '/earthquakes' => 'public/feed', '/preparedness' => 'public/preparedness'] as $url => $component) {
+        $this->get('/')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->component('welcome')
+            ->has('overview.sources', 4)
+            ->missing('overview.events')
+            ->missing('overview.alerts')
+            ->missing('overview.forecasts'));
+        foreach (['/dashboard' => 'dashboard', '/map' => 'public/map', '/weather' => 'public/weather', '/earthquakes' => 'public/feed', '/preparedness' => 'public/preparedness'] as $url => $component) {
             $this->get($url)->assertOk()->assertInertia(fn (Assert $page) => $page->component($component)->has('overview.sources', 4)->has('overview.events', 0));
         }
         $this->get('/preparedness/invalid')->assertNotFound();
         $this->get('/weather?region=invalid')->assertSessionHasErrors('region');
-        $this->get('/shelters')->assertInertia(fn (Assert $page) => $page->component('public/unavailable')->where('feature', 'shelters'));
+        $this->get('/shelters')->assertInertia(fn (Assert $page) => $page->component('public/shelters'));
     }
 
     public function test_html_submission_redirects_to_owned_report_while_json_contract_is_preserved(): void

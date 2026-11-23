@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { Action, Brand, Panel, Status } from '@/components/disaster/ui';
 import MapPanel from '@/components/maps/map-panel';
 import { dateTime, type Overview } from '@/lib/disaster';
-export default function Welcome({ overview }: { overview: Overview }) {
+export default function Welcome({
+    overview,
+}: {
+    overview: Pick<Overview, 'sources'>;
+}) {
     const { auth } = usePage().props;
     const [kind, setKind] = useState<'event' | 'alert'>('event');
     return (

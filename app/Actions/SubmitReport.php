@@ -21,7 +21,7 @@ class SubmitReport
             $report = DB::transaction(function () use ($user, $data, $evidence) {
                 $report = IncidentReport::create([
                     'reporter_id' => $user->id, 'category' => $data['category'] ?? null,
-                    'description' => $data['description'], 'observed_at' => CarbonImmutable::parse($data['observed_at'])->utc(),
+                    'description' => $data['description'] ?? 'Laporan foto tanpa deskripsi tambahan.', 'observed_at' => CarbonImmutable::parse($data['observed_at'])->utc(),
                     'latitude' => $data['latitude'], 'longitude' => $data['longitude'],
                     'status' => 'PENDING', 'analysis_status' => 'QUEUED',
                     'privacy_consented_at' => now(), 'photo_consented_at' => $evidence ? now() : null,

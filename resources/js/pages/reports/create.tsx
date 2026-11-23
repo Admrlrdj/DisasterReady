@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
     Action,
@@ -10,7 +10,7 @@ import {
     Status,
 } from '@/components/disaster/ui';
 import { dateTime, hazardLabels, type Overview } from '@/lib/disaster';
-import type { IncidentReport } from '@/types/disaster';
+import type { Hazard, IncidentReport } from '@/types/disaster';
 const ReportLocationMap = lazy(
     () => import('@/components/maps/report-location-map'),
 );
@@ -18,9 +18,11 @@ const ReportLocationMap = lazy(
 export default function CreateReport({
     overview,
     reports,
+    photoAiAvailable,
 }: {
     overview: Overview;
     reports: IncidentReport[];
+    photoAiAvailable: boolean;
 }) {
     const form = useForm({
         category: '',
@@ -33,6 +35,85 @@ export default function CreateReport({
         photo_consent: false,
     });
     const [showMap, setShowMap] = useState(false);
+    const photoRequest = useRef<AbortController | null>(null);
+    const [photoConsent, setPhotoConsent] = useState(false);
+    const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
+    const [photoStatus, setPhotoStatus] = useState('');
+    const [suggestedCategory, setSuggestedCategory] = useState<Hazard | null>(
+        null,
+    );
+
+    useEffect(() => () => photoRequest.current?.abort(), []);
+
+    function selectPhoto(photo: File | null) {
+        photoRequest.current?.abort();
+        setPhotoConsent(false);
+        setAnalyzingPhoto(false);
+        setPhotoStatus('');
+        setSuggestedCategory(null);
+        form.setData((data) => ({ ...data, photo, photo_consent: false }));
+    }
+
+    async function suggestCategory() {
+        if (!form.data.photo || !photoConsent) return;
+        photoRequest.current?.abort();
+        const request = new AbortController();
+        photoRequest.current = request;
+        setAnalyzingPhoto(true);
+        setPhotoStatus('');
+        setSuggestedCategory(null);
+        const body = new FormData();
+        body.append('photo', form.data.photo);
+        body.append('consent', '1');
+        try {
+            const response = await fetch('/reports/photo-suggestion', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document.querySelector<HTMLMetaElement>(
+                            'meta[name="csrf-token"]',
+                        )?.content ?? '',
+                },
+                body,
+                signal: request.signal,
+            });
+            if (!response.ok) {
+                if (response.status === 422) {
+                    throw new Error(
+                        'Foto harus berupa JPG atau PNG, maksimal 5 MB dan 6.000 piksel per sisi.',
+                    );
+                }
+                if (response.status === 429) {
+                    throw new Error(
+                        'Terlalu banyak permintaan. Tunggu sebentar atau pilih kategori sendiri.',
+                    );
+                }
+                throw new Error(
+                    'Saran AI belum tersedia. Lu tetap bisa memilih kategori sendiri.',
+                );
+            }
+            const { category }: { category: Hazard | null } =
+                await response.json();
+            if (request.signal.aborted) return;
+            setSuggestedCategory(category);
+            setPhotoStatus(
+                category
+                    ? 'Saran AI: ' + hazardLabels[category]
+                    : 'Kategori belum bisa disarankan dari foto ini.',
+            );
+        } catch (error) {
+            if (!request.signal.aborted) {
+                setPhotoStatus(
+                    error instanceof Error && error.name === 'Error'
+                        ? error.message
+                        : 'Foto belum dapat dianalisis. Coba lagi atau pilih kategori sendiri.',
+                );
+            }
+        } finally {
+            if (!request.signal.aborted) setAnalyzingPhoto(false);
+        }
+    }
     const latitude = Number(form.data.latitude);
     const longitude = Number(form.data.longitude);
     const position: [number, number] | null =
@@ -107,6 +188,91 @@ export default function CreateReport({
                     subtitle="Field bertanda * wajib diisi."
                 >
                     <form className="dr-form" onSubmit={submit}>
+                        <label className="dr-upload">
+                            Foto bukti (opsional) · JPG/PNG, maksimal 5 MB
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png"
+                                onChange={(event) =>
+                                    selectPhoto(event.target.files?.[0] ?? null)
+                                }
+                            />
+                            <small>
+                                Hindari wajah, identitas, dan dokumen pribadi.
+                            </small>
+                        </label>
+                        {form.data.photo &&
+                            (photoAiAvailable ? (
+                                <div className="dr-stack">
+                                    <label className="dr-consent">
+                                        <input
+                                            type="checkbox"
+                                            checked={photoConsent}
+                                            disabled={analyzingPhoto}
+                                            onChange={(event) =>
+                                                setPhotoConsent(
+                                                    event.target.checked,
+                                                )
+                                            }
+                                        />
+                                        <span>
+                                            Saya setuju foto tanpa metadata
+                                            dikirim ke Google Gemini untuk saran
+                                            kategori.
+                                        </span>
+                                    </label>
+                                    <div className="dr-actions">
+                                        <Action
+                                            type="button"
+                                            variant="outline"
+                                            disabled={
+                                                !photoConsent || analyzingPhoto
+                                            }
+                                            onClick={() =>
+                                                void suggestCategory()
+                                            }
+                                        >
+                                            {analyzingPhoto
+                                                ? 'Menganalisis foto…'
+                                                : 'Sarankan Kategori dari Foto'}
+                                        </Action>
+                                        {suggestedCategory && (
+                                            <Action
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    form.setData(
+                                                        'category',
+                                                        suggestedCategory,
+                                                    );
+                                                    setSuggestedCategory(null);
+                                                    setPhotoStatus(
+                                                        'Kategori dipilih. Kamu masih bisa mengubahnya.',
+                                                    );
+                                                }}
+                                            >
+                                                Pilih{' '}
+                                                {
+                                                    hazardLabels[
+                                                        suggestedCategory
+                                                    ]
+                                                }
+                                            </Action>
+                                        )}
+                                    </div>
+                                    <p
+                                        role="status"
+                                        className="dr-caption dr-muted"
+                                    >
+                                        {photoStatus}
+                                    </p>
+                                </div>
+                            ) : (
+                                <p className="dr-caption dr-muted">
+                                    Saran kategori dari foto belum tersedia.
+                                    Pilih kategori secara manual.
+                                </p>
+                            ))}
                         <fieldset className="dr-field">
                             <legend>Kategori (opsional)</legend>
                             <div className="dr-choices">
@@ -135,12 +301,13 @@ export default function CreateReport({
                         </fieldset>
                         <div className="dr-field">
                             <label htmlFor="description">
-                                Deskripsi kejadian *
+                                Deskripsi kejadian{' '}
+                                {form.data.photo ? '(opsional)' : '*'}
                             </label>
                             <textarea
                                 id="description"
                                 className="dr-textarea"
-                                required
+                                required={!form.data.photo}
                                 minLength={10}
                                 maxLength={5000}
                                 value={form.data.description}
@@ -267,23 +434,6 @@ export default function CreateReport({
                             petugas yang berwenang. Periksa lokasi sebelum
                             mengirim.
                         </p>
-                        <label className="dr-upload">
-                            Foto bukti (opsional) · JPG/PNG, maksimal 5 MB
-                            <input
-                                type="file"
-                                accept="image/jpeg,image/png"
-                                onChange={(event) =>
-                                    form.setData(
-                                        'photo',
-                                        event.target.files?.[0] ?? null,
-                                    )
-                                }
-                            />
-                            <small>
-                                Hindari wajah, identitas, dan dokumen pribadi.
-                                Metadata foto dihapus oleh server.
-                            </small>
-                        </label>
                         <label className="dr-consent">
                             <input
                                 type="checkbox"
@@ -326,8 +476,8 @@ export default function CreateReport({
                             </p>
                         ))}
                         <Notice>
-                            Laporan dikirim dengan status PENDING. Analisis AI
-                            berupa simulasi dan tidak memverifikasi laporan.
+                            Moderator tetap memeriksa laporan dan bukti. Saran
+                            kategori dari foto tidak memverifikasi kejadian.
                         </Notice>
                         <Action type="submit" disabled={form.processing}>
                             {form.processing

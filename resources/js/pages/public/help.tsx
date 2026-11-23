@@ -90,6 +90,11 @@ export default function HelpPage() {
                         Daftar posko aktif belum tersedia. Periksa pengumuman
                         resmi BPBD atau pemerintah daerah setempat.
                     </p>
+                    <Action variant="outline" asChild>
+                        <Link href="/shelters">
+                            Coba Simulasi Shelter dan Rute
+                        </Link>
+                    </Action>
                 </Panel>
             </div>
         </>

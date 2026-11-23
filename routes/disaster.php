@@ -2,8 +2,12 @@
 
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\DataAdminController;
+use App\Http\Controllers\FloodMapController;
+use App\Http\Controllers\PhotoSuggestionController;
 use App\Http\Controllers\PublicDataController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TsunamiMapController;
+use App\Http\Controllers\VolcanoMapController;
 use App\Http\Middleware\FrontendResponse;
 use App\Http\Middleware\NormalizeDisasterDates;
 use Illuminate\Support\Facades\Route;
@@ -20,12 +24,16 @@ Route::middleware(NormalizeDisasterDates::class)->group(function () {
         Route::get('/weather/province', [PublicDataController::class, 'provinceWeather'])->name('data.weather.province');
         Route::get('/regions', [PublicDataController::class, 'regions'])->name('data.regions');
         Route::get('/map', [PublicDataController::class, 'map'])->name('data.map');
+        Route::get('/map/tsunami', TsunamiMapController::class)->name('data.tsunami-map');
+        Route::get('/map/volcano/{kind}', VolcanoMapController::class)->whereIn('kind', ['event', 'alert'])->name('data.volcano-map');
+        Route::get('/flood/{feed}', FloodMapController::class)->whereIn('feed', ['flood-report', 'flood-area'])->name('data.flood');
         Route::get('/layers', [PublicDataController::class, 'layers'])->name('data.layers');
         Route::get('/preparedness/{hazard}', [PublicDataController::class, 'guides'])->name('data.guides');
     });
 
     Route::middleware(['auth', 'verified', FrontendResponse::class])->group(function () {
         Route::post('/reports', [ReportController::class, 'store'])->middleware('throttle:10,1')->name('reports.store');
+        Route::post('/reports/photo-suggestion', PhotoSuggestionController::class)->middleware('throttle:5,1')->name('reports.photo-suggestion');
         Route::get('/my/reports/{report}', [ReportController::class, 'show'])->name('reports.show');
         Route::get('/my/reports', [ReportController::class, 'mine'])->name('reports.mine');
         Route::post('/my/reports/{report}/follow-ups', [ReportController::class, 'followUp'])->middleware('throttle:10,1')->name('reports.follow-up');

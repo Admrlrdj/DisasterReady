@@ -12,6 +12,7 @@ import { dateTime, hazardLabels, type Overview } from '@/lib/disaster';
 
 const inariskWebgis = 'https://inarisk.bnpb.go.id/webgis/';
 const inariskJakarta = 'https://inarisk.bnpb.go.id/dashboard_jakarta/';
+const magma = 'https://magma.esdm.go.id/v1/gunung-api/';
 
 export default function MapPage({ overview }: { overview: Overview }) {
     const [kind, setKind] = useState<'event' | 'alert'>('event');
@@ -20,6 +21,9 @@ export default function MapPage({ overview }: { overview: Overview }) {
     const layer = overview.layers.find(
         (entry) => entry.id === layerId && entry.tile_template,
     );
+    const tsunamiWarnings = !layer && kind === 'alert' && hazard === 'tsunami';
+    const floodReports = !layer && kind === 'event' && hazard === 'flood';
+    const volcano = !layer && hazard === 'volcano';
     return (
         <>
             <Head title="Peta Situasi" />
@@ -45,9 +49,10 @@ export default function MapPage({ overview }: { overview: Overview }) {
                                 aria-label="Jenis informasi"
                                 className="dr-select"
                                 value={kind}
-                                onChange={(event) =>
-                                    setKind(event.target.value as typeof kind)
-                                }
+                                onChange={(event) => {
+                                    setKind(event.target.value as typeof kind);
+                                    setHazard('');
+                                }}
                             >
                                 <option value="event">Kejadian resmi</option>
                                 <option value="alert">Peringatan aktif</option>
@@ -70,7 +75,8 @@ export default function MapPage({ overview }: { overview: Overview }) {
                         </div>
                     )}
                     <MapPanel
-                        kind={kind}
+                        kind={floodReports ? 'flood-report' : kind}
+                        allHazards={!hazard}
                         hazardMarkers
                         activeOnly
                         hazard={hazard}
@@ -81,6 +87,38 @@ export default function MapPage({ overview }: { overview: Overview }) {
                             <Status tone="historical">
                                 Kajian bahaya · BNPB InaRISK
                             </Status>
+                        ) : tsunamiWarnings ? (
+                            <a
+                                className="underline"
+                                href="https://inatews.bmkg.go.id/web/tsunami"
+                            >
+                                Cek buletin resmi InaTEWS BMKG
+                            </a>
+                        ) : floodReports ? (
+                            <a
+                                className="underline"
+                                href="https://petabencana.id/"
+                            >
+                                Laporan warga · PetaBencana.id
+                            </a>
+                        ) : volcano ? (
+                            <a
+                                className="underline"
+                                href={
+                                    magma +
+                                    (kind === 'event'
+                                        ? 'informasi-letusan'
+                                        : 'tingkat-aktivitas')
+                                }
+                            >
+                                Sumber resmi MAGMA PVMBG
+                            </a>
+                        ) : !hazard ? (
+                            <span className="dr-caption">
+                                Sumber: BMKG, MAGMA PVMBG
+                                {kind === 'event' &&
+                                    ', dan laporan warga PetaBencana.id'}
+                            </span>
                         ) : (
                             <Status tone="verified">Sumber resmi BMKG</Status>
                         )}
@@ -88,7 +126,21 @@ export default function MapPage({ overview }: { overview: Overview }) {
                     <p className="dr-caption dr-muted">
                         {layer
                             ? layer.limitations
-                            : 'Klik titik atau area untuk membuka ringkasan. Maksimal 100 fitur per tampilan.'}
+                            : !hazard
+                              ? kind === 'event'
+                                  ? 'Titik merah: gempa. Ikon gunung: erupsi. Ikon air biru: laporan banjir warga.'
+                                  : 'Area biru: peringatan cuaca. Ikon gunung: merah makin gelap untuk status lebih tinggi. Titik jingga: episentrum pada buletin tsunami.'
+                              : tsunamiWarnings
+                                ? 'Buletin tektonik yang diterbitkan dalam satu jam terakhir. Titik menandai episentrum.'
+                                : floodReports
+                                  ? 'Titik menunjukkan laporan banjir warga dalam 24 jam terakhir. Status banjir di lokasi bisa sudah berubah.'
+                                  : volcano
+                                    ? kind === 'event'
+                                        ? 'Letusan terbaru per gunung dalam 24 jam terakhir menurut MAGMA PVMBG.'
+                                        : 'Titik menunjukkan lokasi gunung berstatus Waspada, Siaga, atau Awas. Klik titik untuk membuka rekomendasi resmi.'
+                                    : kind === 'alert'
+                                      ? 'Area biru menunjukkan peringatan aktif. Klik area untuk membuka ringkasan.'
+                                      : 'Titik merah menunjukkan gempa. Klik titik untuk membuka ringkasan.'}
                     </p>
                 </Panel>
                 <div className="dr-stack">

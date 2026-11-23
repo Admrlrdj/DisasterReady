@@ -12,6 +12,18 @@ class PrivatePhotoStorage
     /** @return array{disk: string, storage_key: string, sha256: string} */
     public function store(UploadedFile $photo): array
     {
+        $clean = $this->cleanJpeg($photo);
+        $disk = (string) config('disaster.photo_disk');
+        $key = 'incident-photos/'.Str::uuid().'.jpg';
+        if (! Storage::disk($disk)->put($key, $clean, 'private')) {
+            throw new \RuntimeException('PHOTO_STORAGE_FAILED');
+        }
+
+        return ['disk' => $disk, 'storage_key' => $key, 'sha256' => hash('sha256', $clean)];
+    }
+
+    public function cleanJpeg(UploadedFile $photo): string
+    {
         $bytes = file_get_contents($photo->getRealPath());
         $image = $bytes === false ? false : @imagecreatefromstring($bytes);
         if ($image === false) {
@@ -24,12 +36,7 @@ class PrivatePhotoStorage
         if ($clean === false) {
             throw new \RuntimeException('PHOTO_ENCODING_FAILED');
         }
-        $disk = (string) config('disaster.photo_disk');
-        $key = 'incident-photos/'.Str::uuid().'.jpg';
-        if (! Storage::disk($disk)->put($key, $clean, 'private')) {
-            throw new \RuntimeException('PHOTO_STORAGE_FAILED');
-        }
 
-        return ['disk' => $disk, 'storage_key' => $key, 'sha256' => hash('sha256', $clean)];
+        return $clean;
     }
 }

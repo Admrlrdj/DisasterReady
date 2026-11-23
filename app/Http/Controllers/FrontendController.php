@@ -24,7 +24,7 @@ class FrontendController extends Controller
             'weather' => 'public/weather',
             default => 'public/feed',
         };
-        $props = ['overview' => $data->overview(
+        $props = ['overview' => $component === 'welcome' ? ['sources' => $data->sources()] : $data->overview(
             $request->string('region', WeatherRegions::DEFAULT_REGION)->toString(),
             $request->routeIs('weather') || ($request->routeIs('dashboard') && $request->has('region')),
         )];
@@ -41,6 +41,7 @@ class FrontendController extends Controller
             })->all();
         }
         if ($component === 'reports/create') {
+            $props['photoAiAvailable'] = config('disaster.ai_enabled') && filled(config('disaster.gemini_key'));
             $props['reports'] = IncidentReport::where('reporter_id', $request->user()?->id)->latest('id')->limit(10)->get();
         }
 

@@ -8,6 +8,8 @@ return [
     'ai_api_key' => env('DISASTER_AI_API_KEY'),
     'ai_chat_model' => env('DISASTER_AI_CHAT_MODEL'),
     'ai_embedding_model' => env('DISASTER_AI_EMBEDDING_MODEL'),
+    'gemini_key' => env('GEMINI_API_KEY'),
+    'gemini_model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
     'duplicate_radius_m' => 1000,
     'duplicate_window_hours' => 24,
     'photo_disk' => 'local',

@@ -1,9 +1,11 @@
 import { lazy, Suspense } from 'react';
 const HazardMap = lazy(() => import('./hazard-map'));
+export type FloodMapKind = 'flood-report' | 'flood-area';
 export type MapPanelProps = {
-    kind?: 'event' | 'alert' | 'forecast';
+    kind?: 'event' | 'alert' | 'forecast' | FloodMapKind;
     hazard?: string;
     combined?: boolean;
+    allHazards?: boolean;
     hazardMarkers?: boolean;
     weatherRegions?: string[];
     region?: string;

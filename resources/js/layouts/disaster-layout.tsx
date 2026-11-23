@@ -18,6 +18,7 @@ const navigation = [
     { href: '/dashboard', label: 'Kondisi Sekitar', icon: icons.imgFrame1 },
     { href: '/map', label: 'Peta Situasi', icon: icons.imgFrame2 },
     { href: '/bantuan', label: 'Informasi Bantuan', icon: icons.imgFrame8 },
+    { href: '/shelters', label: 'Simulasi Shelter', icon: icons.imgFrame8 },
     { href: '/preparedness', label: 'Panduan Siaga', icon: icons.imgFrame5 },
     {
         href: '/reports/create',
