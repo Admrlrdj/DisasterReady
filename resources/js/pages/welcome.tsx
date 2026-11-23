@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { CloudLightning, CloudRain } from 'lucide-react';
 import { useState } from 'react';
 import { Action, Brand, Panel, Status } from '@/components/disaster/ui';
+import GuideChat from '@/components/disaster/guide-chat';
 import MapPanel from '@/components/maps/map-panel';
 import { dateTime, type Overview } from '@/lib/disaster';
 export default function Welcome({
@@ -222,6 +223,7 @@ export default function Welcome({
                 DisasterReady
                 <Link href="/map">Informasi beserta sumbernya ↗</Link>
             </footer>
+            <GuideChat landing />
         </div>
     );
 }

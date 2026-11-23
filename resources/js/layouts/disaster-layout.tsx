@@ -2,6 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { Action, Brand } from '@/components/disaster/ui';
+import GuideChat from '@/components/disaster/guide-chat';
 import { CloudSun } from 'lucide-react';
 import {
     Dialog,
@@ -257,6 +258,7 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                     </Link>
                 ))}
             </nav>
+            <GuideChat />
         </div>
     );
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\DataAdminController;
 use App\Http\Controllers\FloodMapController;
+use App\Http\Controllers\GuideChatController;
 use App\Http\Controllers\PhotoSuggestionController;
 use App\Http\Controllers\PublicDataController;
 use App\Http\Controllers\ReportController;
@@ -13,6 +14,7 @@ use App\Http\Middleware\NormalizeDisasterDates;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(NormalizeDisasterDates::class)->group(function () {
+    Route::post('/data/guide-chat', GuideChatController::class)->middleware('throttle:6,1')->name('data.guide-chat');
 
     Route::prefix('data')->middleware('throttle:60,1')->group(function () {
         Route::get('/overview', [PublicDataController::class, 'overview'])->name('data.overview');
