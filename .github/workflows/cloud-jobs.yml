@@ -37,7 +37,7 @@ jobs:
       DB_SEARCH_PATH: disaster_ready,extensions
       CACHE_STORE: database
       QUEUE_CONNECTION: database
-      DB_QUEUE_RETRY_AFTER: '180'
+      DB_QUEUE_RETRY_AFTER: '360'
       DISASTER_SOURCES_ENABLED: 'true'
       BMKG_WEATHER_REGIONS: ${{ vars.BMKG_WEATHER_REGIONS }}
     steps:
@@ -71,4 +71,4 @@ jobs:
           php artisan disaster:doctor
           php artisan disaster:ingest
           php artisan disaster:recover-analysis
-          php artisan queue:work --stop-when-empty --max-time=240 --max-jobs=100 --timeout=120 --tries=3
+          php artisan queue:work --stop-when-empty --max-time=360 --max-jobs=100 --timeout=300 --tries=3

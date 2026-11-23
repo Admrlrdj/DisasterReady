@@ -60,7 +60,7 @@
         "SESSION_DRIVER": "database",
         "CACHE_STORE": "database",
         "QUEUE_CONNECTION": "database",
-        "DB_QUEUE_RETRY_AFTER": "180",
+        "DB_QUEUE_RETRY_AFTER": "360",
         "DB_CONNECTION": "pgsql",
         "DB_SSLMODE": "require",
         "DB_SEARCH_PATH": "disaster_ready,extensions",
