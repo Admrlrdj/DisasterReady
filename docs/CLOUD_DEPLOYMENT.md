@@ -1,4 +1,4 @@
-# DisasterReady cloud preview
+# DisasterReady cloud deployment
 
 ## Production storage and jobs
 
@@ -19,10 +19,10 @@ Vercel runs the Laravel web app and serves the compiled Vite assets. Supabase st
 ## Supabase and secrets
 
 1. Select the Supabase project intended for this preview. Use its **Session pooler** connection on port 5432 with `sslmode=require`. Keep the app tables in the `disaster_ready` schema and PostGIS in `extensions`. Leave the application schema out of Supabase's exposed Data API schemas.
-2. Create a private Storage bucket for report photos and enable the S3 endpoint. Record the S3 endpoint, region, bucket name and server-side access keys in Vercel Preview. Supply `AWS_ENDPOINT`, `AWS_DEFAULT_REGION`, `AWS_BUCKET`, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. The Supabase S3 driver omits unsupported ACL headers. Laravel Policies protect downloads, and photos pass through JPEG re-encoding before storage.
-3. In Vercel Preview, set `DB_URL` as a secret alongside the generated `APP_KEY`. Set `MAIL_MAILER=smtp`, the SMTP host, port, scheme and credentials, and a verified `MAIL_FROM_ADDRESS` for Fortify email verification. Add `GEMINI_API_KEY` only if the preview should provide live chatbot responses. The reporting analysis provider uses the configured stub by default.
-4. In GitHub's `cloud-preview` environment, set `DISASTER_CLOUD_DB_URL` and `DISASTER_CLOUD_APP_KEY` as secrets. Run **DisasterReady cloud jobs** on `main` with `operation=bootstrap` to install PostGIS, run migrations, register the sources and process the first ingestion. The workflow provisions source metadata and consumes official data. Users and private reports are created through normal application flows.
-5. After the initial job succeeds, set repository variable `DISASTER_CLOUD_ENABLED=true` and Vercel Preview variable `DISASTER_SOURCES_ENABLED=true`. Leave `BMKG_WEATHER_REGIONS` empty for on-demand forecasts, or set a short list of verified ADM4 codes to prefetch.
+2. Create a private Storage bucket for report photos and enable the S3 endpoint. Record the S3 endpoint, region, bucket name and server-side access keys in Vercel Production. Supply `AWS_ENDPOINT`, `AWS_DEFAULT_REGION`, `AWS_BUCKET`, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. The Supabase S3 driver omits unsupported ACL headers. Laravel Policies protect downloads, and photos pass through JPEG re-encoding before storage.
+3. In Vercel Production, set `DB_URL` as a secret alongside the generated `APP_KEY`. Set `MAIL_MAILER=smtp`, the SMTP host, port, scheme and credentials, and a verified `MAIL_FROM_ADDRESS` for Fortify email verification. Add `GEMINI_API_KEY` only if the deployment should provide live chatbot responses. The reporting analysis provider uses the configured stub by default.
+4. In GitHub's `production` environment, set `DISASTER_CLOUD_DB_URL` and `DISASTER_CLOUD_APP_KEY` as secrets. Run **DisasterReady cloud jobs** on `main` with `operation=bootstrap` to install PostGIS, run migrations, register the sources and process the first ingestion. The workflow provisions source metadata and consumes official data. Users and private reports are created through normal application flows.
+5. After the initial job succeeds, set repository variable `DISASTER_CLOUD_ENABLED=true` and Vercel Production variable `DISASTER_SOURCES_ENABLED=true`. Leave `BMKG_WEATHER_REGIONS` empty for on-demand forecasts, or set a short list of verified ADM4 codes to prefetch.
 
 ## Build and deploy
 
@@ -30,7 +30,7 @@ Vercel runs the Laravel web app and serves the compiled Vite assets. Supabase st
 composer install --no-interaction
 npm ci
 npm run build
-vercel deploy --environment preview --yes --scope akmal-yonans-projects
+vercel deploy --environment production --yes --scope akmal-yonans-projects
 ```
 
 The legacy Vercel builders package `public/build` and serve only the declared public asset paths. The PHP function runs with ephemeral scratch storage. Build the frontend before the source upload. `public/hot`, private files, dependencies and local environment files are excluded from uploads. Before a separate production deployment, choose its domain, project/database and secrets, and rebuild for that environment.
