@@ -12,7 +12,8 @@ return [
     'gemini_model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
     'duplicate_radius_m' => 1000,
     'duplicate_window_hours' => 24,
-    'photo_disk' => 'local',
+    'photo_disk' => env('DISASTER_PHOTO_DISK', 'local'),
+    'photo_max_kb' => (int) env('DISASTER_PHOTO_MAX_KB', 5120),
     'sources_enabled' => env('DISASTER_SOURCES_ENABLED', false),
     'weather_regions' => array_filter(explode(',', (string) env('BMKG_WEATHER_REGIONS', ''))),
     'emergency_contacts' => [

@@ -54,7 +54,7 @@ class ReportController extends Controller
             'description' => ['nullable', 'required_without:photo', 'string', 'min:10', 'max:5000'],
             'privacy_consent' => ['required', 'accepted'],
             'photo_consent' => ['exclude_without:photo', 'required_with:photo', 'accepted'],
-            'photo' => ['nullable', 'required_without:description', 'image', 'mimes:jpg,jpeg,png', 'max:5120', 'dimensions:max_width=6000,max_height=6000'],
+            'photo' => ['required_without:description', ...(new StoreReportRequest)->rules()['photo']],
         ]);
 
         return response()->json(['data' => $action->handle($user, $report->id, (int) $data['version'], $data['description'] ?? null, $request->file('photo'))], 201);

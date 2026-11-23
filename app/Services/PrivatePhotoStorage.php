@@ -32,7 +32,7 @@ class PrivatePhotoStorage
         ob_start();
         imagejpeg($image, null, 85);
         $clean = ob_get_clean();
-        imagedestroy($image);
+        unset($image);
         if ($clean === false) {
             throw new \RuntimeException('PHOTO_ENCODING_FAILED');
         }

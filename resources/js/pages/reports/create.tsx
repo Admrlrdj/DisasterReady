@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
@@ -24,6 +24,8 @@ export default function CreateReport({
     reports: IncidentReport[];
     photoAiAvailable: boolean;
 }) {
+    const { photoMaxKb } = usePage<{ photoMaxKb: number }>().props;
+    const photoMaxMb = photoMaxKb / 1024;
     const form = useForm({
         category: '',
         description: '',
@@ -51,7 +53,17 @@ export default function CreateReport({
         setAnalyzingPhoto(false);
         setPhotoStatus('');
         setSuggestedCategory(null);
-        form.setData((data) => ({ ...data, photo, photo_consent: false }));
+        const tooLarge = photo && photo.size > photoMaxKb * 1024;
+        form.setData((data) => ({
+            ...data,
+            photo: tooLarge ? null : photo,
+            photo_consent: false,
+        }));
+        if (tooLarge) {
+            form.setError('photo', `Ukuran foto maksimal ${photoMaxMb} MB.`);
+        } else {
+            form.clearErrors('photo');
+        }
     }
 
     async function suggestCategory() {
@@ -81,7 +93,7 @@ export default function CreateReport({
             if (!response.ok) {
                 if (response.status === 422) {
                     throw new Error(
-                        'Foto harus berupa JPG atau PNG, maksimal 5 MB dan 6.000 piksel per sisi.',
+                        `Foto harus berupa JPG atau PNG, maksimal ${photoMaxMb} MB dan 6.000 piksel per sisi.`,
                     );
                 }
                 if (response.status === 429) {
@@ -189,7 +201,8 @@ export default function CreateReport({
                 >
                     <form className="dr-form" onSubmit={submit}>
                         <label className="dr-upload">
-                            Foto bukti (opsional) · JPG/PNG, maksimal 5 MB
+                            Foto bukti (opsional) · JPG/PNG, maksimal{' '}
+                            {photoMaxMb} MB
                             <input
                                 type="file"
                                 accept="image/jpeg,image/png"

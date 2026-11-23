@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'photoMaxKb' => config('disaster.photo_max_kb'),
             'notice' => fn () => $request->session()->get('notice'),
             'emergency_contacts' => config('disaster.emergency_contacts'),
             'pending_reports' => fn () => $request->user()?->can('moderate') ? IncidentReport::whereIn('status', ['PENDING', 'NEEDS_EVIDENCE'])->count() : null,

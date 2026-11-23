@@ -22,7 +22,7 @@ class StoreReportRequest extends FormRequest
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'privacy_consent' => ['required', 'accepted'],
             'photo_consent' => ['exclude_without:photo', 'required_with:photo', 'accepted'],
-            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:5120', 'dimensions:max_width=6000,max_height=6000'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:'.config('disaster.photo_max_kb'), 'dimensions:max_width=6000,max_height=6000'],
         ];
     }
 }

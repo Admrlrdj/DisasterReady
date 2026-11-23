@@ -16,7 +16,11 @@ export default function Detail({
     payload: { data: ReportDetail };
 }) {
     const report = payload.data;
-    const admin = usePage().url.startsWith('/admin/');
+    const {
+        url,
+        props: { photoMaxKb },
+    } = usePage<{ photoMaxKb: number }>();
+    const admin = url.startsWith('/admin/');
     const form = useForm({
         version: report.version,
         description: '',
@@ -94,16 +98,28 @@ export default function Detail({
                                     />
                                 </label>
                                 <label className="dr-upload">
-                                    Foto tambahan (opsional)
+                                    Foto tambahan (opsional) · maksimal{' '}
+                                    {photoMaxKb / 1024} MB
                                     <input
                                         type="file"
                                         accept="image/jpeg,image/png"
-                                        onChange={(event) =>
-                                            form.setData(
-                                                'photo',
-                                                event.target.files?.[0] ?? null,
-                                            )
-                                        }
+                                        onChange={(event) => {
+                                            const photo =
+                                                event.target.files?.[0] ?? null;
+                                            if (
+                                                photo &&
+                                                photo.size > photoMaxKb * 1024
+                                            ) {
+                                                form.setData('photo', null);
+                                                form.setError(
+                                                    'photo',
+                                                    `Ukuran foto maksimal ${photoMaxKb / 1024} MB.`,
+                                                );
+                                            } else {
+                                                form.setData('photo', photo);
+                                                form.clearErrors('photo');
+                                            }
+                                        }}
                                     />
                                 </label>
                                 <label className="dr-consent">

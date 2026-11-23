@@ -1,0 +1,74 @@
+name: DisasterReady cloud jobs
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Cloud operation
+        type: choice
+        default: sync
+        options:
+          - sync
+          - bootstrap
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: disaster-ready-cloud-production
+  cancel-in-progress: false
+
+jobs:
+  cloud:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.DISASTER_CLOUD_ENABLED == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment: production
+    env:
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      APP_KEY: ${{ secrets.DISASTER_CLOUD_APP_KEY }}
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: pgsql
+      DB_URL: ${{ secrets.DISASTER_CLOUD_DB_URL }}
+      DB_SSLMODE: require
+      DB_SEARCH_PATH: disaster_ready,extensions
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      DB_QUEUE_RETRY_AFTER: '180'
+      DISASTER_SOURCES_ENABLED: 'true'
+      BMKG_WEATHER_REGIONS: ${{ vars.BMKG_WEATHER_REGIONS }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, gd, exif, pcntl
+          tools: composer:v2
+          coverage: none
+
+      - name: Check cloud configuration
+        run: |
+          php -r '$url = parse_url(getenv("DB_URL")); $host = $url["host"] ?? ""; if (!getenv("APP_KEY") || !preg_match("/\.(pooler\.supabase\.com|supabase\.co)$/", $host)) { fwrite(STDERR, "Supabase cloud connection or APP_KEY is missing.\n"); exit(1); }'
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Migrate and register official sources
+        if: inputs.operation == 'bootstrap'
+        run: |
+          php artisan tinker --execute='DB::statement("CREATE SCHEMA IF NOT EXISTS disaster_ready"); DB::statement("CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA extensions");'
+          php artisan disaster:doctor
+          php artisan migrate --force
+          php artisan db:seed --class=DisasterSourceSeeder --force
+          php artisan tinker --execute='DB::table("sources")->whereIn("slug", ["bmkg-earthquake", "bmkg-weather", "bmkg-cap"])->update(["enabled" => true]);'
+
+      - name: Run scheduled disaster work
+        run: |
+          php artisan disaster:doctor
+          php artisan disaster:ingest
+          php artisan disaster:recover-analysis
+          php artisan queue:work --stop-when-empty --max-time=240 --max-jobs=100 --timeout=120 --tries=3

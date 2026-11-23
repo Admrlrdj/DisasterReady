@@ -12,7 +12,7 @@ class IngestSourceJob implements ShouldQueue
 
     public int $tries = 3;
 
-    public int $timeout = 60;
+    public int $timeout = 120;
 
     public function __construct(public int $sourceId) {}
 

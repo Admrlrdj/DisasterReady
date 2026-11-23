@@ -1,0 +1,72 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "version": 2,
+    "regions": ["sin1"],
+    "builds": [
+        {
+            "src": "api/index.php",
+            "use": "vercel-php@0.9.0",
+            "config": {
+                "excludeFiles": "vendor/aws/aws-sdk-php/src/data/!(s3|sts|sso|sso-oidc)/**"
+            }
+        },
+        {
+            "src": "public/assets/**/*",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "public/build/**/*",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "public/favicon.ico",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "public/favicon.svg",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "public/apple-touch-icon.png",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "public/robots.txt",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(assets|build)/(.*)",
+            "dest": "/public/$1/$2"
+        },
+        {
+            "src": "/(favicon.ico|favicon.svg|apple-touch-icon.png|robots.txt)",
+            "dest": "/public/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.php"
+        }
+    ],
+    "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "false",
+        "APP_NAME": "DisasterReady",
+        "LOG_CHANNEL": "stderr",
+        "LOG_LEVEL": "warning",
+        "MAIL_MAILER": "smtp",
+        "SESSION_SECURE_COOKIE": "true",
+        "SESSION_DRIVER": "database",
+        "CACHE_STORE": "database",
+        "QUEUE_CONNECTION": "database",
+        "DB_QUEUE_RETRY_AFTER": "180",
+        "DB_CONNECTION": "pgsql",
+        "DB_SSLMODE": "require",
+        "DB_SEARCH_PATH": "disaster_ready,extensions",
+        "DISASTER_PHOTO_DISK": "s3",
+        "AWS_S3_DRIVER": "supabase-s3",
+        "AWS_USE_PATH_STYLE_ENDPOINT": "true",
+        "DISASTER_PHOTO_MAX_KB": "4096"
+    }
+}
