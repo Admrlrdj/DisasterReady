@@ -15,7 +15,7 @@ return [
     'weather_regions' => array_filter(explode(',', (string) env('BMKG_WEATHER_REGIONS', ''))),
     'emergency_contacts' => [
         ['name' => 'BNPB', 'phone' => '117', 'source_url' => 'https://www.bnpb.go.id/kontak', 'verified_at' => '2026-11-22T00:00:00Z'],
-        ['name' => 'Basarnas', 'phone' => '115', 'source_url' => 'https://balikpapan.basarnas.go.id/berita/informasi-layanan-kontak-darurat-dan-hotline-basarnas-balikpapan', 'verified_at' => '2026-11-22T00:00:00Z'],
-        ['name' => 'Jakarta Siaga', 'phone' => '112', 'source_url' => 'https://www.jakarta.go.id/jakarta-siaga-112', 'verified_at' => '2026-11-22T00:00:00Z'],
+        ['name' => 'Basarnas', 'phone' => '115', 'source_url' => 'https://www.basarnas.go.id/p/hubungi-kami', 'verified_at' => '2026-11-22T00:00:00Z'],
+        ['name' => 'Jakarta Siaga', 'phone' => '112', 'source_url' => 'https://js112-bpbd.jakarta.go.id/web/', 'verified_at' => '2026-11-22T00:00:00Z'],
     ],
 ];

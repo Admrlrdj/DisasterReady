@@ -47,6 +47,13 @@ class FrontendController extends Controller
         return Inertia::render($component, app(NormalizeDisasterDates::class)->normalize($props));
     }
 
+    public function help(Request $request): Response
+    {
+        $input = $request->validate(['region' => ['sometimes', WeatherRegions::RULE]]);
+
+        return Inertia::render('public/help', ['region' => $input['region'] ?? null]);
+    }
+
     public function detail(Request $request, int $id, PublicData $data): Response
     {
         $kind = $request->route()?->getName() === 'events.show' ? 'event' : 'alert';

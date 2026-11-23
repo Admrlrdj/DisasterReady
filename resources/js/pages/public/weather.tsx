@@ -24,6 +24,7 @@ import {
     Panel,
     RecordCard,
 } from '@/components/disaster/ui';
+import ProvinceForecast from '@/components/disaster/province-forecast';
 import WeatherLocation from '@/components/disaster/weather-location';
 import { forecastTime, type Overview } from '@/lib/disaster';
 import type { OfficialRecord } from '@/types/disaster';
@@ -422,6 +423,17 @@ export default function Weather({ overview }: { overview: Overview }) {
             </div>
             {!!records.length && (
                 <ForecastTimeline key={overview.region} records={records} />
+            )}
+            {!autoLocate && (
+                <Panel
+                    title="Prakiraan Provinsi"
+                    subtitle="Prakiraan satu jam ke depan berdasarkan lokasi rujukan tiap kabupaten atau kota."
+                >
+                    <ProvinceForecast
+                        key={overview.region}
+                        region={overview.region}
+                    />
+                </Panel>
             )}
             <section
                 id="peringatan"

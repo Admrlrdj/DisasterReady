@@ -1,334 +1,261 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useCallback, useMemo, useState } from 'react';
-import { CloudLightning, CloudRain, RefreshCw } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import {
     Action,
     Notice,
     PageHeading,
     Panel,
+    RecordCard,
     Status,
 } from '@/components/disaster/ui';
-import OfficialList from '@/components/disaster/official-list';
-import ProvinceForecast from '@/components/disaster/province-forecast';
 import WeatherLocation from '@/components/disaster/weather-location';
 import MapPanel from '@/components/maps/map-panel';
-import { dateTime, type Overview, type Region } from '@/lib/disaster';
+import { dateTime, forecastTime, type Overview } from '@/lib/disaster';
 
 export default function Dashboard({ overview }: { overview: Overview }) {
-    const {
-        props: { auth, pending_reports: pending },
-        url,
-    } = usePage();
-    const selectedRegion = new URLSearchParams(url.split('?')[1]).has('region')
+    const { url } = usePage();
+    const region = new URLSearchParams(url.split('?')[1]).has('region')
         ? overview.region
         : undefined;
-    const weatherRegions = useMemo(
-        () => [
-            ...new Set(
-                selectedRegion
-                    ? [selectedRegion, ...overview.map_weather_regions]
-                    : overview.map_weather_regions,
-            ),
-        ],
-        [selectedRegion, overview.map_weather_regions],
-    );
-    const [eventDays, setEventDays] = useState<1 | 7>();
-    const [activeOnly, setActiveOnly] = useState(true);
-    const [revision, setRevision] = useState(0);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState(false);
-    const [announcement, setAnnouncement] = useState('');
+    const [lastRequested, setLastRequested] = useState<string>();
 
-    const refresh = useCallback((region?: Region) => {
+    const selectRegion = useCallback((next: string) => {
+        setLastRequested(next);
         setBusy(true);
         setError(false);
-        setAnnouncement('');
-        router.get('/dashboard', region ? { region } : {}, {
-            only: ['overview', 'pending_reports'],
-            preserveScroll: true,
-            preserveState: true,
-            replace: true,
-            onSuccess: () => {
-                setRevision((value) => value + 1);
-                setAnnouncement('Tampilan data diperbarui.');
+        router.get(
+            '/dashboard',
+            { region: next },
+            {
+                only: ['overview'],
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+                onError: () => setError(true),
+                onHttpException: () => {
+                    setError(true);
+                    return false;
+                },
+                onNetworkError: () => {
+                    setError(true);
+                    return false;
+                },
+                onFinish: () => setBusy(false),
             },
-            onError: () => setError(true),
-            onHttpException: () => {
-                setError(true);
-                return false;
-            },
-            onNetworkError: () => {
-                setError(true);
-                return false;
-            },
-            onFinish: () => setBusy(false),
-        });
+        );
     }, []);
 
-    const alertSource = overview.sources.find(
-        (source) => source.name === 'Peringatan cuaca BMKG CAP',
+    const source = overview.sources.find((entry) =>
+        entry.name.includes('BMKG CAP'),
     );
+    const activeAlerts = overview.alerts.filter(
+        (record) => record.alert_state === 'ACTIVE' && !record.synthetic,
+    );
+    const latestEvents = overview.events
+        .filter((record) => !record.synthetic)
+        .slice(0, 3);
+    const forecast = region
+        ? overview.forecasts.find(
+              (record) => !record.synthetic && !record.expired,
+          )
+        : undefined;
+    const query = region ? '?region=' + encodeURIComponent(region) : '';
 
     return (
         <>
-            <Head title="Dashboard Nasional" />
+            <Head title="Kondisi Sekitar" />
             <PageHeading
-                title="Dashboard Nasional"
-                description="Pantau kejadian dan peringatan resmi di Indonesia."
-            >
-                <Action
-                    variant="outline"
-                    disabled={busy}
-                    onClick={() => refresh(selectedRegion)}
-                >
-                    <RefreshCw aria-hidden="true" />
-                    {busy ? 'Memuat…' : 'Muat Ulang'}
-                </Action>
-                <Action variant="outline" asChild>
-                    <Link href="/map">Buka Peta Lengkap</Link>
-                </Action>
-                <Action variant="outline" asChild>
-                    <Link href="/reports/create">Buat Laporan</Link>
-                </Action>
-            </PageHeading>
-            <span className="sr-only" role="status">
-                {announcement}
-            </span>
-            {error && (
-                <Notice danger>
-                    Data belum dapat diperbarui. Tampilan sebelumnya masih
-                    tersedia.
-                </Notice>
-            )}
+                title="Kondisi Sekitar"
+                description="Pilih wilayah, cek informasi resmi, lalu temukan tindakan yang kamu perlukan."
+            />
             <section
-                className="dr-alert-strip"
-                aria-label="Kondisi peringatan cuaca"
+                className="dr-response-location"
+                aria-labelledby="response-location-title"
             >
-                <div>
-                    <Status value={alertSource?.freshness ?? 'UNAVAILABLE'} />
-                    <h2>
-                        {alertSource?.freshness === 'FRESH' &&
-                        overview.active_alert_count === 0
-                            ? 'Tidak ada peringatan aktif dalam data BMKG'
-                            : alertSource?.last_success_at
-                              ? overview.active_alert_count +
-                                ' peringatan aktif dalam data tersimpan'
-                              : 'Status peringatan belum tersedia'}
-                    </h2>
-                    <p>
-                        Terakhir diterima dari BMKG:{' '}
-                        {dateTime(alertSource?.last_success_at ?? null)}
-                    </p>
-                </div>
-                <Action asChild>
-                    <Link href="/weather#peringatan">Lihat Peringatan</Link>
-                </Action>
-            </section>
-            <div className="dr-dashboard-main">
-                <section
-                    className="dr-dashboard-map"
-                    aria-labelledby="dashboard-map-title"
+                <h2
+                    id="response-location-title"
+                    className="text-lg font-semibold"
                 >
-                    <h2 id="dashboard-map-title">
-                        Peta Multi-Bahaya Indonesia
-                    </h2>
-                    <div className="dr-map-toolbar">
-                        <label className="dr-inline-field">
-                            Rentang gempa
-                            <select
-                                className="dr-select"
-                                value={eventDays ?? ''}
-                                onChange={(event) =>
-                                    setEventDays(
-                                        event.target.value === '1'
-                                            ? 1
-                                            : event.target.value === '7'
-                                              ? 7
-                                              : undefined,
-                                    )
-                                }
-                            >
-                                <option value="">Semua data terbaru</option>
-                                <option value="1">24 jam terakhir</option>
-                                <option value="7">7 hari terakhir</option>
-                            </select>
-                        </label>
-                        <label className="dr-inline-field">
-                            <input
-                                type="checkbox"
-                                checked={!activeOnly}
-                                onChange={(event) =>
-                                    setActiveOnly(!event.target.checked)
-                                }
-                            />
-                            Sertakan riwayat peringatan
-                        </label>
-                    </div>
-                    <div className="dr-map-legend" aria-label="Legenda peta">
-                        <span className="inline-flex items-center gap-2">
-                            <span
-                                className="mx-1 size-2 rounded-full bg-red-700 ring-2 ring-red-400 ring-offset-2"
-                                aria-hidden="true"
-                            />
-                            Gempa · cincin pada kejadian terbaru
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                            <CloudRain size={16} aria-hidden="true" />
-                            Hujan
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                            <CloudLightning size={16} aria-hidden="true" />
-                            Petir
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                            <span className="flex gap-0.5" aria-hidden="true">
-                                {['#93c5fd', '#3b82f6', '#1e3a8a'].map(
-                                    (color) => (
-                                        <span
-                                            key={color}
-                                            className="size-3 rounded-sm"
-                                            style={{ backgroundColor: color }}
-                                        />
-                                    ),
-                                )}
-                            </span>
-                            Area peringatan · intensitas lebih tinggi, biru
-                            lebih gelap
-                        </span>
-                    </div>
-                    <MapPanel
-                        combined
-                        eventDays={eventDays}
-                        weatherRegions={weatherRegions}
-                        activeOnly={activeOnly}
-                        revision={
-                            revision +
-                            (overview.weather_status.fetched_at
-                                ? Date.parse(overview.weather_status.fetched_at)
-                                : 0)
-                        }
-                    />
-                    <p className="dr-caption dr-muted">
-                        Titik cuaca menunjukkan prakiraan di kelurahan yang
-                        memiliki data.
+                    {region ? overview.region_name : 'Lokasi belum dipilih'}
+                </h2>
+                <WeatherLocation
+                    autoLocate={!region}
+                    overview={
+                        region
+                            ? overview
+                            : { region_name: 'Cari nama atau kode wilayah' }
+                    }
+                    onSelect={selectRegion}
+                    disabled={busy}
+                />
+                {busy && (
+                    <p role="status" className="dr-caption dr-muted">
+                        Memuat wilayah pilihan…
                     </p>
-                    <h3 className="font-semibold">Prakiraan Provinsi</h3>
-                    <WeatherLocation
-                        autoLocate={!selectedRegion}
-                        overview={
-                            selectedRegion
-                                ? overview
-                                : { region_name: 'Cari nama atau kode wilayah' }
-                        }
-                        onSelect={refresh}
-                        disabled={busy}
-                    />
-                    {selectedRegion ? (
-                        <ProvinceForecast
-                            key={selectedRegion}
-                            region={selectedRegion}
-                        />
-                    ) : (
+                )}
+                {error && lastRequested && (
+                    <Notice danger>
+                        Wilayah belum dapat diperbarui.{' '}
+                        <Action
+                            variant="outline"
+                            onClick={() => selectRegion(lastRequested)}
+                        >
+                            Coba lagi
+                        </Action>
+                    </Notice>
+                )}
+            </section>
+
+            <div className="dr-response-grid">
+                <div className="dr-stack dr-response-actions">
+                    <Panel title="Apa yang kamu butuhkan?">
+                        <Action variant="outline" asChild>
+                            <Link href={'/bantuan' + query}>Cari Bantuan</Link>
+                        </Action>
+                        <Action asChild>
+                            <Link href="/reports/create">
+                                Laporkan Kejadian
+                            </Link>
+                        </Action>
                         <p className="dr-caption dr-muted">
-                            Izinkan lokasi perangkat atau pilih desa atau
-                            kelurahan untuk menentukan provinsi.
+                            Laporan masuk ke moderator. Untuk pertolongan
+                            segera, hubungi layanan darurat.
                         </p>
-                    )}
-                </section>
-                <div className="dr-stack dr-dashboard-aside">
-                    <Panel title="Laporan Warga">
-                        {typeof pending === 'number' && (
-                            <strong className="text-3xl font-bold">
-                                {pending}
-                            </strong>
-                        )}
-                        <p className="dr-caption dr-muted">
-                            {typeof pending === 'number'
-                                ? 'Laporan menunggu pemeriksaan moderator.'
-                                : auth.user
-                                  ? 'Lihat status laporan yang kamu kirim.'
-                                  : 'Masuk untuk melihat laporan milikmu.'}
-                        </p>
+                        <Action variant="outline" asChild>
+                            <Link href="/preparedness">Buka Panduan Siaga</Link>
+                        </Action>
                         <Link
                             className="dr-caption underline"
-                            href={
-                                typeof pending === 'number'
-                                    ? '/admin/reports'
-                                    : '/my/reports'
-                            }
+                            href="/my/reports"
                         >
-                            {typeof pending === 'number'
-                                ? 'Buka Antrean Review'
-                                : 'Laporan Saya'}
+                            Lihat status laporan saya
                         </Link>
                     </Panel>
-                    <details className="dr-source-fold">
-                        <summary>Status sumber data</summary>
-                        {overview.sources.map((source) => (
-                            <details
-                                className="dr-source-detail"
-                                key={source.id}
+                    <Panel title="Prakiraan Wilayah">
+                        {forecast ? (
+                            <p className="text-sm">
+                                <strong>{forecast.title}</strong> ·{' '}
+                                {forecastTime(forecast)}
+                            </p>
+                        ) : (
+                            <p className="dr-caption dr-muted">
+                                {region
+                                    ? 'Prakiraan terbaru belum tersedia untuk wilayah ini.'
+                                    : 'Pilih wilayah untuk melihat prakiraan setempat.'}
+                            </p>
+                        )}
+                        <Link
+                            className="dr-caption underline"
+                            href={'/weather' + query}
+                        >
+                            Buka prakiraan lengkap
+                        </Link>
+                    </Panel>
+                </div>
+                <div className="dr-stack dr-response-situation">
+                    <Panel title="Peringatan Resmi di Indonesia">
+                        <div className="dr-row">
+                            <p className="dr-caption dr-muted">
+                                Sinkronisasi BMKG:{' '}
+                                {dateTime(source?.last_success_at)}
+                            </p>
+                            <Status
+                                value={source?.freshness ?? 'UNAVAILABLE'}
+                            />
+                        </div>
+                        <p className="dr-caption dr-muted">
+                            Periksa cakupan wilayah dan masa berlaku pada detail
+                            peringatan.
+                        </p>
+                        {activeAlerts.length ? (
+                            activeAlerts
+                                .slice(0, 3)
+                                .map((record) => (
+                                    <RecordCard
+                                        key={record.id}
+                                        record={record}
+                                    />
+                                ))
+                        ) : (
+                            <p className="text-sm">
+                                {source?.freshness === 'FRESH'
+                                    ? 'Belum ada peringatan aktif di daftar BMKG yang dimuat.'
+                                    : 'Data terkini belum tersedia. Periksa informasi langsung dari BMKG.'}
+                            </p>
+                        )}
+                        <Link
+                            className="dr-caption underline"
+                            href={'/weather' + query + '#peringatan'}
+                        >
+                            Buka daftar peringatan BMKG
+                        </Link>
+                        {activeAlerts.length > 0 && (
+                            <Link
+                                className="dr-caption underline"
+                                href="/preparedness/extreme_weather"
                             >
-                                <summary>
-                                    <span>{source.name}</span>
-                                    <Status value={source.freshness} />
-                                </summary>
-                                <p>
-                                    Wilayah:{' '}
-                                    {source.name.includes('Prakiraan')
-                                        ? 'Indonesia · per desa atau kelurahan'
-                                        : 'Indonesia'}
+                                Buka panduan cuaca ekstrem
+                            </Link>
+                        )}
+                    </Panel>
+                    <Panel
+                        title="Peta Situasi Indonesia"
+                        aside={
+                            <Link className="dr-caption underline" href="/map">
+                                Buka peta lengkap
+                            </Link>
+                        }
+                    >
+                        <p className="dr-caption dr-muted">
+                            Titik merah: gempa. Area biru: peringatan cuaca.
+                        </p>
+                        <MapPanel combined activeOnly />
+                        <details className="dr-source-fold">
+                            <summary>Daftar gempa terbaru</summary>
+                            {latestEvents.length ? (
+                                latestEvents.map((record) => (
+                                    <RecordCard
+                                        key={record.id}
+                                        record={record}
+                                    />
+                                ))
+                            ) : (
+                                <p className="dr-caption dr-muted">
+                                    Belum ada data gempa yang bisa ditampilkan.
                                 </p>
-                                <p>
-                                    Sinkronisasi:{' '}
-                                    {dateTime(source.last_success_at)}
-                                </p>
-                                <a
-                                    href={source.source_url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                >
-                                    Buka sumber resmi ↗
-                                </a>
-                            </details>
-                        ))}
-                    </details>
+                            )}
+                            <Link
+                                className="dr-caption underline"
+                                href="/earthquakes"
+                            >
+                                Lihat semua data gempa
+                            </Link>
+                        </details>
+                    </Panel>
                 </div>
             </div>
-            <div className="dr-dashboard-lower">
-                <Panel
-                    title="Kejadian Gempa Terbaru"
-                    aside={
-                        <Link
-                            href="/earthquakes"
-                            className="dr-caption underline"
+
+            <details className="dr-source-fold">
+                <summary>Status sumber data</summary>
+                {overview.sources.map((entry) => (
+                    <div key={entry.id} className="dr-row py-2">
+                        <a
+                            className="underline"
+                            href={entry.source_url}
+                            target="_blank"
+                            rel="noreferrer"
                         >
-                            Lihat daftar
-                        </Link>
-                    }
-                >
-                    <OfficialList
-                        key={`events-${revision}`}
-                        endpoint="/data/events?per_page=5"
-                    />
-                </Panel>
-                <Panel
-                    title="Peringatan Cuaca Resmi"
-                    aside={
-                        <Link
-                            href="/weather#peringatan"
-                            className="dr-caption underline"
-                        >
-                            Lihat daftar
-                        </Link>
-                    }
-                >
-                    <OfficialList
-                        key={`alerts-${activeOnly}-${revision}`}
-                        endpoint={`/data/alerts?per_page=5${activeOnly ? '&status=active' : ''}`}
-                    />
-                </Panel>
-            </div>
+                            {entry.name}
+                        </a>
+                        <Status value={entry.freshness} />
+                        <span className="dr-caption dr-muted">
+                            {dateTime(entry.last_success_at)}
+                        </span>
+                    </div>
+                ))}
+            </details>
         </>
     );
 }

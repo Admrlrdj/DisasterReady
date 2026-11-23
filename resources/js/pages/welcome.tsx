@@ -7,19 +7,15 @@ import { dateTime, type Overview } from '@/lib/disaster';
 export default function Welcome({ overview }: { overview: Overview }) {
     const { auth } = usePage().props;
     const [kind, setKind] = useState<'event' | 'alert'>('event');
-    const alertSource = overview.sources.find((source) =>
-        source.name.includes('BMKG CAP'),
-    );
     return (
         <div className="dr-landing">
-            <Head title="Informasi bencana, lebih siap bersama" />
+            <Head title="Kesiapsiagaan dan laporan bencana" />
             <header className="dr-landing-header">
                 <Brand subtitle={false} landing />
                 <nav className="dr-landing-nav">
-                    <Link href="/dashboard">Pantauan Nasional</Link>
-                    <Link href="/weather">Prakiraan Cuaca</Link>
-                    <Link href="/preparedness">Kesiapsiagaan</Link>
-                    <Link href="/reports/create">Kirim Laporan</Link>
+                    <Link href="/dashboard">Kondisi Sekitar</Link>
+                    <Link href="/preparedness">Panduan Siaga</Link>
+                    <Link href="/bantuan">Informasi Bantuan</Link>
                 </nav>
                 <div className="dr-actions">
                     {!auth.user && (
@@ -33,53 +29,50 @@ export default function Welcome({ overview }: { overview: Overview }) {
                 <section className="dr-hero dr-front">
                     <div className="dr-hero-copy dr-front-intro">
                         <div>
-                            <h1>Pantau bencana di Indonesia</h1>
+                            <h1>Siap menghadapi bencana</h1>
                             <p>
-                                Lihat gempa terbaru, peringatan BMKG, dan
-                                prakiraan untuk wilayahmu.
+                                Cek kondisi wilayahmu, cari informasi bantuan,
+                                atau laporkan kejadian yang kamu lihat.
                             </p>
                         </div>
                         <div className="dr-actions">
                             <Action asChild>
                                 <Link href="/dashboard">
-                                    Buka Pantauan Nasional
+                                    Cek Kondisi Sekitar
                                 </Link>
                             </Action>
                             <Action variant="outline" asChild>
-                                <Link href="/weather">Cek Prakiraan Cuaca</Link>
+                                <Link href="/reports/create">
+                                    Laporkan Kejadian
+                                </Link>
                             </Action>
                         </div>
                     </div>
                     <div className="dr-front-priority">
-                        <Link
-                            href="/weather#peringatan"
-                            className="dr-front-alert"
-                        >
+                        <Link href="/bantuan" className="dr-front-alert">
                             <div>
-                                <strong>Peringatan cuaca BMKG</strong>
+                                <strong>Butuh bantuan?</strong>
+                                <p>Buka kontak layanan resmi.</p>
+                            </div>
+                        </Link>
+                        <Link href="/preparedness" className="dr-front-alert">
+                            <div>
+                                <strong>Panduan siaga</strong>
                                 <p>
-                                    Data terakhir diterima{' '}
-                                    {dateTime(
-                                        alertSource?.last_success_at ?? null,
-                                    )}
+                                    Baca langkah sebelum, saat, dan setelah
+                                    bencana.
                                 </p>
                             </div>
-                            <Status
-                                value={alertSource?.freshness ?? 'UNAVAILABLE'}
-                            />
                         </Link>
-                        <p className="dr-front-emergency">
-                            Bantuan darurat <a href="tel:117">BNPB 117</a>{' '}
-                            <a href="tel:115">Basarnas 115</a>{' '}
-                            <a href="tel:112">DKI 112</a>
-                        </p>
                     </div>
                     <section
                         className="dr-hero-preview"
                         aria-labelledby="landing-map-title"
                     >
                         <div className="dr-map-toolbar">
-                            <h2 id="landing-map-title">Peta Indonesia</h2>
+                            <h2 id="landing-map-title">
+                                Peta Situasi Indonesia
+                            </h2>
                             <div
                                 className="dr-choices"
                                 role="group"
@@ -211,14 +204,12 @@ export default function Welcome({ overview }: { overview: Overview }) {
                     </Panel>
                     <Panel title="Cara laporan ditinjau">
                         <p>
-                            Moderator memeriksa laporan dan bukti warga.
-                            Ringkasan dan saran duplikat dari AI membantu proses
-                            peninjauan.
+                            Moderator memeriksa laporan dan bukti warga. Setelah
+                            mengirim, kamu bisa mengikuti statusnya di Laporan
+                            Saya.
                         </p>
                         <Action variant="outline" asChild>
-                            <Link href="/preparedness">
-                                Pelajari Panduan Siaga ↗
-                            </Link>
+                            <Link href="/my/reports">Lihat Laporan Saya</Link>
                         </Action>
                     </Panel>
                 </section>

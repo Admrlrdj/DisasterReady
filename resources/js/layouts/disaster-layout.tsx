@@ -15,37 +15,25 @@ import { cn } from '@/lib/utils';
 
 const icons = figmaAssets['5-14'];
 const navigation = [
-    { href: '/dashboard', label: 'Pantauan Nasional', icon: icons.imgFrame1 },
-    { href: '/map', label: 'Peta Multi-Bencana', icon: icons.imgFrame2 },
+    { href: '/dashboard', label: 'Kondisi Sekitar', icon: icons.imgFrame1 },
+    { href: '/map', label: 'Peta Situasi', icon: icons.imgFrame2 },
+    { href: '/bantuan', label: 'Informasi Bantuan', icon: icons.imgFrame8 },
+    { href: '/preparedness', label: 'Panduan Siaga', icon: icons.imgFrame5 },
     {
-        href: '/earthquakes',
-        label: 'Gempa Bumi',
-        icon: icons.imgFrame3,
+        href: '/reports/create',
+        label: 'Laporkan Kejadian',
+        icon: icons.imgFrame6,
     },
+    { href: '/my/reports', label: 'Laporan Saya', icon: icons.imgFrame6 },
+    { href: '/earthquakes', label: 'Gempa Bumi', icon: icons.imgFrame3 },
     { href: '/weather', label: 'Prakiraan Cuaca', icon: null },
     { href: '/volcanoes', label: 'Gunung Api PVMBG', icon: icons.imgFrame4 },
     {
-        href: '/preparedness',
-        label: 'Pusat Kesiapsiagaan',
-        icon: icons.imgFrame5,
-    },
-    {
-        href: '/reports/create',
-        label: 'Buat Laporan Warga',
-        icon: icons.imgFrame6,
-    },
-    {
-        href: '/my/reports',
-        label: 'Riwayat Laporan Saya',
-        icon: icons.imgFrame6,
-    },
-    {
         href: '/admin/reports',
-        label: 'Moderasi AI',
+        label: 'Tinjau Laporan',
         icon: icons.imgFrame7,
         role: 'moderator',
     },
-    { href: '/shelters', label: 'Lokasi Pengungsian', icon: icons.imgFrame8 },
     {
         href: '/admin/sources',
         label: 'Adapter & AI Health',
@@ -132,11 +120,19 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                     {visible.map((item, index) => (
                         <div key={item.href}>
                             {(index === 0 ||
-                                item.href === '/reports/create') && (
+                                [
+                                    '/reports/create',
+                                    '/earthquakes',
+                                    '/admin/reports',
+                                ].includes(item.href)) && (
                                 <div className="dr-nav-label">
                                     {index === 0
-                                        ? 'NAVIGASI UTAMA'
-                                        : 'PELAPORAN & AI'}
+                                        ? 'UTAMA'
+                                        : item.href === '/reports/create'
+                                          ? 'LAPORAN'
+                                          : item.href === '/earthquakes'
+                                            ? 'DATA PEMANTAUAN'
+                                            : 'ADMINISTRASI'}
                                 </div>
                             )}
                             <Link
@@ -231,9 +227,9 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                     </DialogContent>
                 </Dialog>
                 <Brand subtitle={false} />
-                <a className="dr-emergency-chip" href="tel:112">
-                    DKI 112
-                </a>
+                <Link className="dr-emergency-chip" href="/bantuan">
+                    Bantuan
+                </Link>
             </header>
             <main className="dr-workspace" id="main-content">
                 {notice && (
@@ -249,18 +245,7 @@ export default function DisasterLayout({ children }: PropsWithChildren) {
                     { href: '/map', label: 'Peta' },
                     { href: '/reports/create', label: 'Lapor' },
                     { href: '/preparedness', label: 'Siaga' },
-                    {
-                        href:
-                            role === 'admin'
-                                ? '/admin/sources'
-                                : role === 'moderator'
-                                  ? '/admin/reports'
-                                  : '/my/reports',
-                        label:
-                            role === 'admin' || role === 'moderator'
-                                ? 'Admin'
-                                : 'Laporan',
-                    },
+                    { href: '/bantuan', label: 'Bantuan' },
                 ].map((item) => (
                     <Link
                         key={item.href}

@@ -94,6 +94,13 @@ export default function CreateReport({
                 title="Buat Laporan Warga"
                 description="Ceritakan yang kamu lihat. Moderator akan memeriksa bukti dan konteks laporan."
             />
+            <Notice>
+                Laporan masuk ke moderator. Jika perlu pertolongan segera,{' '}
+                <Link className="underline" href="/bantuan">
+                    buka informasi bantuan
+                </Link>
+                .
+            </Notice>
             <div className="dr-two-col">
                 <Panel
                     title="Informasi Kejadian"

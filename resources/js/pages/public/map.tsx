@@ -22,10 +22,10 @@ export default function MapPage({ overview }: { overview: Overview }) {
     );
     return (
         <>
-            <Head title="Peta Multi-Bahaya" />
+            <Head title="Peta Situasi" />
             <PageHeading
-                title="Peta Multi-Bahaya"
-                description="Jelajahi kejadian, peringatan, dan risiko historis. Cek prakiraan BMKG untuk wilayahmu."
+                title="Peta Situasi"
+                description="Lihat kejadian resmi, wilayah peringatan aktif, dan kajian risiko BNPB."
             />
             <div className="dr-two-col">
                 <Panel title="Eksplorasi Wilayah">
