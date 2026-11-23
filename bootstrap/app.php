@@ -28,14 +28,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->report(function (Throwable $exception): void {
-            if (getenv('VERCEL') === '1') {
+        $exceptions->report(function (Throwable $exception): ?bool {
+            if (app()->isProduction()) {
                 Log::warning('Production exception location', [
                     'class' => $exception::class,
                     'file' => $exception->getFile(),
                     'line' => $exception->getLine(),
                 ]);
+
+                return false;
             }
+
+            return null;
         });
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),

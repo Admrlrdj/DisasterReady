@@ -7,7 +7,7 @@
             "src": "api/index.php",
             "use": "vercel-php@0.9.0",
             "config": {
-                "excludeFiles": "vendor/aws/aws-sdk-php/src/data/!(s3|sts|sso|sso-oidc)/**"
+                "excludeFiles": "vendor/aws/aws-sdk-php/src/data/!(s3|sts|sso|sso-oidc|*.php)/**"
             }
         },
         {

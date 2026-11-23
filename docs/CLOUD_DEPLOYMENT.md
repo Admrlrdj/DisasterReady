@@ -1,5 +1,13 @@
 # DisasterReady cloud preview
 
+## Production storage and jobs
+
+Production uses the private Supabase bucket `incident-photos`. The backend authenticates its S3 session with `DISASTER_S3_ACCESS_KEY_ID`, `DISASTER_S3_SECRET_ACCESS_KEY` and `DISASTER_S3_SESSION_TOKEN`, kept in Vercel secrets. These names prevent collisions with credentials supplied by the function host. Laravel remains responsible for photo authorization. Retain shared AWS SDK metadata files alongside S3 and credential-provider definitions in the function bundle.
+
+The `DisasterReady cloud jobs` workflow on `main` runs every five minutes when `DISASTER_CLOUD_ENABLED=true`. Repository secrets provide the cloud database connection and worker application key. The workflow uses the GitHub `production` environment. Source ingestion jobs allow 300 seconds, and database queue reservation expires after 360 seconds. GitHub schedules can be delayed. Inspect the workflow result, `ingestion_runs`, `failed_jobs` and source timestamps when investigating stale data. Previously queued jobs retain their serialized timeout until individually recovered or processed.
+
+SMTP requires the operator's mail-provider account. Configure `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` and `MAIL_FROM_NAME` in Vercel Production before testing verification and password-reset messages. Supabase Auth SMTP settings do not configure Laravel Fortify email.
+
 ## Production runtime
 
 The production domain is https://disaster-ready-seven.vercel.app. Set `APP_URL` to this domain. The Vercel project uses Node.js 22 and has Fluid Compute disabled because the community PHP runtime fails to start under the Fluid launcher. The function excludes unused AWS service definitions while retaining S3, STS, SSO and SSO OIDC definitions to stay within the uncompressed function size limit. Keep these project settings when redeploying.
